@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-streaming}
+      POSTGRES_USER: ${POSTGRES_USER:-streaming_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-streaming_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    restart: unless-stopped
+    ports:
+      - "1935:1935"   # RTMP wejście (kamera nadaje tutaj)
+      - "8888:8888"   # HLS wyjście (przeglądarka odbiera tutaj)
+      - "8889:8889"   # WebRTC (opcjonalne, niskie opóźnienie)
+    volumes:
+      - ./mediamtx/mediamtx.yml:/mediamtx.yml
+      - hls_data:/tmp/hls
+    environment:
+      MTX_PATHS_ALL_RECORD_PATH: /recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-streaming_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-streaming}
+      SECRET_KEY: ${SECRET_KEY:-super-secret-change-in-production}
+      MEDIAMTX_API_URL: http://mediamtx:9997
+      HLS_BASE_URL: ${HLS_BASE_URL:-http://localhost:8888}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mediamtx:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_HLS_BASE_URL: ${NEXT_PUBLIC_HLS_BASE_URL:-http://localhost:8888}
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  postgres_data:
+  hls_data:
