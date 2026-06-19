@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 
 const VideoPlayer360 = dynamic(() => import("@/components/VideoPlayer360"), { ssr: false });
+const YouTubePlayer = dynamic(() => import("@/components/YouTubePlayer"), { ssr: false });
 
 interface Props {
   params: { id: string };
@@ -21,16 +22,15 @@ export default async function StreamPage({ params }: Props) {
 
   if (stream.status !== "live") redirect("/");
 
-  const isLive = true;
-
   return (
     <div className="space-y-6">
       <Link href="/" className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
         ← Powrót do listy
       </Link>
 
-      {/* Odtwarzacz 360° */}
-      {isLive && stream.hls_url ? (
+      {stream.youtube_url ? (
+        <YouTubePlayer url={stream.youtube_url} title={stream.title} />
+      ) : stream.hls_url ? (
         <VideoPlayer360 hlsUrl={stream.hls_url} title={stream.title} />
       ) : (
         <div className="bg-slate-900 rounded-xl flex items-center justify-center" style={{ aspectRatio: "16/9" }}>
@@ -56,24 +56,16 @@ export default async function StreamPage({ params }: Props) {
             </p>
           </div>
 
-          <div>
-            {isLive ? (
-              <span className="inline-flex items-center gap-2 bg-red-100 text-red-700 font-semibold text-sm px-3 py-1.5 rounded-full">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                NA ŻYWO
-              </span>
-            ) : (
-              <span className="inline-flex items-center bg-slate-100 text-slate-600 font-medium text-sm px-3 py-1.5 rounded-full">
-                Zakończona
-              </span>
-            )}
-          </div>
+          <span className="inline-flex items-center gap-2 bg-red-100 text-red-700 font-semibold text-sm px-3 py-1.5 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            NA ŻYWO
+          </span>
         </div>
 
         {stream.description && (
           <p className="mt-4 text-slate-700 leading-relaxed">{stream.description}</p>
         )}
-        {isLive && (
+        {!stream.youtube_url && (
           <p className="mt-3 text-xs text-slate-400">
             Przeciągnij obraz aby rozejrzeć się dookoła w 360° · Scroll = zoom
           </p>

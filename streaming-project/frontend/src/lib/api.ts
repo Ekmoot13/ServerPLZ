@@ -4,6 +4,7 @@ export interface Stream {
   id: string;
   title: string;
   description: string | null;
+  youtube_url: string | null;
   status: "live" | "offline";
   started_at: string | null;
   hls_url: string | null;
@@ -66,8 +67,8 @@ export const api = {
   getLiveStreams: () => request<Stream[]>("/streams/"),
   getAllStreams: () => request<Stream[]>("/streams/all"),
   getStream: (id: string) => request<Stream>(`/streams/${id}`),
-  createStream: (title: string, description?: string) =>
-    request<Stream>("/streams/", { method: "POST", body: JSON.stringify({ title, description }) }),
+  createStream: (title: string, description?: string, youtube_url?: string) =>
+    request<Stream>("/streams/", { method: "POST", body: JSON.stringify({ title, description, youtube_url }) }),
 
   // Events
   getEvents: () => request<Event[]>("/events/"),

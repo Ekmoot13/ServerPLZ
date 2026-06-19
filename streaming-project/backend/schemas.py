@@ -37,11 +37,14 @@ class UserOut(BaseModel):
 class StreamCreate(BaseModel):
     title: str
     description: str | None = None
+    youtube_url: str | None = None
 
 
 class StreamUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
+    youtube_url: str | None = None
+    status: StreamStatus | None = None
 
 
 class StreamOut(BaseModel):
@@ -49,6 +52,7 @@ class StreamOut(BaseModel):
     title: str
     description: str | None
     rtmp_key: str
+    youtube_url: str | None
     status: StreamStatus
     started_at: datetime | None
     ended_at: datetime | None
@@ -63,6 +67,7 @@ class StreamPublic(BaseModel):
     id: uuid.UUID
     title: str
     description: str | None
+    youtube_url: str | None
     status: StreamStatus
     started_at: datetime | None
     hls_url: str | None = None

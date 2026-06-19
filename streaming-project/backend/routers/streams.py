@@ -32,9 +32,10 @@ async def list_live_streams(db: AsyncSession = Depends(get_db)):
             id=s.id,
             title=s.title,
             description=s.description,
+            youtube_url=s.youtube_url,
             status=s.status,
             started_at=s.started_at,
-            hls_url=build_hls_url(s.rtmp_key),
+            hls_url=build_hls_url(s.rtmp_key) if not s.youtube_url else None,
             owner_name=s.owner.display_name,
         ))
     return out
@@ -54,9 +55,10 @@ async def list_all_streams(db: AsyncSession = Depends(get_db)):
             id=s.id,
             title=s.title,
             description=s.description,
+            youtube_url=s.youtube_url,
             status=s.status,
             started_at=s.started_at,
-            hls_url=build_hls_url(s.rtmp_key) if s.status == StreamStatus.live else None,
+            hls_url=build_hls_url(s.rtmp_key) if (s.status == StreamStatus.live and not s.youtube_url) else None,
             owner_name=s.owner.display_name,
         )
         for s in streams
@@ -76,9 +78,10 @@ async def get_stream(stream_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
         id=stream.id,
         title=stream.title,
         description=stream.description,
+        youtube_url=stream.youtube_url,
         status=stream.status,
         started_at=stream.started_at,
-        hls_url=build_hls_url(stream.rtmp_key) if stream.status == StreamStatus.live else None,
+        hls_url=build_hls_url(stream.rtmp_key) if (stream.status == StreamStatus.live and not stream.youtube_url) else None,
         owner_name=stream.owner.display_name,
     )
 
@@ -90,7 +93,11 @@ async def create_stream(
     db: AsyncSession = Depends(get_db),
 ):
     """Tylko admin może tworzyć transmisje."""
-    stream = Stream(owner_id=user.id, title=data.title, description=data.description)
+    stream = Stream(owner_id=user.id, title=data.title, description=data.description, youtube_url=data.youtube_url)
+    if data.youtube_url:
+        stream.status = StreamStatus.live
+        from datetime import datetime
+        stream.started_at = datetime.utcnow()
     db.add(stream)
     await db.commit()
     await db.refresh(stream)
@@ -122,6 +129,13 @@ async def update_stream(
         stream.title = data.title
     if data.description is not None:
         stream.description = data.description
+    if data.youtube_url is not None:
+        stream.youtube_url = data.youtube_url or None
+    if data.status is not None:
+        stream.status = data.status
+        from datetime import datetime
+        if data.status == StreamStatus.live and not stream.started_at:
+            stream.started_at = datetime.utcnow()
 
     await db.commit()
     await db.refresh(stream)

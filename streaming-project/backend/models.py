@@ -41,6 +41,7 @@ class Stream(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Unikalny klucz RTMP: kamera nadaje na rtmp://serwer:1935/live/<rtmp_key>
     rtmp_key: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, default=lambda: secrets.token_urlsafe(32))
+    youtube_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[StreamStatus] = mapped_column(SAEnum(StreamStatus), default=StreamStatus.offline, nullable=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     ended_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
