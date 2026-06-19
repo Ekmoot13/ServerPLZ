@@ -5,19 +5,15 @@ export const revalidate = 30; // odświeżaj listę co 30s (Next.js ISR)
 
 export default async function HomePage() {
   let liveStreams = [];
-  let allStreams = [];
 
   try {
-    [liveStreams, allStreams] = await Promise.all([api.getLiveStreams(), api.getAllStreams()]);
+    liveStreams = await api.getLiveStreams();
   } catch {
-    // Backend niedostępny podczas budowania — graceful fallback
+    // Backend niedostępny — graceful fallback
   }
-
-  const offlineStreams = allStreams.filter((s) => s.status === "offline");
 
   return (
     <div className="space-y-10">
-      {/* Sekcja: Na żywo */}
       <section>
         <div className="flex items-center gap-3 mb-5">
           <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
@@ -43,18 +39,6 @@ export default async function HomePage() {
           </div>
         )}
       </section>
-
-      {/* Sekcja: Archiwum */}
-      {offlineStreams.length > 0 && (
-        <section>
-          <h2 className="text-xl font-bold text-slate-700 mb-5">Poprzednie transmisje</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {offlineStreams.map((s) => (
-              <StreamCard key={s.id} stream={s} />
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
