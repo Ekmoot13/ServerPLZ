@@ -42,7 +42,12 @@ export default function VideoPlayer360({ hlsUrl, title }: Props) {
 
     // HLS setup
     if (Hls.isSupported()) {
-      const hls = new Hls({ liveSyncDurationCount: 3 });
+      const hls = new Hls({
+        liveSyncDurationCount: 3,
+        liveMaxLatencyDurationCount: 5,
+        liveBackBufferLength: 0,   // brak bufora wstecznego — tylko na żywo
+        maxBufferLength: 8,
+      });
       hlsRef.current = hls;
       hls.loadSource(hlsUrl);
       hls.attachMedia(video);
@@ -51,12 +56,25 @@ export default function VideoPlayer360({ hlsUrl, title }: Props) {
         setLoading(false);
         setTimeout(() => setHint(false), 4000);
       });
+      // Jeśli widz zbyt daleko od live edge — wróć automatycznie
+      hls.on(Hls.Events.LEVEL_LOADED, (_, data) => {
+        if (data.details.live && video.buffered.length > 0) {
+          const liveEdge = video.buffered.end(video.buffered.length - 1);
+          if (liveEdge - video.currentTime > 10) {
+            video.currentTime = liveEdge - 1;
+          }
+        }
+      });
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (data.fatal) setError("Nie można załadować transmisji.");
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
       video.addEventListener("loadedmetadata", () => {
+        // Safari — skocz na koniec bufora (live edge)
+        if (video.seekable.length > 0) {
+          video.currentTime = video.seekable.end(video.seekable.length - 1);
+        }
         video.play().catch(() => {});
         setLoading(false);
       });
