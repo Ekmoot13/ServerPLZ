@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { api } from "@/lib/api";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -19,7 +19,9 @@ export default async function StreamPage({ params }: Props) {
     notFound();
   }
 
-  const isLive = stream.status === "live";
+  if (stream.status !== "live") redirect("/");
+
+  const isLive = true;
 
   return (
     <div className="space-y-6">
