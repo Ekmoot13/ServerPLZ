@@ -22,18 +22,16 @@ services:
     image: bluenviron/mediamtx:latest
     restart: unless-stopped
     ports:
-      - "1935:1935"   # RTMP wejście (kamera nadaje tutaj)
-      - "8888:8888"   # HLS wyjście (przeglądarka odbiera tutaj)
-      - "8889:8889"   # WebRTC (opcjonalne, niskie opóźnienie)
+      - "1935:1935"
+      - "8888:8888"
+      - "8889:8889"
     volumes:
-      - ./mediamtx/mediamtx.yml:/mediamtx.yml
+      - ./streaming-project/mediamtx/mediamtx.yml:/mediamtx.yml
       - hls_data:/tmp/hls
-    environment:
-      MTX_PATHS_ALL_RECORD_PATH: /recordings/%path/%Y-%m-%d_%H-%M-%S-%f
 
   backend:
     build:
-      context: ./backend
+      context: ./streaming-project/backend
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
@@ -49,11 +47,11 @@ services:
       mediamtx:
         condition: service_started
     volumes:
-      - ./backend:/app
+      - ./streaming-project/backend:/app
 
   frontend:
     build:
-      context: ./frontend
+      context: ./streaming-project/frontend
       dockerfile: Dockerfile
       target: development
     restart: unless-stopped
@@ -65,7 +63,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app
+      - ./streaming-project/frontend:/app
       - /app/node_modules
       - /app/.next
 
