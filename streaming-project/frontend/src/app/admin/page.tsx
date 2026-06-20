@@ -26,6 +26,15 @@ export default function AdminPage() {
   const [createSuccess, setCreateSuccess] = useState("");
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyRtmpUrl = (rtmpKey: string, id: string) => {
+    const url = `rtmp://167.233.147.6:1935/live/${rtmpKey}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
 
   useEffect(() => {
     const t = localStorage.getItem("token");
@@ -230,9 +239,17 @@ export default function AdminPage() {
                     <p className="text-sm text-slate-500 truncate">{s.description}</p>
                   )}
                   {!s.youtube_url && (
-                    <p className="text-xs text-slate-400 mt-1 font-mono">
-                      RTMP klucz: <span className="select-all">{s.rtmp_key}</span>
-                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <code className="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-mono text-slate-600 truncate max-w-xs">
+                        rtmp://167.233.147.6:1935/live/{s.rtmp_key}
+                      </code>
+                      <button
+                        onClick={() => copyRtmpUrl(s.rtmp_key, s.id)}
+                        className="shrink-0 text-xs px-2 py-1 rounded bg-slate-100 hover:bg-blue-100 hover:text-blue-700 text-slate-600 transition-colors font-medium"
+                      >
+                        {copiedId === s.id ? "✓ Skopiowano" : "Kopiuj"}
+                      </button>
+                    </div>
                   )}
                   {s.youtube_url && (
                     <p className="text-xs text-slate-400 mt-1 truncate">{s.youtube_url}</p>
