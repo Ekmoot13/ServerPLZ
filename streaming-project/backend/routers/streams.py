@@ -41,28 +41,21 @@ async def list_live_streams(db: AsyncSession = Depends(get_db)):
     return out
 
 
-@router.get("/all", response_model=list[StreamPublic])
+@router.get("/all", response_model=list[StreamOut])
 async def list_all_streams(db: AsyncSession = Depends(get_db)):
-    """Wszystkie transmisje (live i offline) — publiczny katalog."""
+    """Wszystkie transmisje (live i offline) — dla panelu admina."""
     result = await db.execute(
         select(Stream)
         .options(selectinload(Stream.owner))
         .order_by(Stream.created_at.desc())
     )
     streams = result.scalars().all()
-    return [
-        StreamPublic(
-            id=s.id,
-            title=s.title,
-            description=s.description,
-            youtube_url=s.youtube_url,
-            status=s.status,
-            started_at=s.started_at,
-            hls_url=build_hls_url(s.rtmp_key) if (s.status == StreamStatus.live and not s.youtube_url) else None,
-            owner_name=s.owner.display_name,
-        )
-        for s in streams
-    ]
+    out = []
+    for s in streams:
+        item = StreamOut.model_validate(s)
+        item.hls_url = build_hls_url(s.rtmp_key) if (s.status == StreamStatus.live and not s.youtube_url) else None
+        out.append(item)
+    return out
 
 
 @router.get("/{stream_id}", response_model=StreamPublic)
