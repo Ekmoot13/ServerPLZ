@@ -1,7 +1,7 @@
 import StreamCard from "@/components/StreamCard";
 import { api } from "@/lib/api";
 
-export const revalidate = 30; // odświeżaj listę co 30s (Next.js ISR)
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   let liveStreams = [];
