@@ -30,10 +30,23 @@ export default function AdminPage() {
 
   const copyRtmpUrl = (rtmpKey: string, id: string) => {
     const url = `rtmp://167.233.147.6:1935/live/${rtmpKey}`;
-    navigator.clipboard.writeText(url).then(() => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+      });
+    } else {
+      const el = document.createElement("textarea");
+      el.value = url;
+      el.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
-    });
+    }
   };
 
   useEffect(() => {
@@ -239,16 +252,19 @@ export default function AdminPage() {
                     <p className="text-sm text-slate-500 truncate">{s.description}</p>
                   )}
                   {!s.youtube_url && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <code className="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-mono text-slate-600 truncate max-w-xs">
-                        rtmp://167.233.147.6:1935/live/{s.rtmp_key}
-                      </code>
-                      <button
-                        onClick={() => copyRtmpUrl(s.rtmp_key, s.id)}
-                        className="shrink-0 text-xs px-2 py-1 rounded bg-slate-100 hover:bg-blue-100 hover:text-blue-700 text-slate-600 transition-colors font-medium"
-                      >
-                        {copiedId === s.id ? "✓ Skopiowano" : "Kopiuj"}
-                      </button>
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-slate-400">Link RTMP do kamerki:</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1.5 font-mono text-slate-700 break-all leading-relaxed">
+                          rtmp://167.233.147.6:1935/live/{s.rtmp_key}
+                        </code>
+                        <button
+                          onClick={() => copyRtmpUrl(s.rtmp_key, s.id)}
+                          className="shrink-0 text-xs px-3 py-1.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors font-medium border border-blue-200"
+                        >
+                          {copiedId === s.id ? "✓ Skopiowano!" : "Kopiuj"}
+                        </button>
+                      </div>
                     </div>
                   )}
                   {s.youtube_url && (
