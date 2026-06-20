@@ -23,6 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/events" className="hover:text-blue-300 transition-colors">
                 Wyniki
               </Link>
+              <Link href="/admin" className="hover:text-blue-300 transition-colors opacity-50 hover:opacity-100">
+                Admin
+              </Link>
             </nav>
           </div>
         </header>

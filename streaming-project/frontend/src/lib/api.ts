@@ -11,6 +11,20 @@ export interface Stream {
   owner_name: string;
 }
 
+export interface StreamAdmin {
+  id: string;
+  title: string;
+  description: string | null;
+  youtube_url: string | null;
+  rtmp_key: string;
+  status: "live" | "offline";
+  started_at: string | null;
+  ended_at: string | null;
+  created_at: string;
+  hls_url: string | null;
+  owner: { id: string; email: string; display_name: string; role: string; created_at: string };
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -63,12 +77,18 @@ export const api = {
 
   me: () => request<User>("/auth/me"),
 
-  // Streams
+  // Streams (public)
   getLiveStreams: () => request<Stream[]>("/streams/"),
-  getAllStreams: () => request<Stream[]>("/streams/all"),
   getStream: (id: string) => request<Stream>(`/streams/${id}`),
+
+  // Streams (admin)
+  getAllStreams: () => request<StreamAdmin[]>("/streams/all"),
   createStream: (title: string, description?: string, youtube_url?: string) =>
-    request<Stream>("/streams/", { method: "POST", body: JSON.stringify({ title, description, youtube_url }) }),
+    request<StreamAdmin>("/streams/", { method: "POST", body: JSON.stringify({ title, description, youtube_url }) }),
+  updateStream: (id: string, data: { title?: string; description?: string; youtube_url?: string; status?: string }) =>
+    request<StreamAdmin>(`/streams/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteStream: (id: string) =>
+    request<null>(`/streams/${id}`, { method: "DELETE" }),
 
   // Events
   getEvents: () => request<Event[]>("/events/"),
