@@ -39,10 +39,11 @@ export default function VideoPlayer360({ hlsUrl, title }: Props) {
     const setupHls = () => {
       if (Hls.isSupported()) {
         const hls = new Hls({
-          liveSyncDurationCount: 3,
-          liveMaxLatencyDurationCount: 5,
+          liveSyncDurationCount: 2,
+          liveMaxLatencyDurationCount: 4,
           liveBackBufferLength: 0,
-          maxBufferLength: 8,
+          maxBufferLength: 5,
+          lowLatencyMode: true,
         });
         hlsRef.current = hls;
         hls.loadSource(hlsUrl);
@@ -149,7 +150,9 @@ export default function VideoPlayer360({ hlsUrl, title }: Props) {
     // Pętla renderowania — kamera zawsze na horyzoncie (lat=0)
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
-      texture.needsUpdate = true;
+      if (video.readyState >= video.HAVE_CURRENT_DATA) {
+        texture.needsUpdate = true;
+      }
       const theta = THREE.MathUtils.degToRad(lon.current);
       // lat=0 → phi=90° → patrzymy poziomo na horyzont
       camera.lookAt(
