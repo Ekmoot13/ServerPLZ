@@ -1,4 +1,5 @@
 import StreamCard from "@/components/StreamCard";
+import AutoRefresh from "@/components/AutoRefresh";
 import { api } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-10">
+      <AutoRefresh intervalMs={15000} />
       <section>
         <div className="flex items-center gap-3 mb-5">
           <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
