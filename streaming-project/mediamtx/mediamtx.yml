@@ -1,70 +1,18 @@
-# MediaMTX - konfiguracja serwera strumieniowania
-# Dokumentacja: https://github.com/bluenviron/mediamtx
-
-###############################################
-# Globalne parametry
-
-# Poziom logowania: debug, info, warn, error
 logLevel: info
 logDestinations: [stdout]
-
-# API do zarządzania (używane przez backend)
 api: yes
 apiAddress: :9997
-
-# Metryki (opcjonalne)
-metrics: no
-
-###############################################
-# Protokoły wejściowe
-
-# RTMP - kamera nadaje na rtmp://serwer:1935/live/<klucz>
 rtmp: yes
 rtmpAddress: :1935
-rtmpEncryption: no
-
-# RTSP (opcjonalne)
-rtsp: yes
-rtspAddress: :8554
-
-###############################################
-# Protokoły wyjściowe (dla przeglądarek)
-
-# HLS - najlepszy do przeglądarek, opóźnienie ~3-10s
 hls: yes
 hlsAddress: :8888
 hlsAlwaysRemux: yes
-hlsSegmentCount: 3
-hlsSegmentDuration: 2s
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
 hlsPartDuration: 200ms
-hlsSegmentMaxSize: 50MB
-# Zezwól na CORS (Next.js na innym porcie)
-hlsAllowOrigin: "*"
-
-# WebRTC - niskie opóźnienie (~0.5s), opcjonalne
+hlsAllowOrigins: ["*"]
 webrtc: yes
 webrtcAddress: :8889
-webrtcICEServers2: []
-
-###############################################
-# Ścieżki strumieniowania
-
 paths:
-  # Każdy strumień na ścieżce /live/<klucz>
-  "~^live/(.+)$":
-    # Kto może nadawać (RTMP) - backend weryfikuje klucz przez webhook
-    publishPermit:
-      - action: publish
-        query: key=(.+)
-
-    # Powiadomienie backendu gdy stream startuje
-    runOnPublish: "curl -s -X POST http://backend:8000/webhooks/stream-start -H 'Content-Type: application/json' -d '{\"path\": \"$MTX_PATH\"}'"
-    runOnPublishRestart: no
-
-    # Powiadomienie backendu gdy stream kończy
-    runOnUnpublish: "curl -s -X POST http://backend:8000/webhooks/stream-stop -H 'Content-Type: application/json' -d '{\"path\": \"$MTX_PATH\"}'"
-
-  # Ścieżka testowa bez autoryzacji (usuń w produkcji)
-  test:
-    publishPermit: []
-    readPermit: []
+  "~^live/(.+)$": {}
+  test: {}
