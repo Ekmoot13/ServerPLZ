@@ -39,11 +39,14 @@ export default function VideoPlayer360({ hlsUrl, title }: Props) {
     const setupHls = () => {
       if (Hls.isSupported()) {
         const hls = new Hls({
-          liveSyncDurationCount: 2,
-          liveMaxLatencyDurationCount: 4,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 8,
           liveBackBufferLength: 0,
-          maxBufferLength: 5,
-          lowLatencyMode: true,
+          maxBufferLength: 15,
+          maxMaxBufferLength: 30,
+          lowLatencyMode: false,
+          fragLoadingMaxRetry: 6,
+          manifestLoadingMaxRetry: 3,
         });
         hlsRef.current = hls;
         hls.loadSource(hlsUrl);
@@ -54,7 +57,25 @@ export default function VideoPlayer360({ hlsUrl, title }: Props) {
           setTimeout(() => setHint(false), 4000);
         });
         hls.on(Hls.Events.ERROR, (_, data) => {
-          if (data.fatal) setError("Nie można załadować transmisji.");
+          if (!data.fatal) return;
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+            hls.startLoad();
+          } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+            hls.recoverMediaError();
+          } else {
+            setError("Nie można załadować transmisji.");
+          }
+        });
+
+        // Wykryj stall i wróć do live edge
+        video.addEventListener("stalled", () => hls.startLoad());
+        video.addEventListener("waiting", () => {
+          if (video.seekable.length > 0) {
+            const liveEdge = video.seekable.end(video.seekable.length - 1);
+            if (liveEdge - video.currentTime > 5) {
+              video.currentTime = liveEdge - 1;
+            }
+          }
         });
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = hlsUrl;
