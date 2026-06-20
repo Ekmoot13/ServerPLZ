@@ -1,22 +1,61 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select, update
+from sqlalchemy import select
 from database import init_db, AsyncSessionLocal
 from models import Stream, StreamStatus
 from schemas import WebhookStreamEvent
 from routers import auth, streams, events
 import logging
+import asyncio
+import httpx
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+async def poll_streams():
+    await asyncio.sleep(8)
+    while True:
+        try:
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(select(Stream))
+                all_streams = result.scalars().all()
+                changed = False
+                async with httpx.AsyncClient() as client:
+                    for s in all_streams:
+                        if s.youtube_url:
+                            continue
+                        try:
+                            url = f"http://mediamtx:8888/live/{s.rtmp_key}/index.m3u8"
+                            r = await client.get(url, follow_redirects=True, timeout=3)
+                            is_live = r.status_code == 200
+                        except Exception:
+                            is_live = False
+                        if is_live and s.status != StreamStatus.live:
+                            s.status = StreamStatus.live
+                            s.started_at = datetime.utcnow()
+                            s.ended_at = None
+                            changed = True
+                        elif not is_live and s.status == StreamStatus.live:
+                            s.status = StreamStatus.offline
+                            s.ended_at = datetime.utcnow()
+                            changed = True
+                if changed:
+                    await db.commit()
+        except Exception as e:
+            logger.warning(f"Poll error: {e}")
+        await asyncio.sleep(8)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Inicjalizacja bazy danych...")
     await init_db()
+    task = asyncio.create_task(poll_streams())
     yield
+    task.cancel()
     logger.info("Zamykanie aplikacji.")
 
 
