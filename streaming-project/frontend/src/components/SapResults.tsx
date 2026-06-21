@@ -34,7 +34,7 @@ export default function SapResults({ sapEventId }: { sapEventId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/proxy/sap/${sapEventId}`)
+    fetch(`${API_URL}/proxy/sap?url=${encodeURIComponent(sapEventId)}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) throw new Error(d.error);
@@ -62,19 +62,14 @@ export default function SapResults({ sapEventId }: { sapEventId: string }) {
 
   if (!data) return null;
 
-  // Wyciągnij klasy startowe z różnych możliwych pól API
   const classes: SapClass[] =
     data.classes || data.raceClasses || data.categories || [];
 
-  // Jeśli nie ma klas, spróbuj wyświetlić surowe dane jako tabelę
   if (classes.length === 0) {
     return (
       <div className="mt-4">
-        <p className="text-xs text-slate-400 mb-2">
-          Dane SAP Sailing (ID: {sapEventId}):
-        </p>
         <a
-          href={`https://yplz2026.sapsailing.com/sailingserver/api/v1/events/${sapEventId}`}
+          href={sapEventId}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-blue-500 hover:underline"
@@ -146,7 +141,7 @@ export default function SapResults({ sapEventId }: { sapEventId: string }) {
       })}
 
       <a
-        href={`https://yplz2026.sapsailing.com/sailingserver/api/v1/events/${sapEventId}`}
+        href={sapEventId}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-block text-xs text-blue-500 hover:underline mt-2"

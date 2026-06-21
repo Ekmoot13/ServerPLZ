@@ -387,9 +387,9 @@ export default function AdminPage() {
               <label className="block text-sm font-medium text-slate-700 mb-1">ID wydarzenia SAP Sailing (opcjonalny)</label>
               <input type="text" value={evSapId} onChange={(e) => setEvSapId(e.target.value)}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="dfc5682f-7cb5-41fa-982f-92fb17874694" />
+                placeholder="https://tlz2026.sapsailing.com/sailingserver/api/v1/events/UUID" />
               <p className="text-xs text-slate-400 mt-1">
-                ID z URL: sapsailing.com/sailingserver/api/v1/events/<strong>ID</strong>
+                Wklej pełen URL API SAP Sailing (różni się subdomeną dla każdej regaty)
               </p>
             </div>
             {evCreateError && <p className="text-red-500 text-sm">{evCreateError}</p>}

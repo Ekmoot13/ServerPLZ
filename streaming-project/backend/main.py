@@ -86,15 +86,14 @@ async def health():
 
 # --- Webhooks wywoływane przez MediaMTX ---
 
-@app.get("/proxy/sap/{event_id}")
-async def proxy_sap_event(event_id: str):
+@app.get("/proxy/sap")
+async def proxy_sap_event(url: str):
     """Proxy dla SAP Sailing API — omija CORS w przeglądarce."""
+    if "sapsailing.com" not in url:
+        return {"error": "Niedozwolony URL"}
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.get(
-                f"https://yplz2026.sapsailing.com/sailingserver/api/v1/events/{event_id}",
-                timeout=10,
-            )
+            r = await client.get(url, timeout=10)
             return r.json()
         except Exception as e:
             return {"error": str(e)}
