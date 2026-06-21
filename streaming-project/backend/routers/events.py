@@ -31,7 +31,10 @@ async def create_event(
     db: AsyncSession = Depends(get_db),
     _: None = Depends(require_admin),
 ):
-    event = Event(**data.model_dump())
+    dump = data.model_dump()
+    if dump["event_date"].tzinfo is not None:
+        dump["event_date"] = dump["event_date"].replace(tzinfo=None)
+    event = Event(**dump)
     db.add(event)
     await db.commit()
     await db.refresh(event)
