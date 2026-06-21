@@ -86,6 +86,20 @@ async def health():
 
 # --- Webhooks wywoływane przez MediaMTX ---
 
+@app.get("/proxy/sap/{event_id}")
+async def proxy_sap_event(event_id: str):
+    """Proxy dla SAP Sailing API — omija CORS w przeglądarce."""
+    async with httpx.AsyncClient() as client:
+        try:
+            r = await client.get(
+                f"https://yplz2026.sapsailing.com/sailingserver/api/v1/events/{event_id}",
+                timeout=10,
+            )
+            return r.json()
+        except Exception as e:
+            return {"error": str(e)}
+
+
 @app.post("/webhooks/stream-start")
 async def webhook_stream_start(data: WebhookStreamEvent):
     """MediaMTX wywołuje ten endpoint gdy kamera zaczyna nadawać."""

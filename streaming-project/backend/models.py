@@ -59,7 +59,7 @@ class Event(Base):
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     event_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    # Wyniki regaty - elastyczny JSON: lista miejsc, czasów, etc.
+    sap_event_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     results: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 

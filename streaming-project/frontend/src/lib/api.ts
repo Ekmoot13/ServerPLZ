@@ -31,6 +31,7 @@ export interface Event {
   description: string | null;
   event_date: string;
   stream_id: string | null;
+  sap_event_id: string | null;
   results: Record<string, unknown> | null;
   created_at: string;
 }
@@ -94,4 +95,7 @@ export const api = {
   // Events
   getEvents: () => request<Event[]>("/events/"),
   getEvent: (id: string) => request<Event>(`/events/${id}`),
+  createEvent: (data: { title: string; description?: string; event_date: string; sap_event_id?: string }) =>
+    request<Event>("/events/", { method: "POST", body: JSON.stringify(data) }),
+  deleteEvent: (id: string) => request<null>(`/events/${id}`, { method: "DELETE" }),
 };

@@ -83,6 +83,7 @@ class EventCreate(BaseModel):
     description: str | None = None
     event_date: datetime
     stream_id: uuid.UUID | None = None
+    sap_event_id: str | None = None
     results: dict | None = None
 
 
@@ -90,6 +91,7 @@ class EventUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
     event_date: datetime | None = None
+    sap_event_id: str | None = None
     results: dict | None = None
 
 
@@ -99,6 +101,7 @@ class EventOut(BaseModel):
     description: str | None
     event_date: datetime
     stream_id: uuid.UUID | None
+    sap_event_id: str | None
     results: dict | None
     created_at: datetime
 
