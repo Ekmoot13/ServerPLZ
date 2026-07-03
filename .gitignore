@@ -1,0 +1,35 @@
+# Sekrety / środowisko
+.env
+.env.*
+!.env.example
+!deploy/.env.prod.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-error.log*
+
+# Backupy bazy
+backups/
+*.sql.gz
+
+# Logi
+*.log
+
+# Duplikaty (stare, nieśledzone kopie — do usunięcia w Etapie 0)
+/backend/
+/frontend/
+/mediamtx/
+
+# System
+.DS_Store
+Thumbs.db

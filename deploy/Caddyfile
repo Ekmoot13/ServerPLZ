@@ -1,0 +1,53 @@
+# Caddyfile — reverse proxy + automatyczne HTTPS (Etap 0)
+#
+# Caddy sam pobiera i odnawia certyfikaty Let's Encrypt dla podanej domeny.
+# Zmienna {$DOMAIN} pochodzi z pliku .env (np. DOMAIN=tlz.example.pl).
+#
+# WYMAGANIA:
+#  - Domena i subdomena api.DOMENA muszą wskazywać (rekord A) na IP serwera.
+#  - Porty 80 i 443 otwarte w firewallu.
+#
+# Na czas testów przed przepięciem ligazeglarska.pl użyj domeny/subdomeny
+# tymczasowej (np. staging.twojadomena.pl).
+
+# --- Wspólne nagłówki bezpieczeństwa ---
+(security_headers) {
+	header {
+		# HSTS — wymuszaj HTTPS przez rok (włącz dopiero gdy HTTPS działa stabilnie)
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# Ochrona przed clickjackingiem
+		X-Frame-Options "SAMEORIGIN"
+		# Blokuj zgadywanie typu MIME
+		X-Content-Type-Options "nosniff"
+		# Ogranicz wysyłany referrer
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Ogranicz dostęp do wrażliwych API przeglądarki
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		# Nie ujawniaj serwera
+		-Server
+	}
+}
+
+# --- Strona publiczna (frontend Next.js) ---
+{$DOMAIN} {
+	encode zstd gzip
+	import security_headers
+	reverse_proxy frontend:3000
+
+	log {
+		output file /data/access-frontend.log
+		format json
+	}
+}
+
+# --- API (backend FastAPI) ---
+api.{$DOMAIN} {
+	encode zstd gzip
+	import security_headers
+	reverse_proxy backend:8000
+
+	log {
+		output file /data/access-api.log
+		format json
+	}
+}

@@ -1,0 +1,89 @@
+# docker-compose.prod.yml — konfiguracja produkcyjna (Etap 0)
+#
+# Zmiany bezpieczeństwa względem docker-compose.yml:
+#  - PostgreSQL NIE jest wystawiony na hosta (brak mapowania portu 5432)
+#  - MediaMTX usunięty na tym etapie (transmisje w późniejszym etapie)
+#  - backend i frontend NIE są wystawiane bezpośrednio — ruch idzie tylko przez Caddy
+#  - Caddy jako jedyny publiczny wjazd (80/443) z automatycznym HTTPS
+#
+# Uruchomienie na serwerze:
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#
+# Wymaga pliku .env (skopiuj z deploy/.env.prod.example i uzupełnij).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # BRAK sekcji "ports" — baza dostępna tylko w wewnętrznej sieci Dockera
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./streaming-project/backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # produkcyjnie bez --reload i bez montowania kodu jako wolumenu
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # BRAK "ports" — dostęp tylko wewnętrznie (przez Caddy → api.DOMENA)
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./streaming-project/frontend
+      dockerfile: Dockerfile
+      target: production
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.${DOMAIN}
+    depends_on:
+      - backend
+    # BRAK "ports" — dostęp tylko przez Caddy
+    networks:
+      - internal
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN}
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
