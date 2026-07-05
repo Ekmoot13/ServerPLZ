@@ -1,0 +1,2 @@
+# Ten plik utrzymuje katalog public/ w repozytorium.
+# Next.js oczekuje folderu public/ (statyczne pliki), a Dockerfile go kopiuje.
