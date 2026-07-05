@@ -121,6 +121,7 @@ outer: while (true) {
 
     await payload.create({
       collection: 'posts',
+      context: { disableRevalidate: true },
       data: {
         title,
         slug: p?.slug || undefined,
