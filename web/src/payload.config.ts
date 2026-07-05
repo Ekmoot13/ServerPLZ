@@ -12,6 +12,7 @@ import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Kluby } from './collections/Kluby'
 import { Sponsorzy } from './collections/Sponsorzy'
+import { Team } from './collections/Team'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -54,7 +55,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Kluby, Sponsorzy, Media, Categories, Users],
+  collections: [Pages, Posts, Kluby, Sponsorzy, Team, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins,
