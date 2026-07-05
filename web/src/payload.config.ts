@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { pl } from '@payloadcms/translations/languages/pl'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
@@ -9,6 +10,8 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { Kluby } from './collections/Kluby'
+import { Sponsorzy } from './collections/Sponsorzy'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -36,6 +39,11 @@ export default buildConfig({
       ],
     },
   },
+  // Polski interfejs panelu administracyjnego
+  i18n: {
+    supportedLanguages: { pl },
+    fallbackLanguage: 'pl',
+  },
   editor: defaultLexical,
   db: postgresAdapter({
     // Tabele Payloada w osobnym schemacie, żeby nie kolidowały z liga_* i users (backend)
@@ -46,7 +54,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Kluby, Sponsorzy, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins,
