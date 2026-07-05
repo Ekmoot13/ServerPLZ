@@ -5,7 +5,7 @@ import SapResults from "@/components/SapResults";
 export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
-  let events = [];
+  let events: Awaited<ReturnType<typeof api.getEvents>> = [];
   try {
     events = await api.getEvents();
   } catch {
