@@ -48,20 +48,20 @@ services:
       - internal
 
   # Nowa strona + CMS (Next.js 16 + Payload). Zastępuje stary frontend streamingowy.
-  # Build Next wymaga bazy, dlatego budujemy przy starcie kontenera (Postgres już działa).
-  # node_modules i .next trzymane w wolumenach, żeby restart nie budował od zera.
+  # Tryb dev: Payload przy starcie tworzy tabele (push), a Next nie prerenderuje stron
+  # przy buildzie — dzięki temu nie ma problemu "brak tabel podczas next build".
+  # Docelowo (Etap 3) przejdziemy na build produkcyjny z migracjami.
   web:
     image: node:22
     restart: unless-stopped
     working_dir: /app
-    command: sh -c "npm install --include=dev && (test -f .next/BUILD_ID || npm run build) && npm run start"
+    command: sh -c "npm install --include=dev && npm run dev"
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       NEXT_PUBLIC_SERVER_URL: https://${DOMAIN}
       CRON_SECRET: ${CRON_SECRET}
       PREVIEW_SECRET: ${PREVIEW_SECRET}
-      NODE_ENV: production
       PORT: "3000"
     volumes:
       - ./web:/app
