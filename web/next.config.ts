@@ -12,11 +12,8 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
 const nextConfig: NextConfig = {
-  // Adresy, z których dozwolone są żądania w trybie dev (za reverse proxy Caddy).
-  // Po podpięciu prawdziwej domeny dopisz ją tutaj.
+  // Adresy dozwolone w trybie dev (za reverse proxy Caddy). Po podpięciu domeny dopisz ją tutaj.
   allowedDevOrigins: ['167.233.147.6.sslip.io'],
-  // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
-  // See: https://github.com/vercel/next.js/issues/86431
   sassOptions: {
     loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
   },
@@ -28,7 +25,7 @@ const nextConfig: NextConfig = {
     ],
     qualities: [100],
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
+      ...[NEXT_PUBLIC_SERVER_URL].map((item) => {
         const url = new URL(item)
 
         return {
@@ -45,4 +42,13 @@ const nextConfig: NextConfig = {
       '.mjs': ['.mts', '.mjs'],
     }
 
-    return webp
+    return webpackConfig
+  },
+  reactStrictMode: true,
+  redirects,
+  turbopack: {
+    root: path.resolve(dirname),
+  },
+}
+
+export default withPayload(nextConfig, { devBundleServerPackages: false })
