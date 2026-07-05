@@ -26,7 +26,7 @@ function decodeEntities(s: string): string {
 }
 
 const payload = await getPayload({ config })
-const editorConfig = await editorConfigFactory.default({ config })
+const editorConfig = await editorConfigFactory.default({ config: payload.config })
 
 async function uploadFromUrl(url: string, alt: string): Promise<any> {
   const res = await fetch(url)
