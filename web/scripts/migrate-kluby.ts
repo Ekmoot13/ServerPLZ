@@ -13,6 +13,8 @@ import os from 'os'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+console.log('== START importu Klubów ==')
+
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const DATA = path.resolve(dirname, '../wp-import/kluby.json')
 
@@ -37,51 +39,44 @@ async function uploadImage(payload: any, url: string, alt: string): Promise<any>
   }
 }
 
-const run = async () => {
-  const payload = await getPayload({ config })
-  const kluby: any[] = JSON.parse(fs.readFileSync(DATA, 'utf8'))
-  console.log(`Wczytano ${kluby.length} klubów z pliku.`)
+const payload = await getPayload({ config })
+const kluby: any[] = JSON.parse(fs.readFileSync(DATA, 'utf8'))
+console.log(`Wczytano ${kluby.length} klubów z pliku.`)
 
-  let created = 0
-  let skipped = 0
+let created = 0
+let skipped = 0
 
-  for (const k of kluby) {
-    const existing = await payload.find({
-      collection: 'kluby',
-      where: { nazwa: { equals: k.nazwa } },
-      limit: 1,
-    })
-    if (existing.docs.length) {
-      skipped++
-      continue
-    }
-
-    const logoId = k.logo ? await uploadImage(payload, k.logo, k.nazwa) : null
-
-    await payload.create({
-      collection: 'kluby',
-      data: {
-        nazwa: k.nazwa,
-        skrot: k.skrot || undefined,
-        logo: logoId || undefined,
-        gdzieStartuje: k.gdzieStartuje || undefined,
-        www: k.www || undefined,
-        facebook: k.facebook || undefined,
-        instagram: k.instagram || undefined,
-        youtube: k.youtube || undefined,
-        idZestawienia: k.idZestawienia ?? undefined,
-        aktywny: true,
-      },
-    })
-    created++
-    console.log(`+ ${k.nazwa} (${k.skrot || '-'})${logoId ? ' [logo]' : ''}`)
+for (const k of kluby) {
+  const existing = await payload.find({
+    collection: 'kluby',
+    where: { nazwa: { equals: k.nazwa } },
+    limit: 1,
+  })
+  if (existing.docs.length) {
+    skipped++
+    continue
   }
 
-  console.log(`\nGotowe. Utworzono: ${created}, pominięto (już istniały): ${skipped}.`)
-  process.exit(0)
+  const logoId = k.logo ? await uploadImage(payload, k.logo, k.nazwa) : null
+
+  await payload.create({
+    collection: 'kluby',
+    data: {
+      nazwa: k.nazwa,
+      skrot: k.skrot || undefined,
+      logo: logoId || undefined,
+      gdzieStartuje: k.gdzieStartuje || undefined,
+      www: k.www || undefined,
+      facebook: k.facebook || undefined,
+      instagram: k.instagram || undefined,
+      youtube: k.youtube || undefined,
+      idZestawienia: k.idZestawienia ?? undefined,
+      aktywny: true,
+    },
+  })
+  created++
+  console.log(`+ ${k.nazwa} (${k.skrot || '-'})${logoId ? ' [logo]' : ''}`)
 }
 
-run().catch((e) => {
-  console.error('BŁĄD importu:', e)
-  process.exit(1)
-})
+console.log(`\nGotowe. Utworzono: ${created}, pominięto (już istniały): ${skipped}.`)
+process.exit(0)
