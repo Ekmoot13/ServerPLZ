@@ -58,6 +58,10 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: postgresAdapter({
+    // Tabele Payloada w osobnym schemacie, żeby nie kolidowały z liga_* i users (backend)
+    schemaName: 'payload',
+    // Automatyczne tworzenie/synchronizacja schematu (bez osobnych migracji na tym etapie)
+    push: true,
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },

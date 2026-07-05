@@ -47,16 +47,29 @@ services:
     networks:
       - internal
 
-  frontend:
-    build:
-      context: ./streaming-project/frontend
-      dockerfile: Dockerfile
-      target: production
+  # Nowa strona + CMS (Next.js 16 + Payload). Zastępuje stary frontend streamingowy.
+  # Build Next wymaga bazy, dlatego budujemy przy starcie kontenera (Postgres już działa).
+  # node_modules i .next trzymane w wolumenach, żeby restart nie budował od zera.
+  web:
+    image: node:22
     restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install --include=dev && (test -f .next/BUILD_ID || npm run build) && npm run start"
     environment:
-      NEXT_PUBLIC_API_URL: https://api.${DOMAIN}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      NEXT_PUBLIC_SERVER_URL: https://${DOMAIN}
+      CRON_SECRET: ${CRON_SECRET}
+      PREVIEW_SECRET: ${PREVIEW_SECRET}
+      NODE_ENV: production
+      PORT: "3000"
+    volumes:
+      - ./web:/app
+      - web_node_modules:/app/node_modules
+      - web_next:/app/.next
     depends_on:
-      - backend
+      postgres:
+        condition: service_healthy
     # BRAK "ports" — dostęp tylko przez Caddy
     networks:
       - internal
@@ -74,7 +87,7 @@ services:
     environment:
       DOMAIN: ${DOMAIN}
     depends_on:
-      - frontend
+      - web
       - backend
     networks:
       - internal
@@ -87,3 +100,5 @@ volumes:
   postgres_data:
   caddy_data:
   caddy_config:
+  web_node_modules:
+  web_next:
