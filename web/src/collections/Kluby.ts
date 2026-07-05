@@ -17,7 +17,7 @@ export const Kluby: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'nazwa',
-    defaultColumns: ['nazwa', 'skrot', 'miasto', 'aktywny'],
+    defaultColumns: ['nazwa', 'skrot', 'gdzieStartuje', 'aktywny'],
   },
   fields: [
     {
@@ -38,24 +38,28 @@ export const Kluby: CollectionConfig = {
       label: 'Logo',
     },
     {
-      name: 'miasto',
+      name: 'gdzieStartuje',
       type: 'text',
-      label: 'Miasto',
+      label: 'Gdzie startuje (poziom ligi)',
     },
     {
-      name: 'rokZalozenia',
+      name: 'idZestawienia',
       type: 'number',
-      label: 'Rok założenia',
+      label: 'ID zestawienia (powiązanie z wynikami liga_)',
+      admin: {
+        description: 'Łącznik do bazy wyników (liga_ZestawienieKlubow).',
+      },
     },
     {
-      name: 'opis',
-      type: 'textarea',
-      label: 'Opis',
-    },
-    {
-      name: 'strona',
-      type: 'text',
-      label: 'Strona WWW',
+      type: 'collapsible',
+      label: 'Linki',
+      admin: { initCollapsed: true },
+      fields: [
+        { name: 'www', type: 'text', label: 'Strona WWW' },
+        { name: 'facebook', type: 'text', label: 'Facebook' },
+        { name: 'instagram', type: 'text', label: 'Instagram' },
+        { name: 'youtube', type: 'text', label: 'YouTube' },
+      ],
     },
     {
       name: 'aktywny',
