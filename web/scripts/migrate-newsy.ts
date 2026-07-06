@@ -84,6 +84,7 @@ let page = 1
 let total = 0
 let created = 0
 let skipped = 0
+let failed = 0
 
 outer: while (true) {
   const res = await fetch(`${WP}/posts?per_page=20&page=${page}&orderby=date&order=desc&_embed=wp:featuredmedia,wp:term`)
@@ -111,29 +112,42 @@ outer: while (true) {
     const catIds: any[] = []
     for (const cn of catNames) catIds.push(await getCategory(cn))
 
-    let content: any
-    try {
-      content = await htmlToLexical(p?.content?.rendered || '<p></p>')
-    } catch (e) {
-      console.warn(`  ! treść nieudana: ${(e as Error).message}`)
-      content = await htmlToLexical('<p></p>')
+    // treść z fallbackiem na zajawkę/tytuł, gdy pusta
+    let contentHtml = p?.content?.rendered || ''
+    const textOnly = contentHtml.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').trim()
+    if (!textOnly) {
+      const exc = (p?.excerpt?.rendered || '').replace(/<[^>]+>/g, '').trim()
+      contentHtml = exc ? p.excerpt.rendered : `<p>${title}</p>`
     }
 
-    await payload.create({
-      collection: 'posts',
-      context: { disableRevalidate: true },
-      data: {
-        title,
-        slug: p?.slug || undefined,
-        content,
-        heroImage: heroId || undefined,
-        categories: catIds.length ? catIds : undefined,
-        publishedAt: p?.date || undefined,
-        _status: 'published',
-      },
-    })
-    created++
-    console.log(`+ ${title}${heroId ? ' [hero]' : ''} (${catNames.join(', ') || 'bez kategorii'})`)
+    let content: any
+    try {
+      content = await htmlToLexical(contentHtml)
+    } catch (e) {
+      console.warn(`  ! treść nieudana (${title}): ${(e as Error).message}`)
+      content = await htmlToLexical(`<p>${title}</p>`)
+    }
+
+    try {
+      await payload.create({
+        collection: 'posts',
+        context: { disableRevalidate: true },
+        data: {
+          title,
+          slug: p?.slug || undefined,
+          content,
+          heroImage: heroId || undefined,
+          categories: catIds.length ? catIds : undefined,
+          publishedAt: p?.date || undefined,
+          _status: 'published',
+        },
+      })
+      created++
+      console.log(`+ ${title}${heroId ? ' [hero]' : ''} (${catNames.join(', ') || 'bez kategorii'})`)
+    } catch (e) {
+      failed++
+      console.warn(`  ! POMINIĘTO "${title}": ${(e as Error).message}`)
+    }
   }
 
   const totalPages = Number(res.headers.get('x-wp-totalpages') || '1')
@@ -141,5 +155,5 @@ outer: while (true) {
   page++
 }
 
-console.log(`\nGotowe. Utworzono: ${created}, pominięto: ${skipped}, przetworzono: ${total}.`)
+console.log(`\nGotowe. Utworzono: ${created}, pominięto: ${skipped}, błędy: ${failed}, przetworzono: ${total}.`)
 process.exit(0)
