@@ -26,7 +26,17 @@ function decodeEntities(s: string): string {
 }
 
 const payload = await getPayload({ config })
-const editorConfig = await editorConfigFactory.default({ config: payload.config })
+function findRichText(fields: any[], name: string): any {
+  for (const f of fields || []) {
+    if (f?.name === name && f?.type === 'richText') return f
+    if (f?.fields) { const r = findRichText(f.fields, name); if (r) return r }
+    if (f?.tabs) { for (const t of f.tabs) { const r = findRichText(t.fields, name); if (r) return r } }
+  }
+  return null
+}
+const postsColl: any = payload.config.collections.find((c: any) => c.slug === 'posts')
+const contentField = findRichText(postsColl.fields, 'content')
+const editorConfig = await editorConfigFactory.fromField({ field: contentField })
 
 async function uploadFromUrl(url: string, alt: string): Promise<any> {
   const res = await fetch(url)
@@ -144,9 +154,13 @@ outer: while (true) {
       })
       created++
       console.log(`+ ${title}${heroId ? ' [hero]' : ''} (${catNames.join(', ') || 'bez kategorii'})`)
-    } catch (e) {
+    } catch (e: any) {
       failed++
-      console.warn(`  ! POMINIĘTO "${title}": ${(e as Error).message}`)
+      let detail = (e as Error).message
+      try {
+        if (e?.data?.errors) detail += ' :: ' + JSON.stringify(e.data.errors)
+      } catch {}
+      console.warn(`  ! POMINIĘTO "${title}": ${detail}`)
     }
   }
 
