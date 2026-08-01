@@ -33,3 +33,6 @@ backups/
 # System
 .DS_Store
 Thumbs.db
+
+# Lokalny zrzut bazy (dev)
+plz_dump.sql

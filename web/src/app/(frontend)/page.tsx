@@ -1,6 +1,8 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
+import ChampionsCarousel from './ChampionsCarousel'
+import SponsorRow from './SponsorRow'
 import React from 'react'
 
 export const dynamic = 'force-dynamic'
@@ -19,6 +21,20 @@ const CHAMPIONS: { rok: number; nazwa: string }[] = [
   { rok: 2024, nazwa: 'Yacht Club Sopot' },
   { rok: 2025, nazwa: 'Yacht Club Gdańsk' },
 ]
+
+
+const KAT_LABEL: Record<string, string> = {
+  glowny: 'Sponsorzy Główni',
+  odziezowy: 'Oficjalny Partner Odzieżowy',
+  gospodarz: 'Gospodarze i Partnerzy Regat',
+  partner: 'Partnerzy',
+  techniczny: 'Partnerzy Techniczni',
+  wspierajacy: 'Partner Wspierający',
+  patronat_honorowy: 'Patronaty Honorowe',
+  patronat_medialny: 'Patronaty Medialne',
+  wspolpraca: 'Współpraca',
+}
+const KAT_ORDER = ['glowny', 'odziezowy', 'gospodarz', 'partner', 'techniczny', 'wspierajacy', 'patronat_honorowy', 'patronat_medialny', 'wspolpraca']
 
 function norm(s?: string): string {
   return (s || '')
@@ -41,7 +57,7 @@ function formatDate(d?: string): string {
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
 
-  const [postsRes, klubyRes] = await Promise.all([
+  const [postsRes, klubyRes, sponsorzyRes] = await Promise.all([
     payload.find({
       collection: 'posts',
       where: { _status: { equals: 'published' } },
@@ -50,6 +66,7 @@ export default async function HomePage() {
       depth: 1,
     }),
     payload.find({ collection: 'kluby', sort: 'nazwa', limit: 200, depth: 1 }),
+    payload.find({ collection: 'sponsorzy', sort: 'kolejnosc', limit: 300, depth: 1 }),
   ])
 
   const posts: any[] = postsRes.docs
@@ -69,11 +86,19 @@ export default async function HomePage() {
     return undefined
   }
 
+  const champsWithLogos = [...CHAMPIONS].reverse().map((c) => ({ ...c, logo: findLogo(c.nazwa) }))
+
+  const sponsorzy = (sponsorzyRes.docs as any[]).filter((s) => s?.logo?.url)
+  const byKat: Record<string, any[]> = {}
+  for (const s of sponsorzy) (byKat[s.kategoria] ||= []).push(s)
+
   return (
     <main>
       {/* HERO */}
       <section className="bg-slate-900 text-white">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Polska Liga Żeglarska" className="mx-auto mb-8 h-24 w-auto" />
           <p className="mb-4 text-sm uppercase tracking-[0.3em] text-sky-400">Pure racing, true passion</p>
           <h1 className="mb-6 text-4xl font-bold md:text-6xl">Regaty jak na stadionie</h1>
           <p className="mx-auto mb-8 max-w-2xl text-slate-300">
@@ -139,44 +164,48 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* KLUBOWI MISTRZOWIE POLSKI */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="mb-10 text-center text-3xl font-bold">Klubowi Mistrzowie Polski</h2>
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {CHAMPIONS.map((c) => {
-            const logo = findLogo(c.nazwa)
-            return (
-              <div key={c.rok} className="flex flex-col items-center rounded-lg border border-slate-200 bg-white p-4 text-center">
-                <div className="flex h-20 items-center justify-center">
-                  {logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={logo} alt={c.nazwa} className="max-h-20 w-auto object-contain" />
-                  ) : (
-                    <span className="text-3xl font-bold text-slate-300">{c.rok}</span>
-                  )}
-                </div>
-                <p className="mt-3 text-sm font-semibold text-slate-800">{c.nazwa}</p>
-                <p className="text-xs text-slate-500">Mistrz Polski {c.rok}</p>
-              </div>
-            )
-          })}
-        </div>
-        <div className="mt-8 text-center">
-          <Link href="/kluby" className="text-sky-600 hover:underline">Wszystkie kluby →</Link>
+      {/* KLUBOWI MISTRZOWIE POLSKI — karuzela ze strzałkami */}
+      <section className="bg-slate-900 py-16">
+        <h2 className="mb-10 text-center text-3xl font-bold text-white">Klubowi Mistrzowie Polski</h2>
+        <ChampionsCarousel champions={champsWithLogos} />
+        <div className="mt-10 text-center">
+          <Link href="/kluby" className="text-sky-400 hover:text-white hover:underline">Wszystkie kluby →</Link>
         </div>
       </section>
 
       {/* CZYM JEST PLŻ */}
-      <section className="bg-slate-900 py-16 text-white">
+      <section className="py-16">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="mb-6 text-3xl font-bold">Czym jest Polska Liga Żeglarska?</h2>
-          <p className="leading-relaxed text-slate-300">
+          <p className="leading-relaxed text-slate-600">
             Polska Liga Żeglarska powstała w 2015 roku. Cykliczne regaty rozgrywane są na trzech głównych
             poziomach — Ekstraklasa, 1 Liga i Ligi Regionalne. Organizujemy także Żeglarskie Mistrzostwa Polski
             Kobiet oraz Młodzieżową Ligę Żeglarską. System PLŻ to ponad 120 klubów i 500 zawodników, co stawia
             ją na czele wszystkich lig żeglarskich na świecie.
           </p>
         </div>
+      </section>
+
+      {/* SPONSORZY — wiersze per kategoria, na przemian w lewo/prawo */}
+      <section className="bg-white py-16">
+        <div className="mx-auto mb-10 max-w-6xl px-4 text-center">
+          <h2 className="text-3xl font-bold text-slate-900">Sponsorzy i Partnerzy</h2>
+        </div>
+        {sponsorzy.length === 0 ? (
+          <p className="text-center text-slate-400">Brak sponsorów — uruchom import.</p>
+        ) : (
+          <div className="space-y-12">
+            {KAT_ORDER.filter((k) => byKat[k]?.length).map((k, idx) => (
+              <div key={k}>
+                <div className="mb-5 text-center">
+                  <h3 className="text-lg font-bold uppercase tracking-wide text-sky-800">{KAT_LABEL[k]}</h3>
+                  <div className="mx-auto mt-2 h-0.5 w-14 bg-red-500" />
+                </div>
+                <SponsorRow items={byKat[k].map((sp: any) => ({ url: sp.logo.url, nazwa: sp.nazwa }))} />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )

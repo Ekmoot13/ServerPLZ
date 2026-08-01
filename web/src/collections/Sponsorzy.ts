@@ -3,6 +3,18 @@ import type { CollectionConfig } from 'payload'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 
+export const KATEGORIE_SPONSOROW = [
+  { label: 'Sponsorzy Główni', value: 'glowny' },
+  { label: 'Oficjalny Partner Odzieżowy', value: 'odziezowy' },
+  { label: 'Gospodarze i Partnerzy Regat', value: 'gospodarz' },
+  { label: 'Partnerzy', value: 'partner' },
+  { label: 'Partnerzy Techniczni', value: 'techniczny' },
+  { label: 'Partner Wspierający', value: 'wspierajacy' },
+  { label: 'Patronaty Honorowe', value: 'patronat_honorowy' },
+  { label: 'Patronaty Medialne', value: 'patronat_medialny' },
+  { label: 'Współpraca', value: 'wspolpraca' },
+]
+
 export const Sponsorzy: CollectionConfig = {
   slug: 'sponsorzy',
   labels: {
@@ -41,16 +53,9 @@ export const Sponsorzy: CollectionConfig = {
       name: 'kategoria',
       type: 'select',
       label: 'Kategoria',
+      required: true,
       defaultValue: 'partner',
-      options: [
-        { label: 'Sponsor tytularny', value: 'tytularny' },
-        { label: 'Sponsor główny', value: 'glowny' },
-        { label: 'Partner', value: 'partner' },
-        { label: 'Partner techniczny', value: 'techniczny' },
-        { label: 'Patronat honorowy', value: 'patronat_honorowy' },
-        { label: 'Patronat medialny', value: 'patronat_medialny' },
-        { label: 'Gospodarz / Partner regat', value: 'gospodarz' },
-      ],
+      options: KATEGORIE_SPONSOROW,
     },
     {
       name: 'kolejnosc',
