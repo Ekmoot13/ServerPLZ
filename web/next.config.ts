@@ -14,8 +14,6 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 const nextConfig: NextConfig = {
   // Adresy dozwolone w trybie dev (za reverse proxy Caddy). Po podpięciu domeny dopisz ją tutaj.
   allowedDevOrigins: ['167.233.147.6.sslip.io', 'ligowastrefakibica.pl'],
-  // Lint nie blokuje builda produkcyjnego (jakość kodu pilnujemy lokalnie). Typy dalej sprawdzane.
-  eslint: { ignoreDuringBuilds: true },
   sassOptions: {
     loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
   },
