@@ -40,6 +40,11 @@
 	}
 }
 
+# --- Przekierowanie www -> domena bez www ---
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
 # --- API (backend FastAPI) ---
 api.{$DOMAIN} {
 	encode zstd gzip

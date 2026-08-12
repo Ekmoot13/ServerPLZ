@@ -6,6 +6,7 @@ const NAV: { label: string; href: string }[] = [
   { label: 'Kalendarz', href: '/kalendarium-2026' },
   { label: 'Zespoły', href: '/kluby' },
   { label: 'Wyniki', href: '/wyniki' },
+  { label: 'Strefa Kibica', href: '/strefa-kibica' },
   { label: 'Newsy', href: '/posts' },
   { label: 'O nas', href: '/o-nas' },
   { label: 'Media', href: '/media' },

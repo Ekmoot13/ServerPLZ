@@ -72,6 +72,7 @@ export interface Config {
     kluby: Kluby;
     sponsorzy: Sponsorzy;
     team: Team;
+    transmisje: Transmisje;
     media: Media;
     categories: Category;
     users: User;
@@ -97,6 +98,7 @@ export interface Config {
     kluby: KlubySelect<false> | KlubySelect<true>;
     sponsorzy: SponsorzySelect<false> | SponsorzySelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
+    transmisje: TransmisjeSelect<false> | TransmisjeSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -847,6 +849,24 @@ export interface Team {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transmisje".
+ */
+export interface Transmisje {
+  id: number;
+  tytul: string;
+  typ: 'kamera' | 'youtube';
+  /**
+   * Kamera nadaje na rtmp://SERWER:1935/live/<klucz>. Odtwarzanie: HLS z tego klucza.
+   */
+  rtmpKey?: string | null;
+  youtubeUrl?: string | null;
+  opis?: string | null;
+  aktywny?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1054,6 +1074,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'team';
         value: number | Team;
+      } | null)
+    | ({
+        relationTo: 'transmisje';
+        value: number | Transmisje;
       } | null)
     | ({
         relationTo: 'media';
@@ -1335,6 +1359,20 @@ export interface TeamSelect<T extends boolean = true> {
   funkcja?: T;
   zdjecie?: T;
   kolejnosc?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transmisje_select".
+ */
+export interface TransmisjeSelect<T extends boolean = true> {
+  tytul?: T;
+  typ?: T;
+  rtmpKey?: T;
+  youtubeUrl?: T;
+  opis?: T;
+  aktywny?: T;
   updatedAt?: T;
   createdAt?: T;
 }
