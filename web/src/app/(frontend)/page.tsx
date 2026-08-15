@@ -6,6 +6,7 @@ import Link from 'next/link'
 import VideoPlayer from '@/components/VideoPlayer'
 import YouTubePlayer from '@/components/YouTubePlayer'
 import SapLeaderboard from '@/components/SapLeaderboard'
+import SapViewer from '@/components/SapViewer'
 import React from 'react'
 
 export const dynamic = 'force-dynamic'
@@ -21,7 +22,7 @@ function LiveBadge() {
   )
 }
 
-const SAP_VIEWER = `${process.env.SAP_BASE || 'https://tlz2026.sapsailing.com'}/gwt/Home.html`
+const SAP_VIEWER = `${process.env.SAP_MAP_BASE || 'https://plz2026.sapsailing.com'}/gwt/Home.html`
 
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
@@ -79,21 +80,14 @@ export default async function HomePage() {
       <section className="bg-slate-50 py-14">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="mb-6 text-2xl font-bold">Mapa wyścigu i wyniki na żywo</h2>
-          <div className="mb-8 flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-10 text-center">
-            <div className="mb-3 text-5xl">🗺️</div>
-            <h3 className="text-lg font-semibold text-slate-800">Mapa wyścigu i replay na żywo</h3>
-            <p className="mt-2 max-w-md text-sm text-slate-500">
-              Interaktywna mapa z pozycjami łódek i przewijaniem wyścigu prowadzona jest przez SAP Sailing
-              Analytics. Otwórz pełny widok, żeby śledzić regaty na mapie.
+          <div className="mb-8">
+            <SapViewer src={SAP_VIEWER} />
+            <p className="mt-2 text-right text-xs text-slate-400">
+              Mapa i replay: SAP Sailing Analytics.{' '}
+              <a href={SAP_VIEWER} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:underline">
+                Otwórz w nowej karcie →
+              </a>
             </p>
-            <a
-              href={SAP_VIEWER}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded-md bg-sky-500 px-6 py-3 font-medium text-white transition hover:bg-sky-400"
-            >
-              Otwórz mapę na żywo →
-            </a>
           </div>
           <SapLeaderboard name="Trójmiejska Liga Żeglarska 2026 Overall" />
         </div>
