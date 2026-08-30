@@ -69,9 +69,9 @@ export default async function Post({ params: paramsPromise }: Args) {
               className="prose mx-auto max-w-[48rem]"
               dangerouslySetInnerHTML={{ __html: (post as any).trescHtml }}
             />
-          ) : (
+          ) : post.content ? (
             <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-          )}
+          ) : null}
           {post.relatedPosts && post.relatedPosts.length > 0 && (
             <RelatedPosts
               className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
