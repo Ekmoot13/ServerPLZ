@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     kluby: Kluby;
+    zawodnicy: Zawodnicy;
     sponsorzy: Sponsorzy;
     team: Team;
     transmisje: Transmisje;
@@ -96,6 +97,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     kluby: KlubySelect<false> | KlubySelect<true>;
+    zawodnicy: ZawodnicySelect<false> | ZawodnicySelect<true>;
     sponsorzy: SponsorzySelect<false> | SponsorzySelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     transmisje: TransmisjeSelect<false> | TransmisjeSelect<true>;
@@ -120,10 +122,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'strefa-kibica': StrefaKibica;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'strefa-kibica': StrefaKibicaSelect<false> | StrefaKibicaSelect<true>;
   };
   locale: null;
   widgets: {
@@ -236,7 +240,7 @@ export interface Post {
   id: number;
   title: string;
   heroImage?: (number | null) | Media;
-  content: {
+  content?: {
     root: {
       type: string;
       children: {
@@ -250,7 +254,11 @@ export interface Post {
       version: number;
     };
     [k: string]: unknown;
-  };
+  } | null;
+  /**
+   * Wypełniane z panelu /redaktor. Gdy niepuste, strona artykułu renderuje tę treść.
+   */
+  trescHtml?: string | null;
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
   meta?: {
@@ -428,6 +436,10 @@ export interface Category {
 export interface User {
   id: number;
   name?: string | null;
+  /**
+   * Redaktor korzysta tylko z panelu /redaktor. Administrator ma dostęp do /admin.
+   */
+  rola?: ('admin' | 'redaktor') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -800,6 +812,14 @@ export interface Kluby {
   logo?: (number | null) | Media;
   gdzieStartuje?: string | null;
   /**
+   * Poziom, na którym klub startuje w bieżącym sezonie.
+   */
+  poziomLigi?: ('Ekstraklasa' | '1 Liga' | '2 Liga' | 'Młodzieżowa') | null;
+  /**
+   * Aktualny skład — pokazywany w sekcji „Zawodnicy klubu".
+   */
+  zaloga?: (number | Zawodnicy)[] | null;
+  /**
    * Łącznik do bazy wyników (liga_ZestawienieKlubow).
    */
   idZestawienia?: number | null;
@@ -808,6 +828,41 @@ export interface Kluby {
   instagram?: string | null;
   youtube?: string | null;
   aktywny?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "zawodnicy".
+ */
+export interface Zawodnicy {
+  id: number;
+  tytul?: string | null;
+  imie: string;
+  nazwisko: string;
+  zdjecie?: (number | null) | Media;
+  /**
+   * Aktualny klub zawodnika (pokazywany w sekcji „Obecny klub").
+   */
+  klub?: (number | null) | Kluby;
+  /**
+   * Starty dodane ręcznie — doklejane do listy startów obok danych z bazy wyników.
+   */
+  dodatkoweStarty?:
+    | {
+        rok?: number | null;
+        miejsce?: number | null;
+        regaty?: string | null;
+        miasto?: string | null;
+        klub?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  aktywny?: boolean | null;
+  /**
+   * Łącznik do bazy wyników (liga_Zawodnik). Nie zmieniaj bez potrzeby.
+   */
+  idZawodnika?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1068,6 +1123,10 @@ export interface PayloadLockedDocument {
         value: number | Kluby;
       } | null)
     | ({
+        relationTo: 'zawodnicy';
+        value: number | Zawodnicy;
+      } | null)
+    | ({
         relationTo: 'sponsorzy';
         value: number | Sponsorzy;
       } | null)
@@ -1296,6 +1355,7 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
   content?: T;
+  trescHtml?: T;
   relatedPosts?: T;
   categories?: T;
   meta?:
@@ -1328,12 +1388,39 @@ export interface KlubySelect<T extends boolean = true> {
   skrot?: T;
   logo?: T;
   gdzieStartuje?: T;
+  poziomLigi?: T;
+  zaloga?: T;
   idZestawienia?: T;
   www?: T;
   facebook?: T;
   instagram?: T;
   youtube?: T;
   aktywny?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "zawodnicy_select".
+ */
+export interface ZawodnicySelect<T extends boolean = true> {
+  tytul?: T;
+  imie?: T;
+  nazwisko?: T;
+  zdjecie?: T;
+  klub?: T;
+  dodatkoweStarty?:
+    | T
+    | {
+        rok?: T;
+        miejsce?: T;
+        regaty?: T;
+        miasto?: T;
+        klub?: T;
+        id?: T;
+      };
+  aktywny?: T;
+  idZawodnika?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1496,6 +1583,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  rola?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1848,6 +1936,28 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "strefa-kibica".
+ */
+export interface StrefaKibica {
+  id: number;
+  pokazMape?: boolean | null;
+  /**
+   * Wklej pełny adres RaceBoard.html z SAP dla bieżącej rundy (…/gwt/RaceBoard.html?…&mode=PLAYER).
+   */
+  mapaUrl?: string | null;
+  /**
+   * Adres instancji do pobrania tabeli wyników, np. https://plz2026.sapsailing.com
+   */
+  sapBase?: string | null;
+  /**
+   * Dokładna nazwa leaderboardu z SAP, np. „Polish Sailing League 2026 (2nd divison) - Gdynia (3)".
+   */
+  leaderboardName?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -1888,6 +1998,19 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "strefa-kibica_select".
+ */
+export interface StrefaKibicaSelect<T extends boolean = true> {
+  pokazMape?: T;
+  mapaUrl?: T;
+  sapBase?: T;
+  leaderboardName?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

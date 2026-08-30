@@ -43,6 +43,26 @@ export const Kluby: CollectionConfig = {
       label: 'Gdzie startuje (poziom ligi)',
     },
     {
+      name: 'poziomLigi',
+      type: 'select',
+      label: 'Poziom ligi (aktualny)',
+      options: [
+        { label: 'Ekstraklasa', value: 'Ekstraklasa' },
+        { label: '1 Liga', value: '1 Liga' },
+        { label: '2 Liga', value: '2 Liga' },
+        { label: 'Młodzieżowa', value: 'Młodzieżowa' },
+      ],
+      admin: { description: 'Poziom, na którym klub startuje w bieżącym sezonie.' },
+    },
+    {
+      name: 'zaloga',
+      type: 'relationship',
+      relationTo: 'zawodnicy',
+      hasMany: true,
+      label: 'Załoga (aktualna)',
+      admin: { description: 'Aktualny skład — pokazywany w sekcji „Zawodnicy klubu".' },
+    },
+    {
       name: 'idZestawienia',
       type: 'number',
       label: 'ID zestawienia (powiązanie z wynikami liga_)',

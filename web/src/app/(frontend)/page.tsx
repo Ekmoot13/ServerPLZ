@@ -22,8 +22,6 @@ function LiveBadge() {
   )
 }
 
-const SAP_VIEWER = `${process.env.SAP_MAP_BASE || 'https://plz2026.sapsailing.com'}/gwt/Home.html`
-
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
   const res = await payload.find({
@@ -32,6 +30,13 @@ export default async function HomePage() {
     limit: 50,
   })
   const streams: any[] = res.docs
+
+  // Ustawienia Strefy Kibica (edytowalne w panelu): mapa RaceBoard + leaderboard
+  const settings: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
+  const mapaUrl: string = settings?.mapaUrl || ''
+  const pokazMape: boolean = settings?.pokazMape !== false
+  const sapBase: string = settings?.sapBase || 'https://plz2026.sapsailing.com'
+  const leaderboardName: string = settings?.leaderboardName || ''
 
   return (
     <main>
@@ -80,16 +85,29 @@ export default async function HomePage() {
       <section className="bg-slate-50 py-14">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="mb-6 text-2xl font-bold">Mapa wyścigu i wyniki na żywo</h2>
-          <div className="mb-8">
-            <SapViewer src={SAP_VIEWER} />
-            <p className="mt-2 text-right text-xs text-slate-400">
-              Mapa i replay: SAP Sailing Analytics.{' '}
-              <a href={SAP_VIEWER} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:underline">
-                Otwórz w nowej karcie →
-              </a>
-            </p>
-          </div>
-          <SapLeaderboard name="Trójmiejska Liga Żeglarska 2026 Overall" />
+          {pokazMape && mapaUrl ? (
+            <div className="mb-8">
+              <SapViewer src={mapaUrl} />
+              <p className="mt-2 text-right text-xs text-slate-400">
+                Mapa i replay: SAP Sailing Analytics.{' '}
+                <a href={mapaUrl} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:underline">
+                  Otwórz w nowej karcie →
+                </a>
+              </p>
+            </div>
+          ) : (
+            <div className="mb-8 rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-500">
+              <div className="mb-2 text-4xl">🗺️</div>
+              <p className="font-medium">Mapa pojawi się w trakcie regat.</p>
+            </div>
+          )}
+          {leaderboardName ? (
+            <SapLeaderboard name={leaderboardName} base={sapBase} />
+          ) : (
+            <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-400">
+              Tabela wyników pojawi się w trakcie regat.
+            </div>
+          )}
         </div>
       </section>
 

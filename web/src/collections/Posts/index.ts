@@ -93,7 +93,15 @@ export const Posts: CollectionConfig<'posts'> = {
                 },
               }),
               label: false,
-              required: true,
+            },
+            {
+              name: 'trescHtml',
+              type: 'textarea',
+              label: 'Treść (HTML — panel redaktora)',
+              admin: {
+                description:
+                  'Wypełniane z panelu /redaktor. Gdy niepuste, strona artykułu renderuje tę treść.',
+              },
             },
           ],
           label: 'Content',

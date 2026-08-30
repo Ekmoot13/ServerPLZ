@@ -44,6 +44,18 @@ services:
     depends_on:
       - postgres
 
+  # Podgląd bazy — odpowiednik phpMyAdmin dla PostgreSQL. http://localhost:8080
+  # Logowanie: System=PostgreSQL, Serwer=postgres, Użytkownik=plz_user, Hasło=localdev, Baza=plz
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+
   # Serwer mediów: RTMP (nadawanie z kamer) -> HLS (odtwarzanie w przeglądarce)
   mediamtx:
     image: bluenviron/mediamtx:latest

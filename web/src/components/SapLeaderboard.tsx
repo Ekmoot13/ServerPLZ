@@ -19,9 +19,10 @@ type Leaderboard = {
   competitors?: Competitor[]
 }
 
-async function fetchLeaderboard(name: string): Promise<Leaderboard | null> {
+async function fetchLeaderboard(name: string, base?: string): Promise<Leaderboard | null> {
   try {
-    const res = await fetch(`${SAP_BASE}/sailingserver/api/v1/leaderboards/${encodeURIComponent(name)}`, {
+    const b = base || SAP_BASE
+    const res = await fetch(`${b}/sailingserver/api/v1/leaderboards/${encodeURIComponent(name)}`, {
       next: { revalidate: 30 },
     })
     if (!res.ok) return null
@@ -38,8 +39,8 @@ function cell(score?: RaceScore): string {
   return String(score.netPoints)
 }
 
-export default async function SapLeaderboard({ name }: { name: string }) {
-  const data = await fetchLeaderboard(name)
+export default async function SapLeaderboard({ name, base }: { name: string; base?: string }) {
+  const data = await fetchLeaderboard(name, base)
 
   if (!data?.competitors?.length) {
     return (
