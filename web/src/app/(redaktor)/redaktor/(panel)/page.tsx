@@ -8,14 +8,15 @@ export const dynamic = 'force-dynamic'
 async function counts() {
   try {
     const payload = await getPayload({ config })
-    const [z, k, w] = await Promise.all([
+    const [z, k, w, kal] = await Promise.all([
       payload.count({ collection: 'zawodnicy' }),
       payload.count({ collection: 'kluby' }),
       payload.count({ collection: 'posts' }),
+      payload.count({ collection: 'kalendarz' as any }),
     ])
-    return { zawodnicy: z.totalDocs, kluby: k.totalDocs, wpisy: w.totalDocs }
+    return { zawodnicy: z.totalDocs, kluby: k.totalDocs, wpisy: w.totalDocs, kalendarz: kal.totalDocs }
   } catch {
-    return { zawodnicy: 0, kluby: 0, wpisy: 0 }
+    return { zawodnicy: 0, kluby: 0, wpisy: 0, kalendarz: 0 }
   }
 }
 
@@ -25,6 +26,7 @@ export default async function DashboardPage() {
     { href: '/redaktor/zawodnicy', title: 'Zawodnicy', desc: 'Imię, nazwisko, zdjęcie, klub, ręczne starty.', count: c.zawodnicy },
     { href: '/redaktor/kluby', title: 'Kluby', desc: 'Nazwa, logo, poziom ligi, załoga, linki.', count: c.kluby },
     { href: '/redaktor/wpisy', title: 'Wpisy', desc: 'Newsy — dodawanie i edycja artykułów.', count: c.wpisy },
+    { href: '/redaktor/kalendarz', title: 'Kalendarz', desc: 'Terminy regat, miejsca i statusy.', count: c.kalendarz },
     { href: '/redaktor/strefa-kibica', title: 'Strefa Kibica', desc: 'Mapa i tabela wyników pod bieżącą rundę.', count: null as any },
   ]
   return (

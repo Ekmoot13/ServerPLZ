@@ -185,6 +185,61 @@ export async function updateStrefaKibica(formData: FormData) {
   redirect('/redaktor/strefa-kibica?ok=1')
 }
 
+// ============================ KALENDARZ ============================
+
+function terminData(formData: FormData): any {
+  const data: any = {
+    nazwa: String(formData.get('nazwa') || '').trim() || 'Regaty',
+    poziom: String(formData.get('poziom') || '') || null,
+    miejsce: String(formData.get('miejsce') || ''),
+    link: String(formData.get('link') || ''),
+    autoStatus: formData.get('autoStatus') === 'on',
+    statusReczny: String(formData.get('statusReczny') || 'zaplanowane'),
+  }
+  const dOd = String(formData.get('dataOd') || '')
+  data.dataOd = dOd ? new Date(dOd).toISOString() : new Date().toISOString()
+  const dDo = String(formData.get('dataDo') || '')
+  data.dataDo = dDo ? new Date(dDo).toISOString() : null
+  const kol = String(formData.get('kolejnosc') || '')
+  data.kolejnosc = kol ? Number(kol) : null
+  return data
+}
+
+export async function createTermin(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const doc = await payload.create({
+    collection: 'kalendarz' as any,
+    data: terminData(formData),
+    overrideAccess: true,
+  })
+  revalidatePath('/kalendarium-2026')
+  redirect(`/redaktor/kalendarz/${(doc as any).id}?ok=1`)
+}
+
+export async function updateTermin(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const id = String(formData.get('id'))
+  await payload.update({
+    collection: 'kalendarz' as any,
+    id,
+    data: terminData(formData),
+    overrideAccess: true,
+  })
+  revalidatePath('/kalendarium-2026')
+  redirect(`/redaktor/kalendarz/${id}?ok=1`)
+}
+
+export async function deleteTermin(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const id = String(formData.get('id'))
+  await payload.delete({ collection: 'kalendarz' as any, id, overrideAccess: true })
+  revalidatePath('/kalendarium-2026')
+  redirect('/redaktor/kalendarz')
+}
+
 // Upload obrazka z edytora treści — zwraca URL do wstawienia.
 export async function uploadMedia(formData: FormData): Promise<{ url?: string }> {
   await requireUser()

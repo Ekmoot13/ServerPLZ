@@ -12,6 +12,7 @@ import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Kluby } from './collections/Kluby'
 import { Zawodnicy } from './collections/Zawodnicy'
+import { Kalendarz } from './collections/Kalendarz'
 import { Sponsorzy } from './collections/Sponsorzy'
 import { Team } from './collections/Team'
 import { Transmisje } from './collections/Transmisje'
@@ -58,7 +59,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Kluby, Zawodnicy, Sponsorzy, Team, Transmisje, Media, Categories, Users],
+  collections: [Pages, Posts, Kluby, Zawodnicy, Kalendarz, Sponsorzy, Team, Transmisje, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, StrefaKibica],
   plugins,
