@@ -40,6 +40,11 @@ const ORDER: Record<string, number> = {
   '1 Liga': 1,
   '2 Liga': 2,
   Młodzieżowa: 3,
+  'Finał Lig Regionalnych': 4,
+  'Mistrzostwa Polski Kobiet': 5,
+  'Trójmiejska Liga Żeglarska': 6,
+  'Wielkopolska Liga Żeglarska': 7,
+  'Centralna Liga Żeglarska': 8,
 }
 
 export default async function KalendarzPage() {
