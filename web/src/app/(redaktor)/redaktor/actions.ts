@@ -173,17 +173,14 @@ export async function updateWpis(formData: FormData) {
 export async function updateStrefaKibica(formData: FormData) {
   await requireUser()
   const payload = await getPayload({ config })
-  await payload.updateGlobal({
-    slug: 'strefa-kibica',
-    data: {
-      pokazPrzycisk: formData.get('pokazPrzycisk') === 'on',
-      pokazMape: formData.get('pokazMape') === 'on',
-      mapaUrl: String(formData.get('mapaUrl') || ''),
-      sapBase: String(formData.get('sapBase') || ''),
-      leaderboardName: String(formData.get('leaderboardName') || ''),
-    },
-    overrideAccess: true,
-  })
+  const data: any = {
+    pokazPrzycisk: formData.get('pokazPrzycisk') === 'on',
+    pokazMape: formData.get('pokazMape') === 'on',
+    mapaUrl: String(formData.get('mapaUrl') || ''),
+    sapBase: String(formData.get('sapBase') || ''),
+    leaderboardName: String(formData.get('leaderboardName') || ''),
+  }
+  await payload.updateGlobal({ slug: 'strefa-kibica', data, overrideAccess: true })
   revalidatePath('/')
   redirect('/redaktor/strefa-kibica?ok=1')
 }
