@@ -1,135 +1,41 @@
-// STRONA GŁÓWNA = Strefa Kibica (transmisje na żywo, mapa SAP, wyniki, informacje).
-// Stara strona główna została odpięta do page-stara-glowna.tsx.
+// STRONA GŁÓWNA — tymczasowa (Strefa Kibica przeniesiona na /regatowastrefakibica).
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
-import VideoPlayer from '@/components/VideoPlayer'
-import YouTubePlayer from '@/components/YouTubePlayer'
-import SapLeaderboard from '@/components/SapLeaderboard'
-import SapViewer from '@/components/SapViewer'
 import React from 'react'
 
 export const dynamic = 'force-dynamic'
 
-const HLS_BASE = process.env.NEXT_PUBLIC_HLS_URL || 'http://localhost:8888'
-
-function LiveBadge() {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
-      <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-      NA ŻYWO
-    </span>
-  )
-}
-
 export default async function HomePage() {
-  const payload = await getPayload({ config: configPromise })
-  const res = await payload.find({
-    collection: 'transmisje',
-    where: { aktywny: { equals: true } },
-    limit: 50,
-  })
-  const streams: any[] = res.docs
-
-  // Ustawienia Strefy Kibica (edytowalne w panelu): mapa RaceBoard + leaderboard
-  const settings: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
-  const mapaUrl: string = settings?.mapaUrl || ''
-  const pokazMape: boolean = settings?.pokazMape !== false
-  const sapBase: string = settings?.sapBase || 'https://plz2026.sapsailing.com'
-  const leaderboardName: string = settings?.leaderboardName || ''
+  let pokazPrzycisk = true
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const s: any = await payload.findGlobal({ slug: 'strefa-kibica' })
+    pokazPrzycisk = s?.pokazPrzycisk !== false
+  } catch {
+    /* brak ustawień — przycisk domyślnie widoczny */
+  }
 
   return (
     <main>
-      {/* HERO */}
       <section className="bg-slate-900 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-14">
-          <div className="mb-4"><LiveBadge /></div>
-          <h1 className="text-4xl font-bold md:text-5xl">Strefa Kibica</h1>
-          <p className="mt-4 max-w-2xl text-slate-300">
-            Oglądaj regaty na żywo — transmisje z kamer (w tym 360°), mapa wyścigu i wyniki
-            w czasie rzeczywistym w jednym miejscu.
+        <div className="mx-auto flex max-w-4xl flex-col items-center px-4 py-28 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Polska Liga Żeglarska" className="mb-8 h-24 w-auto" />
+          <h1 className="mb-4 text-4xl font-bold md:text-6xl">Polska Liga Żeglarska</h1>
+          <p className="mb-10 max-w-xl text-slate-300">
+            Strona w przygotowaniu — wkrótce pojawi się tu pełna zawartość. W międzyczasie śledź regaty
+            na żywo w Strefie Kibica.
           </p>
-        </div>
-      </section>
-
-      {/* TRANSMISJE NA ŻYWO */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="mb-6 flex items-center gap-3">
-          <h2 className="text-2xl font-bold">Transmisje na żywo</h2>
-          <Link href="/transmisje" className="text-sm text-sky-600 hover:underline">wszystkie →</Link>
-        </div>
-        {streams.length === 0 ? (
-          <div className="rounded-xl bg-slate-100 p-10 text-center text-slate-500">
-            <div className="mb-2 text-4xl">📡</div>
-            <p className="font-medium">Obecnie nie trwają żadne transmisje.</p>
-            <p className="text-sm">Zajrzyj tu w trakcie regat.</p>
-          </div>
-        ) : (
-          <div className="grid gap-8 md:grid-cols-2">
-            {streams.map((s) => (
-              <div key={s.id}>
-                {s.typ === 'youtube' ? (
-                  <YouTubePlayer url={s.youtubeUrl} title={s.tytul} />
-                ) : (
-                  <VideoPlayer hlsUrl={`${HLS_BASE}/live/${s.rtmpKey}/index.m3u8`} title={s.tytul} />
-                )}
-                <h3 className="mt-3 text-lg font-semibold">{s.tytul}</h3>
-                {s.opis && <p className="mt-1 text-sm text-slate-500">{s.opis}</p>}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* MAPA I WYNIKI NA ŻYWO (SAP) */}
-      <section className="bg-slate-50 py-14">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="mb-6 text-2xl font-bold">Mapa wyścigu i wyniki na żywo</h2>
-          {pokazMape && mapaUrl ? (
-            <div className="mb-8">
-              <SapViewer src={mapaUrl} />
-              <p className="mt-2 text-right text-xs text-slate-400">
-                Mapa i replay: SAP Sailing Analytics.{' '}
-                <a href={mapaUrl} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:underline">
-                  Otwórz w nowej karcie →
-                </a>
-              </p>
-            </div>
-          ) : (
-            <div className="mb-8 rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-500">
-              <div className="mb-2 text-4xl">🗺️</div>
-              <p className="font-medium">Mapa pojawi się w trakcie regat.</p>
-            </div>
+          {pokazPrzycisk && (
+            <Link
+              href="/regatowastrefakibica"
+              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-lg font-bold uppercase tracking-wide text-white transition hover:bg-red-500"
+            >
+              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
+              Śledź Regaty
+            </Link>
           )}
-          {leaderboardName ? (
-            <SapLeaderboard name={leaderboardName} base={sapBase} />
-          ) : (
-            <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-400">
-              Tabela wyników pojawi się w trakcie regat.
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* INFORMACJE O REGATACH */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="mb-6 text-2xl font-bold">Informacje o regatach</h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-xl border border-slate-200 p-6">
-            <h3 className="mb-2 font-semibold">Terminarz i miejsce</h3>
-            <p className="text-sm text-slate-500">Najbliższe rundy i lokalizacje pojawią się tutaj z kalendarza sezonu.</p>
-            <Link href="/kalendarium-2026" className="mt-3 inline-block text-sm text-sky-600 hover:underline">Kalendarz →</Link>
-          </div>
-          <div className="rounded-xl border border-slate-200 p-6">
-            <h3 className="mb-2 font-semibold">Lista startowa</h3>
-            <p className="text-sm text-slate-500">Załogi biorące udział w rundzie — do podpięcia z danych regat.</p>
-            <Link href="/kluby" className="mt-3 inline-block text-sm text-sky-600 hover:underline">Kluby →</Link>
-          </div>
-          <div className="rounded-xl border border-slate-200 p-6">
-            <h3 className="mb-2 font-semibold">Wyniki</h3>
-            <p className="text-sm text-slate-500">Klasyfikacja rundy i ranking sezonu.</p>
-            <Link href="/wyniki" className="mt-3 inline-block text-sm text-sky-600 hover:underline">Wyniki →</Link>
-          </div>
         </div>
       </section>
     </main>

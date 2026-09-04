@@ -33,8 +33,13 @@ export default async function StrefaKibicaSettingsPage({
         )}
 
         <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="pokazPrzycisk" defaultChecked={s?.pokazPrzycisk !== false} />
+          Pokaż przycisk „Śledź Regaty" (nagłówek + strona główna)
+        </label>
+
+        <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="pokazMape" defaultChecked={s?.pokazMape !== false} />
-          Pokaż mapę na stronie
+          Pokaż mapę na podstronie Strefy Kibica
         </label>
 
         <div>

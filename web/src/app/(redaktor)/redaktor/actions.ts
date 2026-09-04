@@ -176,6 +176,7 @@ export async function updateStrefaKibica(formData: FormData) {
   await payload.updateGlobal({
     slug: 'strefa-kibica',
     data: {
+      pokazPrzycisk: formData.get('pokazPrzycisk') === 'on',
       pokazMape: formData.get('pokazMape') === 'on',
       mapaUrl: String(formData.get('mapaUrl') || ''),
       sapBase: String(formData.get('sapBase') || ''),

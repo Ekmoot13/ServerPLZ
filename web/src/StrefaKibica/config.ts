@@ -12,6 +12,12 @@ export const StrefaKibica: GlobalConfig = {
   },
   fields: [
     {
+      name: 'pokazPrzycisk',
+      type: 'checkbox',
+      label: 'Pokaż przycisk „Śledź Regaty" (nagłówek + strona główna)',
+      defaultValue: true,
+    },
+    {
       name: 'pokazMape',
       type: 'checkbox',
       label: 'Pokaż mapę',
