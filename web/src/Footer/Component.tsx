@@ -5,7 +5,7 @@ type Item = { label: string; href: string }
 
 const KOL_LIGA: Item[] = [
   { label: 'Wyniki 2026', href: '/wyniki' },
-  { label: 'Kalendarz', href: '/kalendarium-2026' },
+  { label: 'Kalendarz', href: '/kalendarz' },
   { label: 'Kluby', href: '/kluby' },
   { label: 'Ligi Regionalne', href: '/regionalne' },
   { label: 'Mistrzostwa Kobiet', href: 'https://ladiesailing.pl/' },

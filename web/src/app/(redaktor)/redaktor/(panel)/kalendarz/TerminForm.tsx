@@ -56,15 +56,25 @@ export default function TerminForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Poziom ligi</label>
-            <select name="poziom" defaultValue={initial.poziom} className={inputCls}>
-              <option value="">—</option>
-              <option value="Ekstraklasa">Ekstraklasa</option>
-              <option value="1 Liga">1 Liga</option>
-              <option value="2 Liga">2 Liga</option>
-              <option value="Młodzieżowa">Młodzieżowa</option>
-              <option value="Inne">Inne</option>
-            </select>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Poziom / liga</label>
+            <input
+              name="poziom"
+              defaultValue={initial.poziom}
+              list="poziomy"
+              placeholder="Ekstraklasa, 1 Liga, Młodzieżowa… (możesz wpisać nowy)"
+              className={inputCls}
+            />
+            <datalist id="poziomy">
+              <option value="Ekstraklasa" />
+              <option value="1 Liga" />
+              <option value="2 Liga" />
+              <option value="Młodzieżowa" />
+              <option value="Finał Lig Regionalnych" />
+              <option value="Mistrzostwa Polski Kobiet" />
+              <option value="Trójmiejska Liga Żeglarska" />
+              <option value="Wielkopolska Liga Żeglarska" />
+              <option value="Centralna Liga Żeglarska" />
+            </datalist>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Miejsce (miasto)</label>

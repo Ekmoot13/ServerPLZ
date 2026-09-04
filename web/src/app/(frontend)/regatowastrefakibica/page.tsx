@@ -118,7 +118,7 @@ export default async function RegatowaStrefaKibicaPage() {
           <div className="rounded-xl border border-slate-200 p-6">
             <h3 className="mb-2 font-semibold">Terminarz i miejsce</h3>
             <p className="text-sm text-slate-500">Najbliższe rundy i lokalizacje pojawią się tutaj z kalendarza sezonu.</p>
-            <Link href="/kalendarium-2026" className="mt-3 inline-block text-sm text-sky-600 hover:underline">Kalendarz →</Link>
+            <Link href="/kalendarz" className="mt-3 inline-block text-sm text-sky-600 hover:underline">Kalendarz →</Link>
           </div>
           <div className="rounded-xl border border-slate-200 p-6">
             <h3 className="mb-2 font-semibold">Lista startowa</h3>

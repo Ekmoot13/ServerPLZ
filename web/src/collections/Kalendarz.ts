@@ -31,15 +31,8 @@ export const Kalendarz: CollectionConfig = {
       fields: [
         {
           name: 'poziom',
-          type: 'select',
-          label: 'Poziom ligi',
-          options: [
-            { label: 'Ekstraklasa', value: 'Ekstraklasa' },
-            { label: '1 Liga', value: '1 Liga' },
-            { label: '2 Liga', value: '2 Liga' },
-            { label: 'Młodzieżowa', value: 'Młodzieżowa' },
-            { label: 'Inne', value: 'Inne' },
-          ],
+          type: 'text',
+          label: 'Poziom / liga (np. Ekstraklasa, 1 Liga, Młodzieżowa — możesz dodać własny)',
         },
         { name: 'miejsce', type: 'text', label: 'Miejsce (miasto)' },
       ],

@@ -213,7 +213,7 @@ export async function createTermin(formData: FormData) {
     data: terminData(formData),
     overrideAccess: true,
   })
-  revalidatePath('/kalendarium-2026')
+  revalidatePath('/kalendarz')
   redirect(`/redaktor/kalendarz/${(doc as any).id}?ok=1`)
 }
 
@@ -227,7 +227,7 @@ export async function updateTermin(formData: FormData) {
     data: terminData(formData),
     overrideAccess: true,
   })
-  revalidatePath('/kalendarium-2026')
+  revalidatePath('/kalendarz')
   redirect(`/redaktor/kalendarz/${id}?ok=1`)
 }
 
@@ -236,7 +236,7 @@ export async function deleteTermin(formData: FormData) {
   const payload = await getPayload({ config })
   const id = String(formData.get('id'))
   await payload.delete({ collection: 'kalendarz' as any, id, overrideAccess: true })
-  revalidatePath('/kalendarium-2026')
+  revalidatePath('/kalendarz')
   redirect('/redaktor/kalendarz')
 }
 

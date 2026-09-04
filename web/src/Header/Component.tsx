@@ -5,7 +5,7 @@ import configPromise from '@payload-config'
 
 const NAV: { label: string; href: string }[] = [
   { label: 'Regaty', href: '/regaty' },
-  { label: 'Kalendarz', href: '/kalendarium-2026' },
+  { label: 'Kalendarz', href: '/kalendarz' },
   { label: 'Zespoły', href: '/kluby' },
   { label: 'Zawodnicy', href: '/zawodnicy' },
   { label: 'Wyniki', href: '/wyniki' },
