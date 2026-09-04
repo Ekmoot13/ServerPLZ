@@ -18,6 +18,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
               Panel redaktora
             </Link>
             <nav className="flex gap-4 text-sm font-medium text-slate-600">
+              <Link href="/redaktor/strona-glowna" className="hover:text-sky-700">
+                Strona główna
+              </Link>
               <Link href="/redaktor/zawodnicy" className="hover:text-sky-700">
                 Zawodnicy
               </Link>

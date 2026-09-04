@@ -266,6 +266,65 @@ export async function updatePoziomyKalendarza(formData: FormData) {
   redirect('/redaktor/kalendarz?ok=1')
 }
 
+// ============================ STRONA GŁÓWNA ============================
+
+function parseJson<T>(raw: string, fallback: T): T {
+  try {
+    const v = JSON.parse(raw)
+    return v ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
+export async function updateStronaGlowna(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const g = (k: string) => String(formData.get(k) || '')
+  const bool = (k: string) => formData.get(k) === 'on'
+
+  const data: any = {
+    aktualnosci: {
+      tryb: g('tryb') === 'pojedynczy' ? 'pojedynczy' : 'rotacja',
+      pojedynczyElement: g('pojedynczyElement') || 'baner',
+      pokazFacebook: bool('pokazFacebook'),
+      pokazInstagram: bool('pokazInstagram'),
+      pokazBaner: bool('pokazBaner'),
+      fbPageId: g('fbPageId'),
+      fbToken: g('fbToken'),
+      igUserId: g('igUserId'),
+      igToken: g('igToken'),
+      banerTytul: g('banerTytul'),
+      banerTekst: g('banerTekst'),
+      banerLink: g('banerLink'),
+      banerObraz: g('banerObraz'),
+    },
+    nastepneRegaty: {
+      pokaz: bool('nrPokaz'),
+      tytul: g('nrTytul'),
+    },
+    wprowadzenie: {
+      tytul: g('wTytul'),
+      tekst: g('wTekst'),
+      obrazTla: g('wObrazTla'),
+      jakSieScigamyHtml: g('jakSieScigamyHtml'),
+      poziomyObraz: g('poziomyObraz'),
+      jakSledzic: parseJson<any[]>(g('jakSledzic'), []),
+      media: parseJson<any[]>(g('media'), []),
+      zgloszeniaIntro: g('zgloszeniaIntro'),
+      zgloszeniaLigi: parseJson<any[]>(g('zgloszeniaLigi'), []),
+    },
+    sponsorzy: {
+      tytul: g('spTytul'),
+      grupy: parseJson<any[]>(g('spGrupy'), []),
+    },
+  }
+
+  await payload.updateGlobal({ slug: 'strona-glowna' as any, data, overrideAccess: true })
+  revalidatePath('/')
+  redirect('/redaktor/strona-glowna?ok=1')
+}
+
 // Upload obrazka z edytora treści — zwraca URL do wstawienia.
 export async function uploadMedia(formData: FormData): Promise<{ url?: string }> {
   await requireUser()

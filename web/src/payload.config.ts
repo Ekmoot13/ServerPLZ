@@ -20,6 +20,7 @@ import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { StrefaKibica } from './StrefaKibica/config'
 import { KalendarzUstawienia } from './KalendarzUstawienia/config'
+import { StronaGlowna } from './StronaGlowna/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -62,7 +63,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Kluby, Zawodnicy, Kalendarz, Sponsorzy, Team, Transmisje, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, StrefaKibica, KalendarzUstawienia],
+  globals: [Header, Footer, StrefaKibica, KalendarzUstawienia, StronaGlowna],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,
