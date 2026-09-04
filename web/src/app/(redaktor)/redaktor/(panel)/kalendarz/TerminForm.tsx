@@ -114,11 +114,6 @@ export default function TerminForm({
           </select>
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Kolejność (opcjonalnie)</label>
-          <input type="number" name="kolejnosc" defaultValue={initial.kolejnosc} className={inputCls} />
-        </div>
-
         <div className="flex items-center gap-3 border-t border-slate-200 pt-5">
           <button type="submit" className="rounded-lg bg-sky-600 px-5 py-2 font-medium text-white hover:bg-sky-500">
             Zapisz

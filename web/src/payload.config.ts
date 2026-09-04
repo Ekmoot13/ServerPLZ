@@ -19,6 +19,7 @@ import { Transmisje } from './collections/Transmisje'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { StrefaKibica } from './StrefaKibica/config'
+import { KalendarzUstawienia } from './KalendarzUstawienia/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -61,7 +62,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Kluby, Zawodnicy, Kalendarz, Sponsorzy, Team, Transmisje, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, StrefaKibica],
+  globals: [Header, Footer, StrefaKibica, KalendarzUstawienia],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,

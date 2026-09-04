@@ -240,6 +240,32 @@ export async function deleteTermin(formData: FormData) {
   redirect('/redaktor/kalendarz')
 }
 
+// Zapis kolejności poziomów kalendarza (globalny obiekt kalendarz-ustawienia).
+export async function updatePoziomyKalendarza(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const raw = String(formData.get('poziomy') || '')
+  let lista: string[] = []
+  try {
+    lista = (JSON.parse(raw) as any[]).map((x) => String(x || '').trim()).filter(Boolean)
+  } catch {
+    lista = []
+  }
+  // usuń duplikaty, zachowując kolejność
+  const seen = new Set<string>()
+  const poziomy = lista
+    .filter((p) => (seen.has(p) ? false : (seen.add(p), true)))
+    .map((nazwa) => ({ nazwa }))
+
+  await payload.updateGlobal({
+    slug: 'kalendarz-ustawienia' as any,
+    data: { poziomy } as any,
+    overrideAccess: true,
+  })
+  revalidatePath('/kalendarz')
+  redirect('/redaktor/kalendarz?ok=1')
+}
+
 // Upload obrazka z edytora treści — zwraca URL do wstawienia.
 export async function uploadMedia(formData: FormData): Promise<{ url?: string }> {
   await requireUser()

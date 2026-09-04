@@ -28,3 +28,53 @@ export function statusRegat(ev: {
 export function statusLabel(s: StatusRegat): string {
   return s === 'w-trakcie' ? 'W trakcie' : s === 'odbyly-sie' ? 'Odbyły się' : 'Zaplanowane'
 }
+
+// Domyślna kolejność poziomów, gdy redaktor nie ustawił własnej (globalny obiekt pusty).
+export const DOMYSLNE_POZIOMY = [
+  'Ekstraklasa',
+  '1 Liga',
+  '2 Liga',
+  'Młodzieżowa',
+  'Finał Lig Regionalnych',
+  'Mistrzostwa Polski Kobiet',
+  'Trójmiejska Liga Żeglarska',
+  'Wielkopolska Liga Żeglarska',
+  'Centralna Liga Żeglarska',
+]
+
+// Zwraca uporządkowaną listę poziomów (do sortowania sekcji).
+// `zapisane` – kolejność ustawiona przez redaktora (z globala). `obecne` – poziomy faktycznie
+// występujące w terminach. Poziomy spoza zapisanej kolejności trafiają na koniec (alfabetycznie).
+export function orderedPoziomy(zapisane: string[], obecne: string[]): string[] {
+  const baza = (zapisane && zapisane.length ? zapisane : DOMYSLNE_POZIOMY)
+    .map((s) => (s || '').trim())
+    .filter(Boolean)
+  const wynik: string[] = []
+  const seen = new Set<string>()
+  for (const p of baza) {
+    if (!seen.has(p)) {
+      wynik.push(p)
+      seen.add(p)
+    }
+  }
+  const reszta = obecne
+    .map((s) => (s || '').trim())
+    .filter((s) => s && !seen.has(s))
+    .sort((a, b) => a.localeCompare(b, 'pl'))
+  for (const p of reszta) {
+    if (!seen.has(p)) {
+      wynik.push(p)
+      seen.add(p)
+    }
+  }
+  return wynik
+}
+
+// Mapa poziom → indeks kolejności (do porównań w sort()).
+export function poziomIndexMap(kolejnosc: string[]): Record<string, number> {
+  const m: Record<string, number> = {}
+  kolejnosc.forEach((p, i) => {
+    m[p] = i
+  })
+  return m
+}

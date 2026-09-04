@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { statusRegat } from '@/lib/kalendarz'
+import { statusRegat, orderedPoziomy, poziomIndexMap } from '@/lib/kalendarz'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,22 +35,18 @@ function shortLabel(nazwa: string): string {
   return m ? m[0].replace(/^r/, 'R') : nazwa
 }
 
-const ORDER: Record<string, number> = {
-  Ekstraklasa: 0,
-  '1 Liga': 1,
-  '2 Liga': 2,
-  Młodzieżowa: 3,
-  'Finał Lig Regionalnych': 4,
-  'Mistrzostwa Polski Kobiet': 5,
-  'Trójmiejska Liga Żeglarska': 6,
-  'Wielkopolska Liga Żeglarska': 7,
-  'Centralna Liga Żeglarska': 8,
-}
-
 export default async function KalendarzPage() {
   const payload = await getPayload({ config: configPromise })
   const res = await payload.find({ collection: 'kalendarz' as any, limit: 300, depth: 0, sort: 'dataOd' })
   const terminy = res.docs as any[]
+
+  // kolejność poziomów ustawiona przez redaktora (globalny obiekt)
+  const ustawienia: any = await payload
+    .findGlobal({ slug: 'kalendarz-ustawienia' as any })
+    .catch(() => null)
+  const zapisane: string[] = Array.isArray(ustawienia?.poziomy)
+    ? ustawienia.poziomy.map((p: any) => (p?.nazwa || '').trim()).filter(Boolean)
+    : []
 
   // grupowanie po poziomie
   const groupsMap = new Map<string, any[]>()
@@ -59,21 +55,19 @@ export default async function KalendarzPage() {
     if (!groupsMap.has(key)) groupsMap.set(key, [])
     groupsMap.get(key)!.push(t)
   }
+
+  const kolejnosc = orderedPoziomy(zapisane, [...groupsMap.keys()])
+  const idx = poziomIndexMap(kolejnosc)
+
   const groups = [...groupsMap.entries()].map(([poziom, items]) => {
-    items.sort((a, b) => {
-      const ka = a.kolejnosc ?? 1e9
-      const kb = b.kolejnosc ?? 1e9
-      if (ka !== kb) return ka - kb
-      return new Date(a.dataOd || 0).getTime() - new Date(b.dataOd || 0).getTime()
-    })
-    const minDate = Math.min(...items.map((i) => new Date(i.dataOd || 0).getTime()))
-    return { poziom, items, minDate }
+    // regaty w obrębie ligi zawsze po dacie (rosnąco)
+    items.sort((a, b) => new Date(a.dataOd || 0).getTime() - new Date(b.dataOd || 0).getTime())
+    return { poziom, items }
   })
   groups.sort((a, b) => {
-    const oa = ORDER[a.poziom] ?? 50
-    const ob = ORDER[b.poziom] ?? 50
-    if (oa !== ob) return oa - ob
-    return a.minDate - b.minDate
+    const oa = idx[a.poziom] ?? 999
+    const ob = idx[b.poziom] ?? 999
+    return oa - ob
   })
 
   return (
