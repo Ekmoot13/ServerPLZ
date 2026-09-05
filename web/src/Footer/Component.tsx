@@ -54,20 +54,20 @@ function FooterCol({ title, items }: { title: string; items: Item[] }) {
 
 export function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-300">
-      <div className="mx-auto max-w-6xl px-4 py-14">
+    <footer className="bg-navy text-white/80">
+      <div className="mx-auto max-w-[1440px] px-4 py-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div>
             <div className="mb-3 flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="Polska Liga Żeglarska" className="h-10 w-auto" />
-              <span className="text-lg font-bold text-white">POLSKA LIGA ŻEGLARSKA</span>
+              <span className="text-lg font-extrabold uppercase tracking-wide text-white">Polska Liga Żeglarska</span>
             </div>
-            <p className="text-sm text-slate-400">Pure racing, true passion</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-brand-red">Pure racing, true passion</p>
             <a href="mailto:info@ligazeglarska.pl" className="mt-4 block text-sm hover:text-white">
               info@ligazeglarska.pl
             </a>
-            <p className="mt-4 text-xs leading-relaxed text-slate-500">
+            <p className="mt-4 text-xs leading-relaxed text-white/55">
               Towarzystwo Żeglarstwa Regatowego
               <br />
               ul. Parkowa 43, 71-220 Bezrzecze
@@ -81,7 +81,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-slate-500">
+        <div className="mx-auto max-w-[1440px] px-4 py-6 text-center text-xs text-white/50">
           © {new Date().getFullYear()} Polska Liga Żeglarska
         </div>
       </div>

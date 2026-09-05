@@ -24,6 +24,15 @@ function dataRegat(od?: string | null, doo?: string | null): string {
   return `${a.getDate()} ${MIES[a.getMonth()]} – ${b.getDate()} ${MIES[b.getMonth()]}`
 }
 
+function dataNews(d?: string | null): string {
+  if (!d) return ''
+  try {
+    return new Date(d).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })
+  } catch {
+    return ''
+  }
+}
+
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
   const sg: any = await payload.findGlobal({ slug: 'strona-glowna' as any }).catch(() => null)
@@ -55,6 +64,20 @@ export default async function HomePage() {
     const p = await getLatestInstagramMedia(A.igUserId, A.igToken)
     if (p) items.push({ typ: 'instagram', tekst: p.tekst, obraz: p.obraz, link: p.link })
   }
+
+  // ---- NEWSY: najnowszy (duży) + 3 poprzednie (małe) ----
+  const newsRes = await payload
+    .find({
+      collection: 'posts',
+      where: { _status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit: 4,
+      depth: 1,
+    })
+    .catch(() => ({ docs: [] as any[] }))
+  const news = (newsRes.docs as any[]) || []
+  const glownyNews = news[0] || null
+  const poboczneNews = news.slice(1, 4)
 
   // ---- NASTĘPNE REGATY: z kalendarza ----
   let biezace: any = null
@@ -96,6 +119,72 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {/* SEKCJA: NEWSY (najnowszy duży + 3 poprzednie małe) */}
+      {glownyNews && (
+        <section className="mx-auto max-w-6xl px-4 py-8">
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-slate-900">Newsy</h2>
+            <Link href="/newsy" className="text-sm font-semibold text-sky-600 hover:underline">
+              Wszystkie newsy →
+            </Link>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            {/* DUŻY */}
+            <Link
+              href={`/posts/${glownyNews.slug}`}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:shadow-lg"
+            >
+              {glownyNews?.heroImage?.url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={glownyNews.heroImage.url} alt={glownyNews.title} className="h-72 w-full object-cover md:h-80" />
+              ) : (
+                <div className="h-72 w-full bg-slate-100 md:h-80" />
+              )}
+              <div className="flex flex-1 flex-col p-5">
+                {glownyNews?.categories?.[0]?.title && (
+                  <span className="text-xs font-semibold uppercase tracking-wide text-sky-600">
+                    {glownyNews.categories[0].title}
+                  </span>
+                )}
+                <h3 className="mt-1 text-xl font-bold leading-snug text-slate-900 group-hover:text-sky-600 md:text-2xl">
+                  {glownyNews.title}
+                </h3>
+                <p className="mt-auto pt-3 text-sm text-slate-500">{dataNews(glownyNews.publishedAt)}</p>
+              </div>
+            </Link>
+
+            {/* 3 MNIEJSZE */}
+            <div className="flex flex-col gap-4">
+              {poboczneNews.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/posts/${p.slug}`}
+                  className="group flex gap-4 overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:shadow-md"
+                >
+                  {p?.heroImage?.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.heroImage.url} alt={p.title} className="h-28 w-40 flex-shrink-0 object-cover" />
+                  ) : (
+                    <div className="h-28 w-40 flex-shrink-0 bg-slate-100" />
+                  )}
+                  <div className="flex flex-1 flex-col py-3 pr-3">
+                    {p?.categories?.[0]?.title && (
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-sky-600">
+                        {p.categories[0].title}
+                      </span>
+                    )}
+                    <h4 className="mt-0.5 line-clamp-3 text-sm font-semibold leading-snug text-slate-800 group-hover:text-sky-600">
+                      {p.title}
+                    </h4>
+                    <p className="mt-auto pt-2 text-xs text-slate-500">{dataNews(p.publishedAt)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SEKCJA 2: NASTĘPNE REGATY */}
       {karty.length > 0 && (

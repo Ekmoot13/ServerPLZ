@@ -2,6 +2,18 @@
 const config = {
   theme: {
     extend: {
+      colors: {
+        navy: {
+          DEFAULT: '#17326b',
+          800: '#122a5c',
+          900: '#0e214a',
+        },
+        'brand-red': {
+          DEFAULT: '#d82029',
+          dark: '#b81a22',
+        },
+        'brand-gray': '#909090',
+      },
       typography: {
         DEFAULT: {
           css: [
