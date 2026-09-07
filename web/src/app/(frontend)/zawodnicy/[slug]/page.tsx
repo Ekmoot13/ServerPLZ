@@ -83,120 +83,129 @@ export default async function ZawodnikPage({ params }: { params: Promise<{ slug:
   ])
 
   return (
-    <main>
-      {/* HERO */}
-      <section className="bg-slate-900 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <Link href="/zawodnicy" className="text-sm text-sky-400 hover:underline">
+    <main className="bg-slate-50">
+      {/* HERO — na razie sam granat */}
+      <section className="relative bg-navy text-white">
+        <div className="relative mx-auto max-w-[1440px] px-4 pb-24 pt-10 md:pb-28">
+          <Link href="/zawodnicy" className="text-sm font-semibold text-white/80 hover:text-white">
             ← Wszyscy zawodnicy
           </Link>
-          <h1 className="mt-3 text-4xl font-bold md:text-5xl">
-            {imie} {nazwisko}
-          </h1>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 lg:grid-cols-3">
-        {/* SIDEBAR */}
-        <aside className="order-first lg:order-last lg:col-span-1">
-          {panel?.zdjecieUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={panel.zdjecieUrl}
-              alt={`${imie} ${nazwisko}`}
-              className="mb-5 aspect-square w-full rounded-xl object-cover"
-            />
-          ) : (
-            <div className="mb-5 flex aspect-square w-full items-center justify-center rounded-xl bg-slate-100 text-5xl font-bold text-slate-300">
-              {(imie[0] || '') + (nazwisko[0] || '')}
-            </div>
-          )}
-          <SummaryCards
-            stars={pods.mistrzostwa}
-            groups={[
-              {
-                cards: [
-                  { label: 'Starty w regatach', value: pods.starty },
-                  { label: 'Wygrane regaty', value: pods.wygraneRegaty },
-                  { label: 'Zdobyte punkty', value: pods.punkty },
-                ],
-              },
-            ]}
-          />
-        </aside>
-
-        {/* MAIN */}
-        <div className="space-y-12 lg:col-span-2">
-          {/* HISTORIA SEZONÓW */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Historia sezonów</h2>
-            {sezonyRows.length === 0 ? (
-              <p className="text-slate-500">Brak sklasyfikowanych sezonów.</p>
-            ) : (
-              <MoreTable
-                headers={['Rok', 'Poziom ligi', 'Klub', 'Miejsce w sezonie']}
-                rows={sezonyRows}
-                limit={3}
+      {/* KARTA TREŚCI nachodząca na hero */}
+      <section className="relative z-10 mx-auto -mt-20 max-w-[1440px] px-4 pb-16">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* SIDEBAR */}
+          <aside className="order-first lg:order-last lg:col-span-1">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+              {panel?.zdjecieUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={panel.zdjecieUrl}
+                  alt={`${imie} ${nazwisko}`}
+                  className="mx-auto -mt-16 mb-4 aspect-[4/5] w-56 max-w-full rounded-2xl border border-slate-200 object-cover shadow-md"
+                />
+              ) : (
+                <div className="mx-auto -mt-16 mb-4 flex aspect-[4/5] w-56 max-w-full items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-5xl font-bold text-slate-300 shadow-md">
+                  {(imie[0] || '') + (nazwisko[0] || '')}
+                </div>
+              )}
+              <SummaryCards
+                stars={pods.mistrzostwa}
+                groups={[
+                  {
+                    cards: [
+                      { label: 'Starty w regatach', value: pods.starty },
+                      { label: 'Wygrane regaty', value: pods.wygraneRegaty },
+                      { label: 'Zdobyte punkty', value: pods.punkty },
+                    ],
+                  },
+                ]}
               />
-            )}
-          </div>
+            </div>
+          </aside>
 
-          {/* WYNIKI REGAT (TOP 3) — medale */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Wyniki regat (TOP 3)</h2>
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
-              <table className="w-full min-w-[420px] border-collapse text-sm">
-                <thead>
-                  <tr className="bg-slate-50 text-left text-slate-600">
-                    <th className="px-4 py-2 font-semibold">🥇 1. miejsca</th>
-                    <th className="px-4 py-2 font-semibold">🥈 2. miejsca</th>
-                    <th className="px-4 py-2 font-semibold">🥉 3. miejsca</th>
-                    <th className="px-4 py-2 font-semibold">Suma</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t border-slate-100 text-slate-700">
-                    <td className="px-4 py-2">{medale.zlote}</td>
-                    <td className="px-4 py-2">{medale.srebrne}</td>
-                    <td className="px-4 py-2">{medale.brazowe}</td>
-                    <td className="px-4 py-2 font-bold">{medale.suma}</td>
-                  </tr>
-                </tbody>
-              </table>
+          {/* MAIN */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2 lg:p-8">
+            <h1 className="mb-8 text-3xl font-extrabold uppercase tracking-wide text-navy md:text-4xl">
+              {imie} {nazwisko}
+            </h1>
+
+            <div className="space-y-12">
+              <Sekcja tytul="Historia sezonów">
+                {sezonyRows.length === 0 ? (
+                  <p className="text-slate-500">Brak sklasyfikowanych sezonów.</p>
+                ) : (
+                  <MoreTable
+                    headers={['Rok', 'Poziom ligi', 'Klub', 'Miejsce w sezonie']}
+                    rows={sezonyRows}
+                    limit={3}
+                  />
+                )}
+              </Sekcja>
+
+              <Sekcja tytul="Wyniki regat (TOP 3)">
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full min-w-[420px] border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-navy text-left text-white">
+                        <th className="px-4 py-2.5 font-bold">🥇 1. miejsca</th>
+                        <th className="px-4 py-2.5 font-bold">🥈 2. miejsca</th>
+                        <th className="px-4 py-2.5 font-bold">🥉 3. miejsca</th>
+                        <th className="px-4 py-2.5 font-bold">Suma</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="bg-white text-slate-700">
+                        <td className="px-4 py-2">{medale.zlote}</td>
+                        <td className="px-4 py-2">{medale.srebrne}</td>
+                        <td className="px-4 py-2">{medale.brazowe}</td>
+                        <td className="px-4 py-2 font-bold text-navy">{medale.suma}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </Sekcja>
+
+              <Sekcja tytul="Statystyki zawodnika">
+                <StatsTable
+                  rows={statystyki.rows}
+                  totals={{
+                    regaty: statystyki.totalRegaty,
+                    wyscigi: statystyki.totalWyscigi,
+                    wygrane: statystyki.totalWygrane,
+                  }}
+                />
+              </Sekcja>
+
+              <Sekcja tytul="Lista startów">
+                {startyRows.length === 0 ? (
+                  <p className="text-slate-500">Brak startów w bazie.</p>
+                ) : (
+                  <MoreTable
+                    headers={['Rok', 'Regaty', 'Miasto', 'Klub', 'Miejsce']}
+                    rows={startyRows}
+                    limit={5}
+                  />
+                )}
+              </Sekcja>
+
+              <ProfileCards title="Obecny klub" items={obecnyItems} />
             </div>
           </div>
-
-          {/* STATYSTYKI ZAWODNIKA */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Statystyki zawodnika</h2>
-            <StatsTable
-              rows={statystyki.rows}
-              totals={{
-                regaty: statystyki.totalRegaty,
-                wyscigi: statystyki.totalWyscigi,
-                wygrane: statystyki.totalWygrane,
-              }}
-            />
-          </div>
-
-          {/* LISTA STARTÓW */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Lista startów</h2>
-            {startyRows.length === 0 ? (
-              <p className="text-slate-500">Brak startów w bazie.</p>
-            ) : (
-              <MoreTable
-                headers={['Rok', 'Regaty', 'Miasto', 'Klub', 'Miejsce']}
-                rows={startyRows}
-                limit={5}
-              />
-            )}
-          </div>
-
-          {/* OBECNY KLUB */}
-          <ProfileCards title="Obecny klub" items={obecnyItems} />
         </div>
       </section>
     </main>
+  )
+}
+
+function Sekcja({ tytul, children }: { tytul: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{tytul}</h2>
+      <div className="mb-4 mt-2 h-1 w-12 rounded-full bg-brand-red" />
+      {children}
+    </div>
   )
 }

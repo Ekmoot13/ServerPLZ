@@ -12,6 +12,7 @@ import {
   getStartyKlubu,
 } from '@/lib/liga'
 import { getKlubPanel, getZawodnicyPhotos } from '@/lib/panel'
+import { getKlubMedia } from '@/lib/klubMedia'
 import MoreTable, { TableCell } from '../../zawodnicy/MoreTable'
 import SummaryCards, { StatGroup } from '@/components/profile/SummaryCards'
 import StatsTable from '@/components/profile/StatsTable'
@@ -38,7 +39,8 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
 
   // Nadpisania z panelu redaktora
   const nazwa = panel?.nazwa || klub.nazwa
-  const logoUrl = panel?.logoUrl
+  const media = getKlubMedia(nazwa)
+  const logoUrl = panel?.logoUrl || media?.logo || undefined
   const poziomLigi = panel?.poziomLigi
   const links = panel?.links || []
 
@@ -98,112 +100,112 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
   }
 
   return (
-    <main>
-      {/* HERO */}
-      <section className="bg-slate-900 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <Link href="/kluby" className="text-sm text-sky-400 hover:underline">
-            ← Wszystkie kluby
+    <main className="bg-slate-50">
+      {/* HERO — na razie sam granat (bez zdjęcia zespołu) */}
+      <section className="relative bg-navy text-white">
+        <div className="relative mx-auto max-w-[1440px] px-4 pb-24 pt-10 md:pb-28">
+          <Link href="/kluby" className="text-sm font-semibold text-white/80 hover:text-white">
+            ← Wszystkie zespoły
           </Link>
-          <div className="mt-3 flex items-center gap-5">
-            {logoUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt={nazwa} className="h-20 w-20 rounded-lg bg-white object-contain p-1" />
-            )}
-            <div>
-              <h1 className="text-3xl font-bold md:text-4xl">{nazwa}</h1>
-              {poziomLigi && <p className="mt-1 text-sky-300">{poziomLigi}</p>}
-            </div>
-          </div>
-          {links.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-3">
-              {links.map((l) => (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-white/25 px-4 py-1.5 text-sm text-slate-200 transition hover:bg-white/10"
-                >
-                  {l.label}
-                </a>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 lg:grid-cols-3">
-        {/* SIDEBAR */}
-        <aside className="order-first lg:order-last lg:col-span-1">
-          <div className="mb-5 flex aspect-square w-full items-center justify-center rounded-xl border border-slate-200 bg-white p-4">
-            {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt={nazwa} className="max-h-full max-w-full object-contain" />
-            ) : (
-              <span className="text-4xl font-bold text-slate-300">{nazwa.slice(0, 2).toUpperCase()}</span>
-            )}
-          </div>
-          <SummaryCards stars={pods.mistrzostwa} groups={summaryGroups} />
-        </aside>
+      {/* KARTA TREŚCI nachodząca na hero */}
+      <section className="relative z-10 mx-auto -mt-20 max-w-[1440px] px-4 pb-16">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* SIDEBAR */}
+          <aside className="order-first lg:order-last lg:col-span-1">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+              <div className="mx-auto -mt-16 mb-4 flex aspect-square w-40 items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 shadow-md">
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logoUrl} alt={nazwa} className="max-h-full max-w-full object-contain" />
+                ) : (
+                  <span className="text-4xl font-bold text-slate-300">{nazwa.slice(0, 2).toUpperCase()}</span>
+                )}
+              </div>
+              <SummaryCards stars={pods.mistrzostwa} groups={summaryGroups} />
+            </div>
+          </aside>
 
-        {/* MAIN */}
-        <div className="space-y-12 lg:col-span-2">
-          {/* HISTORIA SEZONÓW */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Historia sezonów</h2>
-            {sezonyRows.length === 0 ? (
-              <p className="text-slate-500">Brak historii sezonów.</p>
-            ) : (
-              <MoreTable headers={['Rok', 'Liga', 'Nazwa zespołu', 'Miejsce']} rows={sezonyRows} limit={3} />
-            )}
-          </div>
+          {/* MAIN */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2 lg:p-8">
+            {/* NAGŁÓWEK KLUBU */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-extrabold uppercase tracking-wide text-navy md:text-4xl">{nazwa}</h1>
+              {poziomLigi && <p className="mt-1 text-sm font-bold uppercase tracking-wide text-brand-red">{poziomLigi}</p>}
+              {links.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {links.map((l) => (
+                    <a
+                      key={l.label}
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full border-2 border-navy/15 px-4 py-1.5 text-sm font-semibold text-navy transition hover:border-brand-red hover:text-brand-red"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* WYNIKI REGAT (TOP 3) */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Wyniki regat (TOP 3)</h2>
-            <PodiaTable rows={statystyki.podia} />
-          </div>
+            <div className="space-y-12">
+              <Sekcja tytul="Historia sezonów">
+                {sezonyRows.length === 0 ? (
+                  <p className="text-slate-500">Brak historii sezonów.</p>
+                ) : (
+                  <MoreTable headers={['Rok', 'Liga', 'Nazwa zespołu', 'Miejsce']} rows={sezonyRows} limit={3} />
+                )}
+              </Sekcja>
 
-          {/* STATYSTYKI KLUBU */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Statystyki klubu</h2>
-            <StatsTable
-              rows={statystyki.stats.rows}
-              totals={{
-                regaty: statystyki.stats.totalRegaty,
-                wyscigi: statystyki.stats.totalWyscigi,
-                wygrane: statystyki.stats.totalWygrane,
-              }}
-            />
-          </div>
+              <Sekcja tytul="Wyniki regat (TOP 3)">
+                <PodiaTable rows={statystyki.podia} />
+              </Sekcja>
 
-          {/* ZAWODNICY KLUBU (karty) */}
-          <ProfileCards title="Zawodnicy klubu" items={zawodnicyCards} />
+              <Sekcja tytul="Statystyki klubu">
+                <StatsTable
+                  rows={statystyki.stats.rows}
+                  totals={{
+                    regaty: statystyki.stats.totalRegaty,
+                    wyscigi: statystyki.stats.totalWyscigi,
+                    wygrane: statystyki.stats.totalWygrane,
+                  }}
+                />
+              </Sekcja>
 
-          {/* SKŁAD ZESPOŁU */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">
-              Skład zespołu{sklad.rok ? ` — ${sklad.rok}` : ''}
-            </h2>
-            {skladRows.length === 0 ? (
-              <p className="text-slate-500">Brak danych o składzie.</p>
-            ) : (
-              <MoreTable headers={['Imię', 'Nazwisko', 'Poziom ligi', 'Starty']} rows={skladRows} limit={4} />
-            )}
-          </div>
+              <ProfileCards title="Zawodnicy klubu" items={zawodnicyCards} />
 
-          {/* LISTA STARTÓW (wszystkie regaty klubu) */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold text-slate-900">Lista startów</h2>
-            {startyRows.length === 0 ? (
-              <p className="text-slate-500">Brak historii startów.</p>
-            ) : (
-              <MoreTable headers={['Rok', 'Regaty', 'Zespół', 'Miejsce']} rows={startyRows} limit={5} />
-            )}
+              <Sekcja tytul={`Skład zespołu${sklad.rok ? ` — ${sklad.rok}` : ''}`}>
+                {skladRows.length === 0 ? (
+                  <p className="text-slate-500">Brak danych o składzie.</p>
+                ) : (
+                  <MoreTable headers={['Imię', 'Nazwisko', 'Poziom ligi', 'Starty']} rows={skladRows} limit={4} />
+                )}
+              </Sekcja>
+
+              <Sekcja tytul="Lista startów">
+                {startyRows.length === 0 ? (
+                  <p className="text-slate-500">Brak historii startów.</p>
+                ) : (
+                  <MoreTable headers={['Rok', 'Regaty', 'Zespół', 'Miejsce']} rows={startyRows} limit={5} />
+                )}
+              </Sekcja>
+            </div>
           </div>
         </div>
       </section>
     </main>
+  )
+}
+
+function Sekcja({ tytul, children }: { tytul: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{tytul}</h2>
+      <div className="mb-4 mt-2 h-1 w-12 rounded-full bg-brand-red" />
+      {children}
+    </div>
   )
 }

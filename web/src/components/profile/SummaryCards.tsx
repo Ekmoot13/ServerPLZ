@@ -28,7 +28,7 @@ export default function SummaryCards({ stars = 0, groups }: { stars?: number; gr
                   c === g.cards[g.cards.length - 1] && g.cards.length % 2 === 1 ? 'col-span-2' : ''
                 }`}
               >
-                <div className="text-2xl font-extrabold leading-tight text-sky-900">{c.value}</div>
+                <div className="text-2xl font-extrabold leading-tight text-navy">{c.value}</div>
                 <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   {c.label}
                 </div>

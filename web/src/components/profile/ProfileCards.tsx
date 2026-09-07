@@ -14,13 +14,13 @@ export default function ProfileCards({ title, items }: { title: string; items: C
   if (items.length === 0) return null
   return (
     <div>
-      <h2 className="mb-4 text-2xl font-bold text-slate-900">{title}</h2>
+      <h2 className="mb-4 text-2xl font-extrabold uppercase tracking-wide text-navy">{title}</h2>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {items.map((it, i) => (
           <Link
             key={i}
             href={it.href}
-            className="group overflow-hidden rounded-lg border border-slate-200 transition hover:border-sky-400 hover:shadow-sm"
+            className="group overflow-hidden rounded-xl border border-slate-200 transition hover:border-brand-red hover:shadow-md"
           >
             {it.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -31,7 +31,7 @@ export default function ProfileCards({ title, items }: { title: string; items: C
                 {initials(it.nazwa)}
               </div>
             )}
-            <div className="p-2 text-center text-sm font-medium text-slate-700 group-hover:text-sky-600">
+            <div className="p-2 text-center text-sm font-semibold text-navy group-hover:text-brand-red">
               {it.nazwa}
             </div>
           </Link>

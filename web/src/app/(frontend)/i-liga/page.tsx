@@ -1,9 +1,7 @@
-import React from 'react'
-import Placeholder from '@/components/site/Placeholder'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'I Liga — Polska Liga Żeglarska' }
 
-export default function Page() {
-  return <Placeholder tytul="I Liga" />
+export default function ILigaRedirect() {
+  redirect('/1-liga')
 }

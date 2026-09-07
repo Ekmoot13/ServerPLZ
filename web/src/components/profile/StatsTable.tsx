@@ -20,10 +20,10 @@ export default function StatsTable({
 }) {
   if (rows.length === 0) return <p className="text-slate-500">Brak danych statystycznych.</p>
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200">
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full min-w-[620px] border-collapse text-sm">
         <thead>
-          <tr className="bg-slate-50 text-slate-600">
+          <tr className="bg-navy text-white">
             <th className="px-4 py-2 text-left font-semibold">Poziom ligi</th>
             <th className="px-4 py-2 text-center font-semibold">Regaty</th>
             <th className="px-4 py-2 text-center font-semibold">Wyścigi</th>
@@ -34,7 +34,7 @@ export default function StatsTable({
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} className="border-t border-slate-100 text-slate-700">
+            <tr key={i} className={`text-slate-700 ${i % 2 ? 'bg-slate-50' : 'bg-white'}`}>
               <td className="px-4 py-2">{r.liga}</td>
               <td className="px-4 py-2 text-center">{r.regaty}</td>
               <td className="px-4 py-2 text-center">{r.wyscigi}</td>
@@ -43,7 +43,7 @@ export default function StatsTable({
               <td className="px-4 py-2 text-center">{r.srWys}</td>
             </tr>
           ))}
-          <tr className="border-t border-slate-200 bg-slate-50 font-bold text-slate-800">
+          <tr className="border-t-2 border-navy/20 bg-slate-100 font-bold text-navy">
             <td className="px-4 py-2">SUMA</td>
             <td className="px-4 py-2 text-center">{totals.regaty}</td>
             <td className="px-4 py-2 text-center">{totals.wyscigi}</td>

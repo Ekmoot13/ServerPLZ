@@ -71,6 +71,7 @@ export interface Config {
     posts: Post;
     kluby: Kluby;
     zawodnicy: Zawodnicy;
+    kalendarz: Kalendarz;
     sponsorzy: Sponsorzy;
     team: Team;
     transmisje: Transmisje;
@@ -98,6 +99,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     kluby: KlubySelect<false> | KlubySelect<true>;
     zawodnicy: ZawodnicySelect<false> | ZawodnicySelect<true>;
+    kalendarz: KalendarzSelect<false> | KalendarzSelect<true>;
     sponsorzy: SponsorzySelect<false> | SponsorzySelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     transmisje: TransmisjeSelect<false> | TransmisjeSelect<true>;
@@ -123,11 +125,15 @@ export interface Config {
     header: Header;
     footer: Footer;
     'strefa-kibica': StrefaKibica;
+    'kalendarz-ustawienia': KalendarzUstawienia;
+    'strona-glowna': StronaGlowna;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'strefa-kibica': StrefaKibicaSelect<false> | StrefaKibicaSelect<true>;
+    'kalendarz-ustawienia': KalendarzUstawieniaSelect<false> | KalendarzUstawieniaSelect<true>;
+    'strona-glowna': StronaGlownaSelect<false> | StronaGlownaSelect<true>;
   };
   locale: null;
   widgets: {
@@ -868,6 +874,27 @@ export interface Zawodnicy {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kalendarz".
+ */
+export interface Kalendarz {
+  id: number;
+  nazwa: string;
+  poziom?: string | null;
+  miejsce?: string | null;
+  dataOd: string;
+  dataDo?: string | null;
+  link?: string | null;
+  /**
+   * Włączone: status ustala się sam z daty (zaplanowane → w trakcie → odbyły się). Wyłączone: używany jest status ręczny poniżej.
+   */
+  autoStatus?: boolean | null;
+  statusReczny?: ('zaplanowane' | 'w-trakcie' | 'odbyly-sie') | null;
+  kolejnosc?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "sponsorzy".
  */
 export interface Sponsorzy {
@@ -1125,6 +1152,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'zawodnicy';
         value: number | Zawodnicy;
+      } | null)
+    | ({
+        relationTo: 'kalendarz';
+        value: number | Kalendarz;
       } | null)
     | ({
         relationTo: 'sponsorzy';
@@ -1421,6 +1452,23 @@ export interface ZawodnicySelect<T extends boolean = true> {
       };
   aktywny?: T;
   idZawodnika?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kalendarz_select".
+ */
+export interface KalendarzSelect<T extends boolean = true> {
+  nazwa?: T;
+  poziom?: T;
+  miejsce?: T;
+  dataOd?: T;
+  dataDo?: T;
+  link?: T;
+  autoStatus?: T;
+  statusReczny?: T;
+  kolejnosc?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1940,6 +1988,7 @@ export interface Footer {
  */
 export interface StrefaKibica {
   id: number;
+  pokazPrzycisk?: boolean | null;
   pokazMape?: boolean | null;
   /**
    * Wklej pełny adres RaceBoard.html z SAP dla bieżącej rundy (…/gwt/RaceBoard.html?…&mode=PLAYER).
@@ -1953,6 +2002,110 @@ export interface StrefaKibica {
    * Dokładna nazwa leaderboardu z SAP, np. „Polish Sailing League 2026 (2nd divison) - Gdynia (3)".
    */
   leaderboardName?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kalendarz-ustawienia".
+ */
+export interface KalendarzUstawienia {
+  id: number;
+  /**
+   * Ustaw kolejność, w jakiej poziomy (ligi) mają się wyświetlać na stronie kalendarza. Poziomy spoza listy trafią na koniec.
+   */
+  poziomy?:
+    | {
+        nazwa: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "strona-glowna".
+ */
+export interface StronaGlowna {
+  id: number;
+  aktualnosci?: {
+    tryb?: ('rotacja' | 'pojedynczy') | null;
+    pojedynczyElement?: ('baner' | 'facebook' | 'instagram') | null;
+    pokazFacebook?: boolean | null;
+    pokazInstagram?: boolean | null;
+    pokazBaner?: boolean | null;
+    /**
+     * Numeryczne ID strony FB (Graph API).
+     */
+    fbPageId?: string | null;
+    fbToken?: string | null;
+    igUserId?: string | null;
+    igToken?: string | null;
+    banerTytul?: string | null;
+    banerTekst?: string | null;
+    banerLink?: string | null;
+    banerObraz?: string | null;
+  };
+  nastepneRegaty?: {
+    pokaz?: boolean | null;
+    tytul?: string | null;
+  };
+  wprowadzenie?: {
+    tytul?: string | null;
+    tekst?: string | null;
+    obrazTla?: string | null;
+    jakSieScigamyHtml?: string | null;
+    poziomyObraz?: string | null;
+    jakSledzic?:
+      | {
+          label?: string | null;
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    media?:
+      | {
+          kategoria?: string | null;
+          loga?:
+            | {
+                logoUrl?: string | null;
+                link?: string | null;
+                nazwa?: string | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    zgloszeniaIntro?: string | null;
+    zgloszeniaLigi?:
+      | {
+          nazwa?: string | null;
+          logoUrl?: string | null;
+          wiecejLink?: string | null;
+          wyslijLink?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  sponsorzy?: {
+    tytul?: string | null;
+    grupy?:
+      | {
+          kategoria?: string | null;
+          loga?:
+            | {
+                logoUrl?: string | null;
+                link?: string | null;
+                nazwa?: string | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2007,10 +2160,117 @@ export interface FooterSelect<T extends boolean = true> {
  * via the `definition` "strefa-kibica_select".
  */
 export interface StrefaKibicaSelect<T extends boolean = true> {
+  pokazPrzycisk?: T;
   pokazMape?: T;
   mapaUrl?: T;
   sapBase?: T;
   leaderboardName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kalendarz-ustawienia_select".
+ */
+export interface KalendarzUstawieniaSelect<T extends boolean = true> {
+  poziomy?:
+    | T
+    | {
+        nazwa?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "strona-glowna_select".
+ */
+export interface StronaGlownaSelect<T extends boolean = true> {
+  aktualnosci?:
+    | T
+    | {
+        tryb?: T;
+        pojedynczyElement?: T;
+        pokazFacebook?: T;
+        pokazInstagram?: T;
+        pokazBaner?: T;
+        fbPageId?: T;
+        fbToken?: T;
+        igUserId?: T;
+        igToken?: T;
+        banerTytul?: T;
+        banerTekst?: T;
+        banerLink?: T;
+        banerObraz?: T;
+      };
+  nastepneRegaty?:
+    | T
+    | {
+        pokaz?: T;
+        tytul?: T;
+      };
+  wprowadzenie?:
+    | T
+    | {
+        tytul?: T;
+        tekst?: T;
+        obrazTla?: T;
+        jakSieScigamyHtml?: T;
+        poziomyObraz?: T;
+        jakSledzic?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        media?:
+          | T
+          | {
+              kategoria?: T;
+              loga?:
+                | T
+                | {
+                    logoUrl?: T;
+                    link?: T;
+                    nazwa?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        zgloszeniaIntro?: T;
+        zgloszeniaLigi?:
+          | T
+          | {
+              nazwa?: T;
+              logoUrl?: T;
+              wiecejLink?: T;
+              wyslijLink?: T;
+              id?: T;
+            };
+      };
+  sponsorzy?:
+    | T
+    | {
+        tytul?: T;
+        grupy?:
+          | T
+          | {
+              kategoria?: T;
+              loga?:
+                | T
+                | {
+                    logoUrl?: T;
+                    link?: T;
+                    nazwa?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -1,12 +1,12 @@
-import Script from 'next/script'
 import React from 'react'
 
 import { defaultTheme, themeLocalStorageKey } from '../ThemeSelector/types'
 
 export const InitTheme: React.FC = () => {
   return (
-    // eslint-disable-next-line @next/next/no-before-interactive-script-outside-document
-    <Script
+    // Zwykły <script> w <head> — wykonuje się przy parsowaniu dokumentu (bez migotania motywu).
+    <script
+      id="theme-script"
       dangerouslySetInnerHTML={{
         __html: `
   (function () {
@@ -43,8 +43,6 @@ export const InitTheme: React.FC = () => {
   })();
   `,
       }}
-      id="theme-script"
-      strategy="beforeInteractive"
     />
   )
 }

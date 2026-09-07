@@ -26,12 +26,12 @@ export default function MoreTable({
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="overflow-x-auto rounded-xl border border-slate-200">
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <thead>
-            <tr className="bg-slate-50 text-left text-slate-600">
+            <tr className="bg-navy text-left text-white">
               {headers.map((h) => (
-                <th key={h} className="px-4 py-2 font-semibold">
+                <th key={h} className="px-4 py-2.5 font-bold">
                   {h}
                 </th>
               ))}
@@ -39,17 +39,17 @@ export default function MoreTable({
           </thead>
           <tbody>
             {visible.map((row, i) => (
-              <tr key={i} className="border-t border-slate-100">
+              <tr key={i} className={i % 2 ? 'bg-slate-50' : 'bg-white'}>
                 {row.map((cell, j) => {
                   const isTop3 = cell.place != null && cell.place <= 3
                   return (
                     <td
                       key={j}
-                      className={`px-4 py-2 ${isTop3 ? 'font-semibold text-sky-800' : 'text-slate-700'}`}
+                      className={`px-4 py-2 ${isTop3 ? 'font-semibold text-navy' : 'text-slate-700'}`}
                     >
                       {medal(cell.place)}
                       {cell.href ? (
-                        <Link href={cell.href} className="text-sky-600 hover:underline">
+                        <Link href={cell.href} className="text-navy hover:text-brand-red">
                           {cell.value}
                         </Link>
                       ) : (
@@ -68,7 +68,7 @@ export default function MoreTable({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-3 inline-block rounded-full border border-sky-800/35 px-4 py-2 text-sm font-bold text-sky-900 transition hover:border-sky-800 hover:bg-sky-50"
+          className="mt-3 inline-block rounded-[10px] border-2 border-navy px-4 py-2 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white"
         >
           {expanded ? 'Pokaż mniej' : `Pokaż więcej (${rows.length - limit})`}
         </button>

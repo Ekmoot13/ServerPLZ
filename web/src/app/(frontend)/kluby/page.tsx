@@ -1,33 +1,48 @@
-// Lista klubów: domyślnie aktywne kluby wg poziomu ligi i miejsca w bieżącym sezonie,
-// wyszukiwarka przeszukuje wszystkie kluby. Dane z tabel liga_* (PostgreSQL).
+// Zespoły — kluby bieżącego sezonu (na bieżąco z bazy liga_*), układ podium + rzędy per liga.
+// Zdjęcia i logotypy z ligazeglarska.pl (lib/klubMedia). Dwie wyszukiwarki: zawodnik i klub.
 import React from 'react'
-import { getKluby, getAktualneKluby } from '@/lib/liga'
-import KlubySearch from './KlubySearch'
+import { getAktualneKluby, getZawodnicy, getKluby } from '@/lib/liga'
+import { getKlubMedia } from '@/lib/klubMedia'
+import ZespolyWidok, { type Grupa } from './ZespolyWidok'
 
 export const dynamic = 'force-dynamic'
-
-export const metadata = {
-  title: 'Kluby — Polska Liga Żeglarska',
-}
+export const metadata = { title: 'Zespoły — Polska Liga Żeglarska' }
 
 export default async function KlubyPage() {
-  const [kluby, grupy] = await Promise.all([getKluby(), getAktualneKluby()])
+  const [grupyRaw, zawodnicyRaw, klubyRaw] = await Promise.all([getAktualneKluby(), getZawodnicy(), getKluby()])
+
+  const grupy: Grupa[] = grupyRaw.map((g) => ({
+    poziom: g.poziom,
+    kluby: g.kluby.map((k) => {
+      const m = getKlubMedia(k.nazwa)
+      return { nazwa: k.nazwa, slug: k.slug, miejsce: k.miejsce, foto: m?.foto || null, logo: m?.logo || null }
+    }),
+  }))
+
+  const zawodnicy = zawodnicyRaw.map((z) => ({ imie: z.imie, nazwisko: z.nazwisko, slug: z.slug }))
+  const kluby = klubyRaw.map((k) => ({ nazwa: k.nazwa, slug: k.slug }))
 
   return (
-    <main>
+    <main className="bg-slate-50">
       {/* HERO */}
-      <section className="bg-slate-900 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-14">
-          <h1 className="text-4xl font-bold md:text-5xl">Kluby</h1>
-          <p className="mt-4 max-w-2xl text-slate-300">
-            Kluby bieżącego sezonu wg poziomu ligi. Wybierz klub, żeby zobaczyć skład zespołu, statystyki
-            i historię sezonów. Pozostałe kluby znajdziesz przez wyszukiwarkę.
-          </p>
+      <section
+        className="bg-navy text-white"
+        style={{
+          backgroundImage: 'url(/pkr-pattern-soft.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          backgroundAttachment: 'fixed',
+        }}
+      >
+        <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:py-20">
+          <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Zespoły</h1>
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <KlubySearch allItems={kluby} groups={grupy} />
+      <section className="mx-auto max-w-[1440px] px-4 py-12">
+        <ZespolyWidok grupy={grupy} zawodnicy={zawodnicy} kluby={kluby} />
       </section>
     </main>
   )

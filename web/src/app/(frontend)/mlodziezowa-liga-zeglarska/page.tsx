@@ -1,9 +1,9 @@
 import React from 'react'
-import Placeholder from '@/components/site/Placeholder'
+import LigaLanding from '@/components/site/LigaLanding'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Młodzieżowa Liga Żeglarska — Polska Liga Żeglarska' }
 
-export default function Page() {
-  return <Placeholder tytul="Młodzieżowa Liga Żeglarska" />
+export default function MlodziezowaPage() {
+  return <LigaLanding poziom={/m[łl]odzie/i} tytul="Młodzieżowa Liga Żeglarska" />
 }
