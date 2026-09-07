@@ -9,6 +9,7 @@ import MistrzowieKaruzela, { type Mistrz } from '@/components/home/MistrzowieKar
 import WynikiHome from '@/components/home/WynikiHome'
 import NewsletterSekcja from '@/components/home/NewsletterSekcja'
 import Sponsorzy from '@/components/home/Sponsorzy'
+import PasekRegat from '@/components/home/PasekRegat'
 import { getLataWynikow, getWynikiPelne } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
 import { getLatestYouTube } from '@/lib/youtube'
@@ -17,7 +18,7 @@ export const dynamic = 'force-dynamic'
 
 const U = 'https://ligazeglarska.pl/wp-content/uploads'
 const YT_CHANNEL = 'UC-iLVLnRVlBDvn-NMc-HjTA'
-const HERO_BG = `${U}/2025/11/EXR1_229_gwidon_libera-scaled.jpg`
+const HERO_BG = `${U}/2026/05/1LR1_0059_szymon_sikora.jpg`
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 
@@ -132,12 +133,40 @@ export default async function HomePage() {
 
   const mistrzowie: Mistrz[] = MISTRZOWIE_DATA.map((m) => ({ ...m, logo: getKlubMedia(m.klub)?.logo || null }))
 
+  // najbliższa (lub trwająca) regata z kalendarza do paska odliczania
+  const dzis = new Date()
+  dzis.setHours(0, 0, 0, 0)
+  const kalRes = await payload
+    .find({
+      collection: 'kalendarz' as any,
+      where: { or: [{ dataOd: { greater_than_equal: dzis.toISOString() } }, { dataDo: { greater_than_equal: dzis.toISOString() } }] },
+      sort: 'dataOd',
+      limit: 1,
+      depth: 0,
+    })
+    .catch(() => ({ docs: [] as any[] }))
+  const nastRegata: any = (kalRes.docs as any[])?.[0] || null
+
   return (
     <main className="bg-slate-50">
+      {/* PASEK NAJBLIŻSZYCH REGAT (tylko strona główna) */}
+      {nastRegata && (
+        <PasekRegat
+          dane={{
+            nazwa: nastRegata.nazwa,
+            miejsce: nastRegata.miejsce,
+            poziom: nastRegata.poziom,
+            dataOd: nastRegata.dataOd,
+            dataDo: nastRegata.dataDo,
+            link: nastRegata.link,
+          }}
+        />
+      )}
+
       {/* HERO — NEWSY na tle zdjęcia */}
       <section className="relative bg-navy">
         <Img src={HERO_BG} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-navy/40" />
+        <div className="absolute inset-0 bg-navy/20" />
         <div className="relative mx-auto max-w-[1440px] px-4 py-10 md:py-14">
           <div className="rounded-2xl bg-white p-5 shadow-2xl md:p-6">
             {glowny ? (
@@ -266,24 +295,30 @@ export default async function HomePage() {
           <div className="mx-auto max-w-[1440px] px-4 py-14">
             <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Zobacz nasz magazyn</h2>
             <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
-            <div className="grid items-stretch gap-6 lg:grid-cols-[1.6fr_1fr]">
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-black">
-                <div className="relative aspect-video">
-                  <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${yt0.id}`} title={yt0.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+            <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-4 shadow-sm md:p-6">
+              <div className="grid items-stretch gap-5 lg:grid-cols-[1.6fr_1fr] md:gap-6">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-md ring-1 ring-black/5">
+                  <div className="relative aspect-video">
+                    <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${yt0.id}`} title={yt0.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+                  </div>
                 </div>
-              </div>
-              <div className="flex h-full flex-col justify-between gap-3">
-                {filmy.slice(1, 4).map((v) => (
-                  <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="group flex flex-1 gap-3 overflow-hidden rounded-xl border border-slate-200 transition hover:shadow-md">
-                    <div className="relative w-40 shrink-0 self-stretch">
-                      <Img src={v.thumb} alt={v.title} className="h-full w-full object-cover" />
-                      <span className="absolute inset-0 flex items-center justify-center"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-xs text-white">▶</span></span>
-                    </div>
-                    <div className="flex flex-1 items-center py-2 pr-3">
-                      <p className="line-clamp-3 text-sm font-medium text-navy group-hover:text-brand-red">{v.title}</p>
-                    </div>
-                  </a>
-                ))}
+                <div className="flex h-full flex-col gap-4">
+                  {filmy.slice(1, 4).map((v) => (
+                    <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="group flex flex-1 items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-red/40 hover:shadow-md">
+                      <div className="flex flex-1 items-center">
+                        <p className="line-clamp-3 text-base font-bold leading-snug text-navy transition group-hover:text-brand-red md:text-lg">{v.title}</p>
+                      </div>
+                      <div className="relative aspect-video w-36 shrink-0 overflow-hidden rounded-xl border border-slate-200 md:w-48">
+                        <Img src={v.thumb} alt={v.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 pl-0.5 text-white shadow-lg transition group-hover:scale-110">
+                            <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M8 5v14l11-7z" /></svg>
+                          </span>
+                        </span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="mt-8 text-center">
