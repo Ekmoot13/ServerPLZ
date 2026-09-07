@@ -1,33 +1,111 @@
-// STRONA GŁÓWNA — sekcje: aktualności → następne regaty → wprowadzenie (pop-upy) → sponsorzy.
-// Cała treść edytowalna w panelu redaktora (globalny obiekt „Strona główna”).
+// STRONA GŁÓWNA — odwzorowanie ligazeglarska.pl: newsy (hero), Regaty jak na stadionie,
+// Klubowi Mistrzowie Polski, Ostatnie regaty/Ranking, Czym jest liga, magazyn (YT), sponsorzy.
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
 import React from 'react'
-import Aktualnosci, { AktualnosciItem } from '@/components/home/Aktualnosci'
 import Wprowadzenie from '@/components/home/Wprowadzenie'
-import { statusRegat } from '@/lib/kalendarz'
-import { getLatestFacebookPost, getLatestInstagramMedia } from '@/lib/social'
+import MistrzowieKaruzela, { type Mistrz } from '@/components/home/MistrzowieKaruzela'
+import WynikiHome from '@/components/home/WynikiHome'
+import NewsletterSekcja from '@/components/home/NewsletterSekcja'
+import Sponsorzy from '@/components/home/Sponsorzy'
+import { getLataWynikow, getWynikiPelne } from '@/lib/liga'
+import { getKlubMedia } from '@/lib/klubMedia'
+import { getLatestYouTube } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
 
-const MIES = [
-  'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-  'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
-]
-function dataRegat(od?: string | null, doo?: string | null): string {
-  if (!od) return ''
-  const a = new Date(od)
-  const b = doo ? new Date(doo) : null
-  if (!b || (a.getMonth() === b.getMonth() && a.getDate() === b.getDate())) return `${a.getDate()} ${MIES[a.getMonth()]}`
-  if (a.getMonth() === b.getMonth()) return `${a.getDate()}–${b.getDate()} ${MIES[a.getMonth()]}`
-  return `${a.getDate()} ${MIES[a.getMonth()]} – ${b.getDate()} ${MIES[b.getMonth()]}`
+const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const YT_CHANNEL = 'UC-iLVLnRVlBDvn-NMc-HjTA'
+const HERO_BG = `${U}/2025/11/EXR1_229_gwidon_libera-scaled.jpg`
+// eslint-disable-next-line @next/next/no-img-element
+const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
+
+const patternBg: React.CSSProperties = {
+  backgroundImage: 'url(/pkr-pattern-soft.png)',
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  backgroundAttachment: 'fixed',
 }
 
-function dataNews(d?: string | null): string {
+const MISTRZOWIE_DATA = [
+  { rok: 2015, klub: 'Yacht Club Sopot' },
+  { rok: 2016, klub: 'AZS Politechnika Gdańska' },
+  { rok: 2017, klub: 'Yacht Club Sopot' },
+  { rok: 2018, klub: 'Olsztyński Klub Żeglarski' },
+  { rok: 2019, klub: 'Giżycka Grupa Regatowa' },
+  { rok: 2020, klub: 'YKP Gdynia' },
+  { rok: 2021, klub: 'YKP Gdynia' },
+  { rok: 2022, klub: 'Balex YKP Gdynia' },
+  { rok: 2023, klub: 'Yacht Club Gdańsk' },
+  { rok: 2024, klub: 'Yacht Club Sopot' },
+  { rok: 2025, klub: 'Yacht Club Gdańsk' },
+]
+
+const GALERIA = [
+  `${U}/2025/08/YHR3__S_02232_Bartosz_Modelski-2.jpg`,
+  `${U}/2025/07/EXR2_0248_gwidon_libera_-scaled.jpg`,
+  `${U}/2025/11/1L3R_IMG_5901_Bartosz_Modelski.jpg`,
+  `${U}/2025/07/Y2_0012_gwidon_libera_-scaled.jpg`,
+  `${U}/2025/11/YHR3__S_01310_Bartosz_Modelski-2.jpg`,
+  `${U}/2025/11/PLZ_EXR4__S_03921_Bartosz_Modelski.jpg`,
+]
+
+const JAK_SLEDZIC_KANALY = [
+  { logo: `${U}/2025/03/2-1.png`, nazwa: 'Tracking SAP', opis: 'Pozycje jachtów, prędkość i wyniki na żywo.', url: 'https://www.sapsailing.com/' },
+  { logo: `${U}/2025/03/1.png`, nazwa: 'Kanał na YouTube', opis: 'Konferencje, studia eksperckie i magazyny sportowe.', url: 'https://www.youtube.com/@kanalzeglarski' },
+  { logo: `${U}/2025/05/Logo_TVP_Sport-1024x280.jpg`, nazwa: 'TVP Sport', opis: 'Magazyny podsumowujące po każdej rundzie regat.', url: 'https://sport.tvp.pl/86321430/polska-liga-zeglarska' },
+  { logo: `${U}/2025/03/3-1.png`, nazwa: 'Facebook', opis: 'Transmisje live, relacje na bieżąco prosto z wody.', url: 'https://www.facebook.com/LigaZeglarska' },
+  { logo: `${U}/2025/03/4.png`, nazwa: 'Instagram', opis: 'Wydarzenia z pierwszej ręki i krótkie podsumowania.', url: 'https://www.instagram.com/polskaligazeglarska/' },
+  { logo: `${U}/2025/05/Projekt-bez-nazwy.jpg`, nazwa: 'WhatsApp', opis: 'Najważniejsze ogłoszenia w naszej społeczności.', url: 'https://chat.whatsapp.com/JQRZWPIGH7x7OAHW8QaKRH' },
+]
+
+const REGATY_INTRO = [
+  'Polska Liga Żeglarska to najbardziej widowiskowa forma żeglarstwa w Polsce — regaty rozgrywane tuż przy brzegu, na oczach kibiców. Ścigamy się na identycznych jachtach klasy RS21, dostarczanych przez organizatora, dzięki czemu o wyniku decydują wyłącznie umiejętności załóg.',
+  'Wyścigi są krótkie i dynamiczne — trwają zaledwie 10–12 minut, a podczas jednego weekendu regatowego rozgrywanych jest ich nawet 30. Wszystkie sporne sytuacje rozstrzygają arbitrzy na wodzie, bez protestów na brzegu i zbędnych przerw.',
+  'Rywalizacja toczy się na kilku poziomach — od Lig Regionalnych, przez Młodzieżową i 1 Ligę, aż po Ekstraklasę, w której najlepsze załogi w kraju walczą o Klubowe Mistrzostwo Polski.',
+]
+
+const ZGLOSZENIA_LIGI = [
+  {
+    nazwa: 'Młodzieżowa Liga Żeglarska',
+    logoUrl: `${U}/2025/10/Projekt-bez-nazwy-scaled-e1761668969140.png`,
+    wiecejLink: '/mlodziezowa-liga-zeglarska',
+    wyslijLink: 'mailto:info@ligazeglarska.pl',
+  },
+  {
+    nazwa: 'Trójmiejska Liga Żeglarska',
+    logoUrl: `${U}/2025/11/TLZ_LOGO_PION_KOLOR-1.png`,
+    wiecejLink: '/regionalne/trojmiejska-liga-zeglarska',
+    wyslijLink: 'mailto:info@ligazeglarska.pl',
+  },
+  {
+    nazwa: 'Wielkopolska Liga Żeglarska',
+    logoUrl: `${U}/2025/11/WLZ_LOGO_PION_KOLOR.png`,
+    wiecejLink: '/regionalne/wielkopolska-liga-zeglarska',
+    wyslijLink: 'mailto:info@wielkopolskaligazeglarska.pl',
+  },
+  {
+    nazwa: 'Centralna Liga Żeglarska',
+    logoUrl: `${U}/2025/11/CLZ_LOGO_PION_KOLOR.png`,
+    wiecejLink: '/regionalne/centralna-liga-zeglarska',
+    wyslijLink: 'mailto:info@centralnaligazeglarska.pl',
+  },
+]
+
+const O_NAS_LINKI = [
+  { label: 'Historia', href: '/historia' },
+  { label: 'Wartości', href: '/wartosci' },
+  { label: 'Środowisko', href: '/srodowisko' },
+  { label: 'Wspieramy', href: '/wspieramy' },
+  { label: 'Zespół', href: '/plz-team' },
+]
+
+function newsData(d?: string | null): string {
   if (!d) return ''
   try {
-    return new Date(d).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })
+    return new Date(d).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).toUpperCase()
   } catch {
     return ''
   }
@@ -36,230 +114,231 @@ function dataNews(d?: string | null): string {
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
   const sg: any = await payload.findGlobal({ slug: 'strona-glowna' as any }).catch(() => null)
-
-  const A = sg?.aktualnosci || {}
   const W = sg?.wprowadzenie || {}
-  const SP = sg?.sponsorzy || {}
-  const NR = sg?.nastepneRegaty || {}
 
-  // ---- AKTUALNOŚCI: budowa elementów ----
-  const items: AktualnosciItem[] = []
-  const chce = (typ: string) =>
-    A.tryb === 'pojedynczy' ? A.pojedynczyElement === typ : true
-
-  if ((A.pokazBaner ?? true) && chce('baner')) {
-    items.push({
-      typ: 'baner',
-      tytul: A.banerTytul || 'Śledź regaty na żywo',
-      tekst: A.banerTekst || '',
-      link: A.banerLink || '/regatowastrefakibica',
-      obraz: A.banerObraz || '',
-    })
-  }
-  if ((A.pokazFacebook ?? false) && chce('facebook')) {
-    const p = await getLatestFacebookPost(A.fbPageId, A.fbToken)
-    if (p) items.push({ typ: 'facebook', tekst: p.tekst, obraz: p.obraz, link: p.link })
-  }
-  if ((A.pokazInstagram ?? false) && chce('instagram')) {
-    const p = await getLatestInstagramMedia(A.igUserId, A.igToken)
-    if (p) items.push({ typ: 'instagram', tekst: p.tekst, obraz: p.obraz, link: p.link })
-  }
-
-  // ---- NEWSY: najnowszy (duży) + 3 poprzednie (małe) ----
   const newsRes = await payload
-    .find({
-      collection: 'posts',
-      where: { _status: { equals: 'published' } },
-      sort: '-publishedAt',
-      limit: 4,
-      depth: 1,
-    })
+    .find({ collection: 'posts', where: { _status: { equals: 'published' } }, sort: '-publishedAt', limit: 5, depth: 1 })
     .catch(() => ({ docs: [] as any[] }))
   const news = (newsRes.docs as any[]) || []
-  const glownyNews = news[0] || null
-  const poboczneNews = news.slice(1, 4)
+  const glowny = news[0] || null
+  const poboczne = news.slice(1, 5)
 
-  // ---- NASTĘPNE REGATY: z kalendarza ----
-  let biezace: any = null
-  let nastepne: any = null
-  let ostatnie: any = null
-  if (NR.pokaz ?? true) {
-    const res = await payload.find({ collection: 'kalendarz' as any, limit: 300, depth: 0, sort: 'dataOd' })
-    const terminy = (res.docs as any[]).map((t) => ({ ...t, _s: statusRegat(t) }))
-    biezace = terminy.find((t) => t._s === 'w-trakcie') || null
-    nastepne = terminy.filter((t) => t._s === 'zaplanowane').sort((a, b) => new Date(a.dataOd).getTime() - new Date(b.dataOd).getTime())[0] || null
-    ostatnie = terminy.filter((t) => t._s === 'odbyly-sie').sort((a, b) => new Date(b.dataOd).getTime() - new Date(a.dataOd).getTime())[0] || null
-  }
-  const karty = [
-    { etykieta: 'Ostatnie regaty', reg: ostatnie, kolor: 'from-slate-400 to-slate-500' },
-    { etykieta: 'Trwają teraz', reg: biezace, kolor: 'from-red-500 to-orange-500' },
-    { etykieta: 'Następne regaty', reg: nastepne, kolor: 'from-sky-500 to-indigo-500' },
-  ].filter((k) => k.reg)
+  const lata = await getLataWynikow()
+  const rok = lata[0]
+  const ligi = rok ? await getWynikiPelne(rok) : []
 
-  // ---- WPROWADZENIE: akapity z pola tekstowego ----
-  const akapity: string[] = String(W.tekst || '')
-    .split(/\n\s*\n/)
-    .map((s) => s.trim())
-    .filter(Boolean)
+  const filmy = await getLatestYouTube(YT_CHANNEL, 4)
+  const yt0 = filmy[0] || null
 
-  const grupySponsorow: any[] = Array.isArray(SP.grupy) ? SP.grupy : []
+  const mistrzowie: Mistrz[] = MISTRZOWIE_DATA.map((m) => ({ ...m, logo: getKlubMedia(m.klub)?.logo || null }))
 
   return (
     <main className="bg-slate-50">
-      {/* SEKCJA 1: AKTUALNOŚCI */}
-      <section className="mx-auto max-w-6xl px-4 pt-10 pb-6">
-        {items.length > 0 ? (
-          <Aktualnosci items={items} tryb={A.tryb === 'pojedynczy' ? 'pojedynczy' : 'rotacja'} />
-        ) : (
-          <div className="rounded-2xl bg-slate-900 p-10 text-center text-white">
-            <h2 className="text-2xl font-bold">Polska Liga Żeglarska</h2>
-            <Link href="/regatowastrefakibica" className="mt-4 inline-block rounded-full bg-red-600 px-6 py-2 font-bold">
-              Śledź regaty →
-            </Link>
-          </div>
-        )}
-      </section>
-
-      {/* SEKCJA: NEWSY (najnowszy duży + 3 poprzednie małe) */}
-      {glownyNews && (
-        <section className="mx-auto max-w-6xl px-4 py-8">
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="text-2xl font-bold text-slate-900">Newsy</h2>
-            <Link href="/newsy" className="text-sm font-semibold text-sky-600 hover:underline">
-              Wszystkie newsy →
-            </Link>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-2">
-            {/* DUŻY */}
-            <Link
-              href={`/posts/${glownyNews.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:shadow-lg"
-            >
-              {glownyNews?.heroImage?.url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={glownyNews.heroImage.url} alt={glownyNews.title} className="h-72 w-full object-cover md:h-80" />
-              ) : (
-                <div className="h-72 w-full bg-slate-100 md:h-80" />
-              )}
-              <div className="flex flex-1 flex-col p-5">
-                {glownyNews?.categories?.[0]?.title && (
-                  <span className="text-xs font-semibold uppercase tracking-wide text-sky-600">
-                    {glownyNews.categories[0].title}
-                  </span>
-                )}
-                <h3 className="mt-1 text-xl font-bold leading-snug text-slate-900 group-hover:text-sky-600 md:text-2xl">
-                  {glownyNews.title}
-                </h3>
-                <p className="mt-auto pt-3 text-sm text-slate-500">{dataNews(glownyNews.publishedAt)}</p>
-              </div>
-            </Link>
-
-            {/* 3 MNIEJSZE */}
-            <div className="flex flex-col gap-4">
-              {poboczneNews.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/posts/${p.slug}`}
-                  className="group flex gap-4 overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:shadow-md"
-                >
-                  {p?.heroImage?.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.heroImage.url} alt={p.title} className="h-28 w-40 flex-shrink-0 object-cover" />
+      {/* HERO — NEWSY na tle zdjęcia */}
+      <section className="relative bg-navy">
+        <Img src={HERO_BG} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-navy/40" />
+        <div className="relative mx-auto max-w-[1440px] px-4 py-10 md:py-14">
+          <div className="rounded-2xl bg-white p-5 shadow-2xl md:p-6">
+            {glowny ? (
+              <div className="grid items-stretch gap-5 lg:grid-cols-[1.5fr_1fr]">
+                {/* DUŻY */}
+                <Link href={`/posts/${glowny.slug}`} className="group relative block h-full min-h-[300px] overflow-hidden rounded-2xl border border-slate-200 md:min-h-[440px]">
+                  {glowny?.heroImage?.url ? (
+                    <Img src={glowny.heroImage.url} alt={glowny.title} className="absolute inset-0 h-full w-full object-cover" />
                   ) : (
-                    <div className="h-28 w-40 flex-shrink-0 bg-slate-100" />
+                    <div className="absolute inset-0 bg-slate-100" />
                   )}
-                  <div className="flex flex-1 flex-col py-3 pr-3">
-                    {p?.categories?.[0]?.title && (
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-sky-600">
-                        {p.categories[0].title}
-                      </span>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-5">
+                    {glowny?.categories?.[0]?.title && (
+                      <span className="text-[11px] font-bold uppercase tracking-wide text-brand-red">{glowny.categories[0].title}</span>
                     )}
-                    <h4 className="mt-0.5 line-clamp-3 text-sm font-semibold leading-snug text-slate-800 group-hover:text-sky-600">
-                      {p.title}
-                    </h4>
-                    <p className="mt-auto pt-2 text-xs text-slate-500">{dataNews(p.publishedAt)}</p>
+                    <h2 className="text-xl font-extrabold text-white group-hover:underline md:text-2xl">{glowny.title}</h2>
+                    <p className="mt-1 text-xs font-semibold text-white/80">{newsData(glowny.publishedAt)}</p>
                   </div>
                 </Link>
+                {/* 4 MNIEJSZE */}
+                <div className="flex h-full flex-col justify-between gap-3">
+                  {poboczne.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/posts/${p.slug}`}
+                      className="group flex flex-1 items-center gap-3 rounded-2xl border border-slate-200 p-3 transition hover:border-brand-red hover:shadow-sm"
+                    >
+                      <div className="min-w-0 flex-1">
+                        {p?.categories?.[0]?.title && (
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-brand-red">{p.categories[0].title}</span>
+                        )}
+                        <h3 className="line-clamp-3 text-sm font-bold leading-snug text-navy group-hover:text-brand-red">{p.title}</h3>
+                        <p className="mt-1 text-[11px] text-slate-400">{newsData(p.publishedAt)}</p>
+                      </div>
+                      {p?.heroImage?.url && (
+                        <Img src={p.heroImage.url} alt={p.title} className="h-20 w-28 shrink-0 rounded-lg object-cover" />
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="py-10 text-center text-slate-500">Brak newsów.</p>
+            )}
+            <div className="mt-5 text-center">
+              <Link href="/newsy" className="inline-block rounded-[10px] border-2 border-navy px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white">
+                Zobacz wszystkie aktualności
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* REGATY JAK NA STADIONIE */}
+      <section className="bg-navy text-white" style={patternBg}>
+        <div className="mx-auto max-w-[1440px] px-4 py-14">
+          <Wprowadzenie
+            tytul={W.tytul || 'REGATY JAK NA STADIONIE'}
+            akapity={(() => {
+              const a = String(W.tekst || '').split(/\n\s*\n/).map((s: string) => s.trim()).filter(Boolean)
+              return a.length ? a : REGATY_INTRO
+            })()}
+            jakSieScigamyHref="/jak-sie-scigamy"
+            mediaHref="/media"
+            poziomyObraz={W.poziomyObraz || '/poziomy-lig.png'}
+            jakSledzicKanaly={JAK_SLEDZIC_KANALY}
+            zgloszeniaIntro={W.zgloszeniaIntro || 'Zobacz, w jakich ligach mamy wolne miejsca na kolejny sezon, dowiedz się więcej i wyślij zgłoszenie.'}
+            zgloszeniaLigi={Array.isArray(W.zgloszeniaLigi) && W.zgloszeniaLigi.length ? W.zgloszeniaLigi : ZGLOSZENIA_LIGI}
+          />
+        </div>
+      </section>
+
+      {/* KLUBOWI MISTRZOWIE POLSKI */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-[1440px] px-4 py-14">
+          <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Klubowi Mistrzowie Polski</h2>
+          <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+          <MistrzowieKaruzela items={mistrzowie} />
+        </div>
+      </section>
+
+      {/* NEWSLETTER */}
+      <NewsletterSekcja bg={`${U}/2026/02/WhatsApp-Image-2026-02-10-at-15.46.31.jpeg`} />
+
+      {/* OSTATNIE REGATY / RANKING */}
+      {ligi.length > 0 && (
+        <section className="bg-slate-50">
+          <div className="mx-auto max-w-[1440px] px-4 py-14">
+            <WynikiHome ligi={ligi as any} />
+            <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {GALERIA.map((src, i) => (
+                <div key={i} className="overflow-hidden rounded-lg">
+                  <Img src={src} className="h-28 w-full object-cover transition hover:scale-105" />
+                </div>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* SEKCJA 2: NASTĘPNE REGATY */}
-      {karty.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-8">
-          <h2 className="mb-6 text-2xl font-bold text-slate-900">{NR.tytul || 'Regaty'}</h2>
-          <div className="grid gap-5 md:grid-cols-3">
-            {karty.map((k) => (
-              <div key={k.etykieta} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className={`h-1.5 w-full bg-gradient-to-r ${k.kolor}`} />
-                <div className="p-5">
-                  <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">{k.etykieta}</div>
-                  <div className="text-lg font-extrabold text-slate-900">{k.reg.nazwa}</div>
-                  <div className="mt-1 text-2xl font-extrabold text-slate-900">{dataRegat(k.reg.dataOd, k.reg.dataDo)}</div>
-                  {k.reg.miejsce && <div className="mt-1 text-sm font-medium text-slate-500">📍 {k.reg.miejsce}</div>}
-                </div>
-              </div>
+      {/* CZYM JEST POLSKA LIGA ŻEGLARSKA */}
+      <section className="bg-navy text-white" style={patternBg}>
+        <div className="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-14 lg:grid-cols-[1.6fr_1fr]">
+          <div>
+            <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Czym jest Polska Liga Żeglarska?</h2>
+            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="space-y-4 text-white/85">
+              <p><strong>Polska Liga Żeglarska powstała w 2015 roku.</strong> Cykliczne regaty rozgrywane są na głównych poziomach — Ekstraklasa, 1 Liga, Ligi Regionalne. Organizujemy także Żeglarskie Mistrzostwa Polski Kobiet oraz Młodzieżową Ligę Żeglarską dla zawodniczek i zawodników do 25. roku życia.</p>
+              <p>System Polskiej Ligi Żeglarskiej to <strong>ponad 120 klubów i 500 zawodników</strong>, co stawia ją na czele wszystkich 24 lig na świecie. Liga jest członkiem ISLA, organizacji nadzorującej Sailing Champions League. Partnerem Strategicznym jest Polski Związek Żeglarski.</p>
+              <p>Nasza <strong>moc pochodzi z wiatru i wody</strong> — to nasze naturalne środowisko i źródło energii. Wierzymy w <strong>równość szans</strong>, wspieranie <strong>społeczności</strong> i aktywizację, a także w <strong>rozwój zgodny z naturą</strong>.</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 lg:pt-2">
+            {O_NAS_LINKI.map((l) => (
+              <Link key={l.href} href={l.href} className="rounded-full border-2 border-white/40 px-6 py-2.5 text-center text-sm font-bold uppercase tracking-wide transition hover:bg-white hover:text-navy">
+                {l.label}
+              </Link>
             ))}
           </div>
-          <div className="mt-6">
-            <Link href="/kalendarz" className="text-sm font-semibold text-sky-600 hover:underline">
-              Pełny kalendarz →
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* SEKCJA 3: WPROWADZENIE */}
-      <section className="mx-auto max-w-6xl px-4 py-8">
-        <Wprowadzenie
-          tytul={W.tytul || 'REGATY JAK NA STADIONIE'}
-          akapity={akapity}
-          obrazTla={W.obrazTla || ''}
-          jakSieScigamyHtml={W.jakSieScigamyHtml || ''}
-          poziomyObraz={W.poziomyObraz || '/poziomy-lig.png'}
-          jakSledzic={Array.isArray(W.jakSledzic) ? W.jakSledzic : []}
-          media={Array.isArray(W.media) ? W.media : []}
-          zgloszeniaIntro={W.zgloszeniaIntro || ''}
-          zgloszeniaLigi={Array.isArray(W.zgloszeniaLigi) ? W.zgloszeniaLigi : []}
-        />
+        </div>
       </section>
 
-      {/* SEKCJA 4: SPONSORZY */}
-      {grupySponsorow.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="mb-8 text-center text-2xl font-bold text-slate-900">{SP.tytul || 'Sponsorzy i Partnerzy'}</h2>
-          <div className="space-y-10">
-            {grupySponsorow.map((g: any, i: number) => (
-              <div key={i}>
-                <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.2em] text-slate-500">
-                  {g.kategoria}
-                </h3>
-                <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
-                  {(g.loga || []).map((lo: any, k: number) => {
-                    const el = lo.logoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={lo.logoUrl} alt={lo.nazwa || ''} className="max-h-16 w-auto object-contain grayscale transition hover:grayscale-0" />
-                    ) : (
-                      <span className="text-sm text-slate-400">{lo.nazwa}</span>
-                    )
-                    return lo.link ? (
-                      <a key={k} href={lo.link} target="_blank" rel="noopener noreferrer" className="block">
-                        {el}
-                      </a>
-                    ) : (
-                      <span key={k} className="block">
-                        {el}
-                      </span>
-                    )
-                  })}
+      {/* ZOBACZ NASZ MAGAZYN */}
+      {yt0 && (
+        <section className="bg-white">
+          <div className="mx-auto max-w-[1440px] px-4 py-14">
+            <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Zobacz nasz magazyn</h2>
+            <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="grid items-stretch gap-6 lg:grid-cols-[1.6fr_1fr]">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-black">
+                <div className="relative aspect-video">
+                  <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${yt0.id}`} title={yt0.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
                 </div>
               </div>
-            ))}
+              <div className="flex h-full flex-col justify-between gap-3">
+                {filmy.slice(1, 4).map((v) => (
+                  <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="group flex flex-1 gap-3 overflow-hidden rounded-xl border border-slate-200 transition hover:shadow-md">
+                    <div className="relative w-40 shrink-0 self-stretch">
+                      <Img src={v.thumb} alt={v.title} className="h-full w-full object-cover" />
+                      <span className="absolute inset-0 flex items-center justify-center"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-xs text-white">▶</span></span>
+                    </div>
+                    <div className="flex flex-1 items-center py-2 pr-3">
+                      <p className="line-clamp-3 text-sm font-medium text-navy group-hover:text-brand-red">{v.title}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="mt-8 text-center">
+              <a href={`https://www.youtube.com/channel/${YT_CHANNEL}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-[10px] border-2 border-navy px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white">
+                Zobacz wszystkie odcinki
+              </a>
+            </div>
           </div>
         </section>
       )}
+
+      {/* WSPÓŁPRACA */}
+      <section className="bg-navy text-white" style={patternBg}>
+        <div className="mx-auto grid max-w-[1440px] items-center gap-8 px-4 py-14 lg:grid-cols-[auto_1fr_auto] lg:gap-12">
+          <div className="flex justify-center lg:justify-start">
+            <Img src={`${U}/2024/02/PLZ-Business-200x300.png`} alt="Polska Liga Żeglarska Business" className="h-32 w-auto object-contain md:h-40" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Współpraca</h2>
+            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="space-y-4 text-white/85">
+              <p>
+                <strong>Autorski koncept regat w formie Żeglarstwa Stadionowego</strong> to doskonałe narzędzie promocyjne
+                łączące w sobie elementy prestiżowego sportu, networkingu i mediów.
+              </p>
+              <p>
+                Forma i proces realizacji są zgodne ze światowymi trendami w sporcie żeglarskim. Łączymy{' '}
+                <strong>profesjonalną organizację, media, widowiskowość</strong> oraz <strong>dopasowane świadczenia</strong>{' '}
+                dla sponsorów, partnerów i uczestników. Nasze projekty w polskim żeglarstwie oferują{' '}
+                <strong>nowy wymiar rywalizacji</strong> żeglarskiej, <strong>prestiżu i jakości</strong> regat, dzięki
+                ciągłemu rozwojowi, stale rosnącemu zainteresowaniu i wysokim standardom sportowym.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 lg:w-56 lg:pt-2">
+            {[
+              { label: 'Oferta', href: 'https://ligazeglarska.pl/oferta/' },
+              { label: 'Media', href: '/media' },
+              { label: 'Sprzęt', href: 'https://ligazeglarska.pl/#' },
+              { label: 'Bezpieczeństwo', href: 'https://ligazeglarska.pl/safety/' },
+            ].map((b) => (
+              <a
+                key={b.label}
+                href={b.href}
+                className="whitespace-nowrap rounded-full border border-white/40 bg-transparent px-6 py-2.5 text-center text-xs font-bold uppercase tracking-wide text-white transition hover:bg-white hover:text-navy md:text-sm"
+              >
+                {b.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SPONSORZY */}
+      <Sponsorzy />
     </main>
   )
 }
