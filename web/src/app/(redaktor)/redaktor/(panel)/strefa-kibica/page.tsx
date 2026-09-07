@@ -2,6 +2,7 @@ import React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { updateStrefaKibica } from '../../actions'
+import ProgramEditor from './ProgramEditor'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,6 +70,41 @@ export default async function StrefaKibicaSettingsPage({
             placeholder="Polish Sailing League 2026 (2nd divison) - Gdynia (3)"
             className={inputCls}
           />
+        </div>
+
+        {/* ---- SEKCJA INFORMACYJNA (PROGRAM WEEKENDU) ---- */}
+        <div className="border-t border-slate-200 pt-6">
+          <h2 className="mb-4 text-lg font-bold">Sekcja informacyjna (pod dashboardem)</h2>
+
+          <label className="mb-4 flex items-center gap-2 text-sm">
+            <input type="checkbox" name="pokazProgram" defaultChecked={s?.pokazProgram !== false} />
+            Pokaż sekcję informacyjną (program weekendu)
+          </label>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-sm font-medium text-slate-700">Nagłówek</label>
+            <input name="programTytul" defaultValue={s?.programTytul || 'Śledź z nami regaty dzień po dniu'} className={inputCls} />
+          </div>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-sm font-medium text-slate-700">Wstęp</label>
+            <textarea name="programWstep" defaultValue={s?.programWstep || ''} rows={2} className={inputCls} />
+          </div>
+
+          <ProgramEditor
+            initialLinki={Array.isArray(s?.linki) ? s.linki : []}
+            initialProgram={Array.isArray(s?.program) ? s.program : []}
+          />
+
+          <div className="mt-4">
+            <label className="mb-1 block text-sm font-medium text-slate-700">Lokalizacja — adres osadzenia mapy Google (opcjonalnie)</label>
+            <input
+              name="mapaEmbed"
+              defaultValue={s?.mapaEmbed || ''}
+              placeholder="https://www.google.com/maps/embed?pb=..."
+              className={inputCls}
+            />
+          </div>
         </div>
 
         <div className="border-t border-slate-200 pt-5">

@@ -179,9 +179,16 @@ export async function updateStrefaKibica(formData: FormData) {
     mapaUrl: String(formData.get('mapaUrl') || ''),
     sapBase: String(formData.get('sapBase') || ''),
     leaderboardName: String(formData.get('leaderboardName') || ''),
+    pokazProgram: formData.get('pokazProgram') === 'on',
+    programTytul: String(formData.get('programTytul') || ''),
+    programWstep: String(formData.get('programWstep') || ''),
+    linki: parseJson<any[]>(String(formData.get('linki') || ''), []),
+    program: parseJson<any[]>(String(formData.get('program') || ''), []),
+    mapaEmbed: String(formData.get('mapaEmbed') || ''),
   }
   await payload.updateGlobal({ slug: 'strefa-kibica', data, overrideAccess: true })
   revalidatePath('/')
+  revalidatePath('/regatowastrefakibica')
   redirect('/redaktor/strefa-kibica?ok=1')
 }
 

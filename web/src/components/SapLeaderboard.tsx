@@ -79,7 +79,7 @@ export default async function SapLeaderboard({ name, base }: { name: string; bas
           </thead>
           <tbody>
             {competitors.map((c) => (
-              <tr key={c.id} className="border-t border-slate-100 hover:bg-sky-50/50">
+              <tr key={c.id} className="border-t border-slate-100 hover:bg-navy/5">
                 <td className="px-3 py-2 font-semibold text-slate-700">{c.rank}</td>
                 <td className="px-3 py-2 font-medium text-slate-800">{c.name}</td>
                 {columns.map((col, i) => (

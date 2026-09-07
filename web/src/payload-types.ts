@@ -2002,6 +2002,37 @@ export interface StrefaKibica {
    * Dokładna nazwa leaderboardu z SAP, np. „Polish Sailing League 2026 (2nd divison) - Gdynia (3)".
    */
   leaderboardName?: string | null;
+  pokazProgram?: boolean | null;
+  programTytul?: string | null;
+  programWstep?: string | null;
+  /**
+   * Edytowane w panelu redaktora. Format: lista { label, url }.
+   */
+  linki?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Edytowany w panelu redaktora. Format: lista dni { tytul, pozycje:[{czas,opis,link}] }.
+   */
+  program?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Wklej URL z „Osadź mapę" Google Maps (https://www.google.com/maps/embed?...).
+   */
+  mapaEmbed?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2165,6 +2196,12 @@ export interface StrefaKibicaSelect<T extends boolean = true> {
   mapaUrl?: T;
   sapBase?: T;
   leaderboardName?: T;
+  pokazProgram?: T;
+  programTytul?: T;
+  programWstep?: T;
+  linki?: T;
+  program?: T;
+  mapaEmbed?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

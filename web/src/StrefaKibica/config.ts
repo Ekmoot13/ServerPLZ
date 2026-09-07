@@ -48,5 +48,41 @@ export const StrefaKibica: GlobalConfig = {
           'Dokładna nazwa leaderboardu z SAP, np. „Polish Sailing League 2026 (2nd divison) - Gdynia (3)".',
       },
     },
+    // ---- Sekcja informacyjna pod dashboardem (program weekendu) ----
+    {
+      name: 'pokazProgram',
+      type: 'checkbox',
+      label: 'Pokaż sekcję informacyjną (program weekendu) pod dashboardem',
+      defaultValue: true,
+    },
+    {
+      name: 'programTytul',
+      type: 'text',
+      label: 'Nagłówek sekcji informacyjnej',
+      defaultValue: 'Śledź z nami regaty dzień po dniu',
+    },
+    {
+      name: 'programWstep',
+      type: 'textarea',
+      label: 'Wstęp (krótki tekst pod nagłówkiem)',
+    },
+    {
+      name: 'linki',
+      type: 'json',
+      label: 'Szybkie linki (przyciski: etykieta + adres)',
+      admin: { description: 'Edytowane w panelu redaktora. Format: lista { label, url }.' },
+    },
+    {
+      name: 'program',
+      type: 'json',
+      label: 'Program weekendu (dni i punkty programu)',
+      admin: { description: 'Edytowany w panelu redaktora. Format: lista dni { tytul, pozycje:[{czas,opis,link}] }.' },
+    },
+    {
+      name: 'mapaEmbed',
+      type: 'text',
+      label: 'Lokalizacja — adres osadzenia mapy Google (opcjonalnie)',
+      admin: { description: 'Wklej URL z „Osadź mapę" Google Maps (https://www.google.com/maps/embed?...).' },
+    },
   ],
 }
