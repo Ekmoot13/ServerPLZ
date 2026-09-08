@@ -84,12 +84,13 @@ export default function PasekRegat({ dane }: { dane: PasekDane }) {
           )}
         </div>
 
-        {/* nazwa + przycisk */}
+        {/* poziom ligi + przycisk */}
         <div className="flex items-center gap-4">
-          <span className="hidden max-w-[220px] truncate text-sm font-bold uppercase text-white/80 lg:block">
-            {dane.poziom ? `${dane.poziom} · ` : ''}
-            {dane.nazwa}
-          </span>
+          {dane.poziom && (
+            <span className="hidden text-sm font-extrabold uppercase tracking-wide text-white sm:block">
+              {dane.poziom}
+            </span>
+          )}
           <Link
             href={link}
             className="whitespace-nowrap rounded-full bg-brand-red px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-brand-red-dark md:text-sm"

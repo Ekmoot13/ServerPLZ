@@ -44,8 +44,8 @@ export default function WynikiWidok({ ligi, ukryjPrzelacznik = false }: { ligi: 
               onClick={() => setLi(i)}
               className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold uppercase tracking-wide transition ${
                 i === li
-                  ? 'bg-brand-red text-white'
-                  : 'border-2 border-navy/15 bg-white text-navy hover:border-brand-red'
+                  ? 'bg-sky-500 text-white'
+                  : 'border-2 border-navy/15 bg-white text-navy hover:border-sky-500'
               }`}
             >
               {l.poziom}
@@ -102,7 +102,7 @@ export default function WynikiWidok({ ligi, ukryjPrzelacznik = false }: { ligi: 
                   </td>
                   <td className="px-3 py-2 text-slate-500">{row.skrot}</td>
                   <td className="px-3 py-2">
-                    <Link href={`/kluby/${row.slug}`} className="font-medium text-navy hover:text-brand-red">
+                    <Link href={`/kluby/${row.slug}`} className="font-medium text-navy hover:text-sky-600">
                       {row.klub}
                     </Link>
                   </td>
@@ -146,7 +146,7 @@ export default function WynikiWidok({ ligi, ukryjPrzelacznik = false }: { ligi: 
                     </td>
                     <td className="px-3 py-2 text-slate-500">{row.skrot}</td>
                     <td className="px-3 py-2">
-                      <Link href={`/kluby/${row.slug}`} className="font-medium text-navy hover:text-brand-red">
+                      <Link href={`/kluby/${row.slug}`} className="font-medium text-navy hover:text-sky-600">
                         {row.klub}
                       </Link>
                     </td>
@@ -171,7 +171,7 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
     <button
       onClick={onClick}
       className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-bold uppercase tracking-wide transition ${
-        active ? 'border-brand-red text-navy' : 'border-transparent text-slate-500 hover:text-navy'
+        active ? 'border-sky-500 text-navy' : 'border-transparent text-slate-500 hover:text-navy'
       }`}
     >
       {children}

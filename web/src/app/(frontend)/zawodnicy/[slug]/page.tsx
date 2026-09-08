@@ -1,7 +1,6 @@
 // Profil zawodnika — elementy jak na ligazeglarska.pl (logika z short-code'ów).
 // Dane z tabel liga_* (PostgreSQL). Zdjęcia: placeholder (dodamy później).
 import React from 'react'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
   findZawodnikBySlug,
@@ -86,11 +85,7 @@ export default async function ZawodnikPage({ params }: { params: Promise<{ slug:
     <main className="bg-slate-50">
       {/* HERO — na razie sam granat */}
       <section className="relative bg-navy text-white">
-        <div className="relative mx-auto max-w-[1440px] px-4 pb-24 pt-10 md:pb-28">
-          <Link href="/zawodnicy" className="text-sm font-semibold text-white/80 hover:text-white">
-            ← Wszyscy zawodnicy
-          </Link>
-        </div>
+        <div className="relative mx-auto max-w-[1440px] px-4 pb-24 pt-14 md:pb-28" />
       </section>
 
       {/* KARTA TREŚCI nachodząca na hero */}

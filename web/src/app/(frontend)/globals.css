@@ -236,6 +236,21 @@ html[data-theme='light'] {
   opacity: initial;
 }
 
+/* Justowanie tekstu opisowego w treści (w warstwie base, aby klasy Tailwind
+   jak text-center/text-left nadal wygrywały). Wyłączone: newsy/wpisy (.prose/article). */
+@layer base {
+  main p {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  main .prose p,
+  main .prose li,
+  main article p,
+  main article li {
+    text-align: left;
+  }
+}
+
 /* Marquee — poziomy, ciągły przewijany pas (mistrzowie, sponsorzy) */
 @keyframes marquee {
   from { transform: translateX(0); }

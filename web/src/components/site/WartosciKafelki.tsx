@@ -107,13 +107,13 @@ function Kafelek({ w }: { w: Wartosc }) {
           <Img src={w.foto} alt={w.tytul} className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-navy/65 transition-colors duration-300" />
           <div className="relative flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white">
-            <span className="text-brand-red drop-shadow">{w.ikona}</span>
+            <span className="text-sky-400 drop-shadow">{w.ikona}</span>
             <h3 className="text-xl font-extrabold uppercase tracking-wide drop-shadow-md">{w.tytul}</h3>
             <div className="h-1 w-10 rounded-full bg-brand-red" />
           </div>
         </div>
         {/* TYŁ */}
-        <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-brand-red/20 bg-brand-red p-6 text-center text-white [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-sky-500/20 bg-sky-500 p-6 text-center text-white [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <p className="text-sm leading-relaxed md:text-[15px]">{w.tekst}</p>
         </div>
       </div>

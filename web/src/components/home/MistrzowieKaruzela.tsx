@@ -1,7 +1,8 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 
-export type Mistrz = { rok: number; klub: string; logo: string | null }
+export type Mistrz = { rok: number; klub: string; logo: string | null; href?: string | null }
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 
@@ -45,26 +46,26 @@ export default function MistrzowieKaruzela({ items }: { items: Mistrz[] }) {
 
   return (
     <div
-      className="relative"
+      className="relative md:px-12"
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
     >
       <button
         onClick={() => go(index - 1)}
         aria-label="Poprzednie"
-        className="absolute -left-2 top-[46%] z-10 hidden -translate-y-1/2 rounded-full bg-white p-2 text-navy shadow-md ring-1 ring-slate-200 hover:bg-slate-50 md:block"
+        className="absolute left-0 top-[46%] z-10 hidden -translate-y-1/2 rounded-full bg-white p-2 text-navy shadow-md ring-1 ring-slate-200 hover:bg-slate-50 md:block"
       >
         ‹
       </button>
 
-      <div className="overflow-hidden px-1 md:px-8">
+      <div className="overflow-hidden">
         <div
           className="flex transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${index * (100 / perView)}%)` }}
         >
-          {items.map((m, i) => (
-            <div key={i} className="shrink-0 p-2" style={{ width: `${100 / perView}%` }}>
-              <div className="flex h-full flex-col items-center rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition hover:shadow-md">
+          {items.map((m, i) => {
+            const karta = (
+              <div className="flex h-full flex-col items-center rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-brand-red/40 hover:shadow-md">
                 <div className="flex h-24 items-center justify-center">
                   {m.logo ? (
                     <Img src={m.logo} alt={m.klub} className="max-h-20 w-auto object-contain" />
@@ -78,15 +79,26 @@ export default function MistrzowieKaruzela({ items }: { items: Mistrz[] }) {
                   Mistrz Polski {m.rok}
                 </div>
               </div>
-            </div>
-          ))}
+            )
+            return (
+              <div key={i} className="shrink-0 p-2" style={{ width: `${100 / perView}%` }}>
+                {m.href ? (
+                  <Link href={m.href} className="block h-full">
+                    {karta}
+                  </Link>
+                ) : (
+                  karta
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 
       <button
         onClick={() => go(index + 1)}
         aria-label="Następne"
-        className="absolute -right-2 top-[46%] z-10 hidden -translate-y-1/2 rounded-full bg-white p-2 text-navy shadow-md ring-1 ring-slate-200 hover:bg-slate-50 md:block"
+        className="absolute right-0 top-[46%] z-10 hidden -translate-y-1/2 rounded-full bg-white p-2 text-navy shadow-md ring-1 ring-slate-200 hover:bg-slate-50 md:block"
       >
         ›
       </button>

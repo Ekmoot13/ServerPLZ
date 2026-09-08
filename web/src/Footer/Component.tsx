@@ -16,19 +16,16 @@ type Item = { label: string; href: string }
 const KOL_LIGA: Item[] = [
   { label: 'Wyniki 2026', href: '/wyniki' },
   { label: 'Kalendarz', href: '/kalendarz' },
-  { label: 'Kluby', href: '/kluby' },
+  { label: 'Zespoły', href: '/kluby' },
   { label: 'Ligi Regionalne', href: '/regionalne' },
   { label: 'Mistrzostwa Kobiet', href: 'https://ladiesailing.pl/' },
-  { label: 'Sailing Champions League', href: '/scl-isla' },
 ]
 
 const KOL_INFO: Item[] = [
   { label: 'Społeczność WhatsApp', href: 'https://chat.whatsapp.com/JQRZWPIGH7x7OAHW8QaKRH' },
   { label: 'Cennik', href: '/cennik' },
-  { label: 'Regulamin Ligi', href: 'https://ligazeglarska.pl/wp-content/uploads/2026/02/Regulamin-Ekstraklasa-PLZ2026.pdf' },
-  { label: 'Klasa RS21', href: 'https://rs21class.pl/' },
-  { label: 'ISLA', href: '/scl-isla' },
-  { label: 'Polityka Prywatności', href: '/privacy-policy' },
+  { label: 'Sailing Champions League', href: '/scl-isla' },
+  { label: 'ISLA', href: 'https://www.facebook.com/ISLAorg' },
 ]
 
 function FooterCol({ items }: { items: Item[] }) {
@@ -59,32 +56,34 @@ export function Footer() {
       style={ciemny ? { backgroundColor: '#191919' } : undefined}
     >
       <div className="mx-auto max-w-[1440px] px-4 py-14">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid items-start gap-10 md:grid-cols-2 lg:grid-cols-[auto_minmax(0,1.9fr)_1fr_1fr_auto]">
           {/* Logo (grafika zawiera już napis) */}
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="Polska Liga Żeglarska" className="h-36 w-auto" />
           </div>
 
-          {/* Kontakt */}
+          {/* Kontakt — dwie firmy obok siebie */}
           <div className="text-sm">
             <a href="mailto:info@ligazeglarska.pl" className="font-bold text-white hover:text-brand-red">
               info@ligazeglarska.pl
             </a>
-            <p className="mt-4 leading-relaxed text-white/70">
-              <span className="font-bold text-white">Towarzystwo Żeglarstwa Regatowego</span>
-              <br />
-              ul. Parkowa 43, 71-220 Bezrzecze, Poland
-              <br />
-              NIP: 851.318.97.68
-            </p>
-            <p className="mt-4 leading-relaxed text-white/70">
-              <span className="font-bold text-white">MT PARTNERS Maciej Cylupa Spółka komandytowa</span>
-              <br />
-              ul. Parkowa 43, 71-220 Bezrzecze, Poland
-              <br />
-              NIP: 631.252.03.79
-            </p>
+            <div className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+              <p className="leading-relaxed text-white/70">
+                <span className="font-bold text-white">Towarzystwo Żeglarstwa Regatowego</span>
+                <br />
+                ul. Parkowa 43, 71-220 Bezrzecze, Poland
+                <br />
+                NIP: 851.318.97.68
+              </p>
+              <p className="leading-relaxed text-white/70">
+                <span className="font-bold text-white">MT PARTNERS Maciej Cylupa Spółka komandytowa</span>
+                <br />
+                ul. Parkowa 43, 71-220 Bezrzecze, Poland
+                <br />
+                NIP: 631.252.03.79
+              </p>
+            </div>
           </div>
 
           <FooterCol items={KOL_LIGA} />
@@ -92,7 +91,7 @@ export function Footer() {
 
           <div>
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-white">Śledź nas</h3>
-            <SocialRow size={22} layout="grid" />
+            <SocialRow size={28} layout="grid" />
           </div>
         </div>
       </div>

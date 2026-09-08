@@ -104,7 +104,7 @@ export default function SrodowiskoPage() {
         return (
           <section key={b.kategoria} className={dark ? 'bg-navy text-white' : 'bg-white'} style={dark ? patternBg : undefined}>
             <div className="mx-auto max-w-[1100px] px-4 py-14">
-              <p className="text-sm font-bold uppercase tracking-[0.15em] text-brand-red">{b.kategoria}</p>
+              <p className="text-sm font-bold uppercase tracking-[0.15em] text-sky-500">{b.kategoria}</p>
               <h2 className={`mt-1 text-2xl font-extrabold uppercase tracking-wide md:text-3xl ${dark ? 'text-white' : 'text-navy'}`}>
                 {b.tytul}
               </h2>

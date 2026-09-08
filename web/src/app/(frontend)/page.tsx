@@ -10,14 +10,14 @@ import WynikiHome from '@/components/home/WynikiHome'
 import NewsletterSekcja from '@/components/home/NewsletterSekcja'
 import Sponsorzy from '@/components/home/Sponsorzy'
 import PasekRegat from '@/components/home/PasekRegat'
-import { getLataWynikow, getWynikiPelne } from '@/lib/liga'
+import { getLataWynikow, getWynikiPelne, getKluby, klubSlug } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
-import { getLatestYouTube } from '@/lib/youtube'
+import { getPlaylistVideos } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
 
 const U = 'https://ligazeglarska.pl/wp-content/uploads'
-const YT_CHANNEL = 'UC-iLVLnRVlBDvn-NMc-HjTA'
+const YT_PLAYLIST = 'PLU9WwmeQjjruaBtobyLupCsmIvs4pJGjW'
 const HERO_BG = `${U}/2026/05/1LR1_0059_szymon_sikora.jpg`
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
@@ -45,12 +45,12 @@ const MISTRZOWIE_DATA = [
 ]
 
 const GALERIA = [
-  `${U}/2025/08/YHR3__S_02232_Bartosz_Modelski-2.jpg`,
-  `${U}/2025/07/EXR2_0248_gwidon_libera_-scaled.jpg`,
-  `${U}/2025/11/1L3R_IMG_5901_Bartosz_Modelski.jpg`,
-  `${U}/2025/07/Y2_0012_gwidon_libera_-scaled.jpg`,
+  `${U}/2026/04/EXR3_0029_szymon_sikora_rek_.jpg`,
   `${U}/2025/11/YHR3__S_01310_Bartosz_Modelski-2.jpg`,
-  `${U}/2025/11/PLZ_EXR4__S_03921_Bartosz_Modelski.jpg`,
+  `${U}/2026/04/MPKIMG_0241_Bartosz_Modelski.jpg`,
+  `${U}/2025/11/YHR3__S_01920_Bartosz_Modelski.jpg`,
+  `${U}/2026/04/EXR1_173_gwidon_libera-scaled.jpg`,
+  `${U}/2025/10/PLZ_EXR4__K1A1029_Bartosz_Modelski-1.jpg`,
 ]
 
 const JAK_SLEDZIC_KANALY = [
@@ -63,9 +63,9 @@ const JAK_SLEDZIC_KANALY = [
 ]
 
 const REGATY_INTRO = [
-  'Polska Liga Żeglarska to najbardziej widowiskowa forma żeglarstwa w Polsce — regaty rozgrywane tuż przy brzegu, na oczach kibiców. Ścigamy się na identycznych jachtach klasy RS21, dostarczanych przez organizatora, dzięki czemu o wyniku decydują wyłącznie umiejętności załóg.',
-  'Wyścigi są krótkie i dynamiczne — trwają zaledwie 10–12 minut, a podczas jednego weekendu regatowego rozgrywanych jest ich nawet 30. Wszystkie sporne sytuacje rozstrzygają arbitrzy na wodzie, bez protestów na brzegu i zbędnych przerw.',
-  'Rywalizacja toczy się na kilku poziomach — od Lig Regionalnych, przez Młodzieżową i 1 Ligę, aż po Ekstraklasę, w której najlepsze załogi w kraju walczą o Klubowe Mistrzostwo Polski.',
+  'Od ponad 10 lat organizujemy regularne rozgrywki składające się z serii regat w Sopocie, Pucku, Gdyni i Szczecinie, w których kluby żeglarskie rywalizują o tytuł <strong>Klubowego Mistrza Polski</strong>, awans do wyższej ligi lub uniknięcie spadku.',
+  'Zapewniamy <strong>jednakowe, nowoczesne jachty RS21</strong>, <strong>dynamiczne wyścigi</strong> rozgrywane w atrakcyjnym dla zawodników i widzów formacie, nowoczesne <strong>sędziowanie na światowym poziomie i medialność.</strong> W regatach Polskiej Ligi Żeglarskiej udział biorą <strong>najlepsi polscy żeglarze</strong>, przedstawiciele wielu pokoleń <strong>Mistrzów Polski, Europy i Świata, medaliści Olimpijscy</strong> oraz <strong>aktualni zawodnicy Kadry Narodowej, Kadry Juniorskiej</strong>, ale także początkujący i żeglarze amatorzy.',
+  'Ponad <strong>500 zawodniczek i zawodników w 120 klubach</strong> ściga się w <strong>Ekstraklasie</strong> i <strong>1 Lidze</strong> (po 20 załóg), 6 amatorskich <strong>Ligach Regionalnych</strong> w całej Polsce dla rozpoczynających przygodę oraz w <strong>Lidze Młodzieżowej</strong> do 25. roku życia.',
 ]
 
 const ZGLOSZENIA_LIGI = [
@@ -128,10 +128,19 @@ export default async function HomePage() {
   const rok = lata[0]
   const ligi = rok ? await getWynikiPelne(rok) : []
 
-  const filmy = await getLatestYouTube(YT_CHANNEL, 4)
+  const filmy = await getPlaylistVideos(YT_PLAYLIST, 4)
   const yt0 = filmy[0] || null
 
-  const mistrzowie: Mistrz[] = MISTRZOWIE_DATA.map((m) => ({ ...m, logo: getKlubMedia(m.klub)?.logo || null }))
+  const klubyLista = await getKluby().catch(() => [] as any[])
+  const slugSet = new Set((klubyLista as any[]).map((k) => k.slug))
+  const mistrzowie: Mistrz[] = MISTRZOWIE_DATA.map((m) => {
+    const slug = klubSlug(m.klub)
+    return {
+      ...m,
+      logo: getKlubMedia(m.klub)?.logo || null,
+      href: slugSet.has(slug) ? `/kluby/${slug}` : null,
+    }
+  })
 
   // najbliższa (lub trwająca) regata z kalendarza do paska odliczania
   const dzis = new Date()
@@ -269,7 +278,7 @@ export default async function HomePage() {
 
       {/* CZYM JEST POLSKA LIGA ŻEGLARSKA */}
       <section id="o-nas" className="scroll-mt-24 bg-navy text-white" style={patternBg}>
-        <div className="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-10 md:py-14 lg:grid-cols-[1.6fr_1fr]">
+        <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-10 md:py-14 lg:grid-cols-[1.6fr_1fr]">
           <div>
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Czym jest Polska Liga Żeglarska?</h2>
             <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
@@ -279,7 +288,7 @@ export default async function HomePage() {
               <p>Nasza <strong>moc pochodzi z wiatru i wody</strong> — to nasze naturalne środowisko i źródło energii. Wierzymy w <strong>równość szans</strong>, wspieranie <strong>społeczności</strong> i aktywizację, a także w <strong>rozwój zgodny z naturą</strong>.</p>
             </div>
           </div>
-          <div className="flex flex-col gap-3 lg:pt-2">
+          <div className="flex flex-col gap-3">
             {O_NAS_LINKI.map((l) => (
               <Link key={l.href} href={l.href} className="rounded-full border-2 border-white/40 px-6 py-2.5 text-center text-sm font-bold uppercase tracking-wide transition hover:bg-white hover:text-navy">
                 {l.label}
@@ -322,7 +331,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="mt-8 text-center">
-              <a href={`https://www.youtube.com/channel/${YT_CHANNEL}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-[10px] border-2 border-navy px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white">
+              <a href={`https://www.youtube.com/playlist?list=${YT_PLAYLIST}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-[10px] border-2 border-navy px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white">
                 Zobacz wszystkie odcinki
               </a>
             </div>

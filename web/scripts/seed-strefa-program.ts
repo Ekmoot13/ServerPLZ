@@ -13,10 +13,10 @@ const YT = 'https://youtube.com/@kanalzeglarski'
 const SAP = 'https://plz2026.sapsailing.com/gwt/Home.html'
 
 const linki = [
+  { label: 'Tracking SAP', url: SAP, ikona: 'sap' },
   { label: 'Zapowiedź regat', url: 'https://ligazeglarska.pl/zeglarska-1-liga-wraca-do-gry/', ikona: 'gazeta' },
   { label: 'Lista startowa', url: 'https://ligazeglarska.pl/sledz-regaty-lista-startowa-3-rundy-1-ligi-gdynia/', ikona: 'gazeta' },
   { label: 'Galeria zdjęć online', url: 'https://ligazeglarska.pl/newsy/', ikona: 'aparat' },
-  { label: 'Tracking SAP', url: SAP, ikona: 'sap' },
 ]
 
 const program = [

@@ -22,10 +22,10 @@ const GALERIA = [
   `${U}/2025/05/EXR1_256_gwidon_libera-scaled.jpg`,
 ]
 
-function Naglowek({ children }: { children: React.ReactNode }) {
+function Naglowek({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
     <div className="mb-6">
-      <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">{children}</h2>
+      <h2 className={`text-2xl font-extrabold uppercase tracking-wide md:text-3xl ${light ? 'text-white' : 'text-navy'}`}>{children}</h2>
       <div className="mt-3 h-1 w-16 rounded-full bg-brand-red" />
     </div>
   )
@@ -72,35 +72,35 @@ export default function JakSieScigamyPage() {
       </section>
 
       {/* JAK WYGLĄDAJĄ WYŚCIGI */}
-      <section className="bg-slate-50">
+      <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1100px] px-4 py-14">
-          <Naglowek>Jak wyglądają wyścigi?</Naglowek>
+          <Naglowek light>Jak wyglądają wyścigi?</Naglowek>
           <div className="grid gap-8 md:grid-cols-2 md:items-start">
-            <div className="space-y-5 text-slate-700">
+            <div className="space-y-5 text-white/85">
               <div>
-                <h3 className="font-bold text-navy">Start wyścigu</h3>
+                <h3 className="font-bold text-white">Start wyścigu</h3>
                 <p className="mt-1">
                   10 jachtów startuje z linii wyznaczonej przez boję i statek komisji po upływie 3-minutowej procedury
                   startowej.
                 </p>
               </div>
               <div>
-                <h3 className="font-bold text-navy">Trasa wyścigu</h3>
+                <h3 className="font-bold text-white">Trasa wyścigu</h3>
                 <p className="mt-1">
                   Załogi płyną pod wiatr, do górnych znaków w formie bramki, wpływając od środka i wypływając na zewnątrz,
                   a następnie kierują się do dolnej bramki, którą także muszą opłynąć od środka na zewnątrz.
                 </p>
               </div>
               <div>
-                <h3 className="font-bold text-navy">Format wyścigu</h3>
+                <h3 className="font-bold text-white">Format wyścigu</h3>
                 <p className="mt-1">Wyścig składa się z dwóch okrążeń trasy. Długość wyścigu to ok. 10 minut.</p>
               </div>
               <div>
-                <h3 className="font-bold text-navy">Zakończenie wyścigu</h3>
+                <h3 className="font-bold text-white">Zakończenie wyścigu</h3>
                 <p className="mt-1">Po 2 okrążeniach jachty przekraczają linię mety przy statku komisji.</p>
               </div>
             </div>
-            <div className="overflow-hidden rounded-xl border border-slate-200">
+            <div className="overflow-hidden rounded-xl border border-white/20">
               <Img src={`${U}/2026/04/PLZ2026-strona-dodatkowe.jpg`} className="w-full object-cover" />
             </div>
           </div>
@@ -136,11 +136,11 @@ export default function JakSieScigamyPage() {
       </section>
 
       {/* NA JAKICH JACHTACH */}
-      <section className="bg-slate-50">
+      <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1100px] px-4 py-14">
-          <Naglowek>Na jakich jachtach się ścigamy?</Naglowek>
+          <Naglowek light>Na jakich jachtach się ścigamy?</Naglowek>
           <div className="grid gap-8 md:grid-cols-2 md:items-center">
-            <div className="space-y-4 text-slate-700">
+            <div className="space-y-4 text-white/85">
               <p>
                 Pływamy na szybkich i zwrotnych jachtach klasy <strong>RS21</strong>. Jacht RS21 o długości 6,5 metra i
                 wadze zaledwie 650 kg posiada lekki węglowy maszt, genaker i bom oraz trzy żagle: fok, grot i genaker.
@@ -155,13 +155,13 @@ export default function JakSieScigamyPage() {
                   <li key={rola} className="flex gap-2">
                     <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-red" />
                     <span>
-                      <strong className="text-navy">{rola}</strong> — {opis}
+                      <strong className="text-white">{rola}</strong> — {opis}
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="overflow-hidden rounded-xl border border-slate-200">
+            <div className="overflow-hidden rounded-xl border border-white/20">
               <Img src={`${U}/2025/06/Scianka-explainer-PLZ-2-scaled.jpg`} className="w-full object-cover" />
             </div>
           </div>

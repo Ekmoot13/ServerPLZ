@@ -88,44 +88,39 @@ export default function PolskiKlubRegatowyPage() {
 
       {/* KORZYŚCI DLA CZŁONKÓW */}
       <section className="bg-white">
-        <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 lg:grid-cols-2">
-          <div>
-            <Heading>Korzyści dla członków</Heading>
-            <div className="mt-5 space-y-4 text-slate-700">
-              <div>
-                <p className="font-bold text-navy">Szkolenia i warsztaty</p>
-                <p>
-                  Planujemy <strong>bezpłatne szkolenia</strong> z tworzenia ofert sponsoringowych dla projektów żeglarskich,
-                  prowadzenia mediów społecznościowych klubu żeglarskiego oraz warsztaty ze stosowania przepisów regatowych.
-                </p>
-              </div>
-              <div>
-                <p className="font-bold text-navy">Zniżki na czartery PLŻ — wybrany czarter 2 razy w roku na członka klubu</p>
-                <p className="mt-1 font-semibold text-slate-800">Jacht RS21:</p>
-                <ul className="list-disc pl-5">
-                  <li>1 250 zł netto / 8 godzin, <strong>po rabacie 1000 zł netto</strong></li>
-                  <li>800 zł netto / 4 godziny, <strong>po rabacie 640 zł netto</strong></li>
-                </ul>
-                <p className="mt-2 font-semibold text-slate-800">Motorówki RIB:</p>
-                <ul className="list-disc pl-5">
-                  <li>RIB Ava 540 — 450 zł netto / 8 godzin, <strong>po rabacie 360 zł netto</strong></li>
-                  <li>RIB Ava 580 — 500 zł netto / 8 godzin, <strong>po rabacie 400 zł netto</strong></li>
-                  <li>RIB Fastmode 100 — 550 zł netto / 8 godzin, <strong>po rabacie 440 zł netto</strong></li>
-                </ul>
-              </div>
+        <div className="mx-auto max-w-[1440px] px-4 pt-16 pb-8">
+          <Heading>Korzyści dla członków</Heading>
+          <div className="mt-5 max-w-4xl space-y-4 text-slate-700">
+            <div>
+              <p className="font-bold text-navy">Szkolenia i warsztaty</p>
+              <p>
+                Planujemy <strong>bezpłatne szkolenia</strong> z tworzenia ofert sponsoringowych dla projektów żeglarskich,
+                prowadzenia mediów społecznościowych klubu żeglarskiego oraz warsztaty ze stosowania przepisów regatowych.
+              </p>
             </div>
-          </div>
-          <div className={frame + ' border-navy/15'}>
-            <Img src={IMG.lodki} className="h-full w-full object-cover" />
+            <div>
+              <p className="font-bold text-navy">Zniżki na czartery PLŻ — wybrany czarter 2 razy w roku na członka klubu</p>
+              <p className="mt-1 font-semibold text-slate-800">Jacht RS21:</p>
+              <ul className="list-disc pl-5">
+                <li>1 250 zł netto / 8 godzin, <strong>po rabacie 1000 zł netto</strong></li>
+                <li>800 zł netto / 4 godziny, <strong>po rabacie 640 zł netto</strong></li>
+              </ul>
+              <p className="mt-2 font-semibold text-slate-800">Motorówki RIB:</p>
+              <ul className="list-disc pl-5">
+                <li>RIB Ava 540 — 450 zł netto / 8 godzin, <strong>po rabacie 360 zł netto</strong></li>
+                <li>RIB Ava 580 — 500 zł netto / 8 godzin, <strong>po rabacie 400 zł netto</strong></li>
+                <li>RIB Fastmode 100 — 550 zł netto / 8 godzin, <strong>po rabacie 440 zł netto</strong></li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CZŁONKOSTWO */}
       <section className="bg-white">
-        <div className="mx-auto max-w-4xl px-4 pb-16">
+        <div className="mx-auto max-w-[1440px] px-4 pt-8 pb-16">
           <Heading>Członkostwo</Heading>
-          <ol className="mt-5 list-decimal space-y-3 pl-5 text-slate-700">
+          <ol className="mt-5 max-w-4xl list-decimal space-y-3 pl-5 text-slate-700">
             <li>Wypełnij i podpisz (np. elektronicznie, pola są edytowalne) <strong>deklarację członkowską</strong> — do pobrania poniżej.</li>
             <li>
               <strong>Opłać składkę członkowską — 240 zł/rok.</strong> Dane do przelewu:
@@ -141,10 +136,12 @@ export default function PolskiKlubRegatowyPage() {
               <a href="mailto:biuro@polskiklubregatowy.pl" className="font-semibold text-brand-red hover:underline">biuro@polskiklubregatowy.pl</a>.
             </li>
           </ol>
-          <p className="mt-4 text-sm text-slate-500">Członkostwo w PKR nie jest wymagane do startu w jakichkolwiek regatach PLŻ lub PMT.</p>
-          <p className="mt-1 text-sm text-slate-500">Masz pytania? Napisz do nas.</p>
-          <div className="mt-8 text-center">
-            <a href="mailto:biuro@polskiklubregatowy.pl" className={btnDark}>Pobierz deklarację</a>
+          <div className="max-w-4xl">
+            <p className="mt-4 text-sm text-slate-500">Członkostwo w PKR nie jest wymagane do startu w jakichkolwiek regatach PLŻ lub PMT.</p>
+            <p className="mt-1 text-sm text-slate-500">Masz pytania? Napisz do nas.</p>
+            <div className="mt-8">
+              <a href="mailto:biuro@polskiklubregatowy.pl" className={btnDark}>Pobierz deklarację</a>
+            </div>
           </div>
         </div>
       </section>

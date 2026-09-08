@@ -46,7 +46,10 @@ export default async function RegatowaStrefaKibicaPage() {
   const pokazProgram: boolean = settings?.pokazProgram !== false
   const programTytul: string = settings?.programTytul || 'Śledź z nami regaty dzień po dniu'
   const programWstep: string = settings?.programWstep || ''
-  const linki: any[] = Array.isArray(settings?.linki) ? settings.linki : []
+  const linkiRaw: any[] = Array.isArray(settings?.linki) ? settings.linki : []
+  // Tracking SAP zawsze na początku
+  const jestSap = (l: any) => l?.ikona === 'sap' || /sap/i.test(`${l?.label || ''} ${l?.url || ''}`)
+  const linki: any[] = [...linkiRaw].sort((a, b) => (jestSap(b) ? 1 : 0) - (jestSap(a) ? 1 : 0))
   const program: any[] = Array.isArray(settings?.program) ? settings.program : []
   const mapaEmbed: string = settings?.mapaEmbed || ''
 
@@ -132,13 +135,13 @@ export default async function RegatowaStrefaKibicaPage() {
       {pokazProgram && (
         <section className="bg-white">
           <div className="mx-auto max-w-5xl px-4 py-14">
-            <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">{programTytul}</h2>
-            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
-            {programWstep && <p className="mb-6 max-w-3xl whitespace-pre-line text-slate-700 md:text-lg">{programWstep}</p>}
+            <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">{programTytul}</h2>
+            <div className="mx-auto mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+            {programWstep && <p className="mx-auto mb-8 max-w-3xl whitespace-pre-line text-center text-slate-700 md:text-lg">{programWstep}</p>}
 
             {/* szybkie linki */}
             {linki.length > 0 && (
-              <div className="mb-10 flex flex-wrap gap-3">
+              <div className="mb-10 flex flex-wrap justify-center gap-3">
                 {linki.map((l: any, i: number) =>
                   l?.url ? (
                     <a
@@ -158,7 +161,7 @@ export default async function RegatowaStrefaKibicaPage() {
 
             {/* program dzień po dniu */}
             {program.length > 0 && (
-              <div className="grid gap-8 md:grid-cols-2">
+              <div className="space-y-6">
                 {program.map((d: any, di: number) => (
                   <div key={di} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
                     <h3 className="font-extrabold uppercase tracking-wide text-navy">{d?.tytul}</h3>
@@ -169,9 +172,9 @@ export default async function RegatowaStrefaKibicaPage() {
                           <span className="flex h-6 w-6 shrink-0 items-center justify-center text-navy">
                             {p?.ikona ? <Ikona name={p.ikona} className="text-navy" /> : <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />}
                           </span>
-                          {p?.czas && <span className="shrink-0 font-bold text-navy">{p.czas}</span>}
+                          <span className="w-24 shrink-0 font-bold text-navy">{p?.czas || ''}</span>
                           {p?.link ? (
-                            <a href={p.link} target="_blank" rel="noopener noreferrer" className="font-medium text-brand-red hover:underline">
+                            <a href={p.link} target="_blank" rel="noopener noreferrer" className="font-medium text-sky-500 hover:text-sky-600 hover:underline">
                               {p.opis}
                             </a>
                           ) : (
