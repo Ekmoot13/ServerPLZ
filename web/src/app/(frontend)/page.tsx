@@ -222,7 +222,7 @@ export default async function HomePage() {
 
       {/* REGATY JAK NA STADIONIE */}
       <section className="bg-navy text-white" style={patternBg}>
-        <div className="mx-auto max-w-[1440px] px-4 py-14">
+        <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
           <Wprowadzenie
             tytul={W.tytul || 'REGATY JAK NA STADIONIE'}
             akapity={(() => {
@@ -241,7 +241,7 @@ export default async function HomePage() {
 
       {/* KLUBOWI MISTRZOWIE POLSKI */}
       <section className="bg-white">
-        <div className="mx-auto max-w-[1440px] px-4 py-14">
+        <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Klubowi Mistrzowie Polski</h2>
           <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
           <MistrzowieKaruzela items={mistrzowie} />
@@ -254,7 +254,7 @@ export default async function HomePage() {
       {/* OSTATNIE REGATY / RANKING */}
       {ligi.length > 0 && (
         <section className="bg-slate-50">
-          <div className="mx-auto max-w-[1440px] px-4 py-14">
+          <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
             <WynikiHome ligi={ligi as any} />
             <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {GALERIA.map((src, i) => (
@@ -268,8 +268,8 @@ export default async function HomePage() {
       )}
 
       {/* CZYM JEST POLSKA LIGA ŻEGLARSKA */}
-      <section className="bg-navy text-white" style={patternBg}>
-        <div className="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-14 lg:grid-cols-[1.6fr_1fr]">
+      <section id="o-nas" className="scroll-mt-24 bg-navy text-white" style={patternBg}>
+        <div className="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-10 md:py-14 lg:grid-cols-[1.6fr_1fr]">
           <div>
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Czym jest Polska Liga Żeglarska?</h2>
             <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
@@ -292,7 +292,7 @@ export default async function HomePage() {
       {/* ZOBACZ NASZ MAGAZYN */}
       {yt0 && (
         <section className="bg-white">
-          <div className="mx-auto max-w-[1440px] px-4 py-14">
+          <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
             <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Zobacz nasz magazyn</h2>
             <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
             <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-4 shadow-sm md:p-6">
@@ -332,7 +332,7 @@ export default async function HomePage() {
 
       {/* WSPÓŁPRACA */}
       <section className="bg-navy text-white" style={patternBg}>
-        <div className="mx-auto grid max-w-[1440px] items-center gap-8 px-4 py-14 lg:grid-cols-[auto_1fr_auto] lg:gap-12">
+        <div className="mx-auto grid max-w-[1440px] items-center gap-8 px-4 py-10 md:py-14 lg:grid-cols-[auto_1fr_auto] lg:gap-12">
           <div className="flex justify-center lg:justify-start">
             <Img src={`${U}/2024/02/PLZ-Business-200x300.png`} alt="Polska Liga Żeglarska Business" className="h-32 w-auto object-contain md:h-40" />
           </div>

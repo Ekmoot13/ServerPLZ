@@ -36,7 +36,7 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
   const ostatnia = [...lewa.rundy].reverse().find((r) => r.races.length > 0) || null
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
       {/* OSTATNIE REGATY */}
       <div>
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ostatnie regaty</h2>
@@ -44,25 +44,25 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
         <TabRow ligi={ligi} li={liL} setLi={setLiL} />
         {ostatnia ? (
           <div className="overflow-x-auto rounded-xl border border-slate-200">
-            <table className="w-full min-w-[520px] border-collapse text-sm">
+            <table className="w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">
               <thead>
                 <tr className="bg-navy text-white">
-                  <th className="px-3 py-2 text-left font-bold">M-sce</th>
-                  <th className="px-3 py-2 text-left font-bold">Skrót</th>
-                  <th className="px-3 py-2 text-left font-bold">Zespół</th>
+                  <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
+                  <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
+                  <th className="hidden px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
                   {ostatnia.races.map((c) => (
-                    <th key={c.key} className="px-2 py-2 text-center font-bold">{c.label}</th>
+                    <th key={c.key} className="px-1.5 py-1.5 text-center font-bold sm:px-2 sm:py-2">{c.label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {ostatnia.rows.slice(0, LIMIT).map((row, idx) => (
                   <tr key={row.skrot} className={idx % 2 ? 'bg-slate-50' : 'bg-white'}>
-                    <td className="px-3 py-2 font-semibold text-navy">{row.miejsce}</td>
-                    <td className="px-3 py-2 text-slate-500">{row.skrot}</td>
-                    <td className="px-3 py-2 max-w-[120px] truncate">{row.klub}</td>
+                    <td className="px-2 py-1.5 font-semibold text-navy sm:px-3 sm:py-2">{row.miejsce}</td>
+                    <td className="px-2 py-1.5 text-slate-500 sm:px-3 sm:py-2">{row.skrot}</td>
+                    <td className="hidden max-w-[120px] truncate px-3 py-2 sm:table-cell">{row.klub}</td>
                     {ostatnia.races.map((c) => (
-                      <td key={c.key} className="px-2 py-2 text-center text-slate-600">{row.places[c.key] ?? '-'}</td>
+                      <td key={c.key} className="px-1.5 py-1.5 text-center text-slate-600 sm:px-2 sm:py-2">{row.places[c.key] ?? '-'}</td>
                     ))}
                   </tr>
                 ))}
@@ -80,28 +80,28 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
         <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liR} setLi={setLiR} />
         <div className="overflow-x-auto rounded-xl border border-slate-200">
-          <table className="w-full min-w-[520px] border-collapse text-sm">
+          <table className="w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">
             <thead>
               <tr className="bg-navy text-white">
-                <th className="px-3 py-2 text-left font-bold">M-sce</th>
-                <th className="px-3 py-2 text-left font-bold">Skrót</th>
-                <th className="px-3 py-2 text-left font-bold">Zespół</th>
+                <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
+                <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
+                <th className="hidden px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
                 {prawa.rankingRounds.map((r) => (
-                  <th key={r.id} className="px-3 py-2 text-center font-bold">{r.label}</th>
+                  <th key={r.id} className="px-1.5 py-1.5 text-center font-bold sm:px-3 sm:py-2">{r.label}</th>
                 ))}
-                <th className="px-3 py-2 text-center font-bold">Σ</th>
+                <th className="px-2 py-1.5 text-center font-bold sm:px-3 sm:py-2">Σ</th>
               </tr>
             </thead>
             <tbody>
               {prawa.ranking.slice(0, LIMIT).map((row, idx) => (
                 <tr key={row.skrot} className={idx % 2 ? 'bg-slate-50' : 'bg-white'}>
-                  <td className="px-3 py-2 font-semibold text-navy">{row.miejsce}</td>
-                  <td className="px-3 py-2 text-slate-500">{row.skrot}</td>
-                  <td className="px-3 py-2 max-w-[160px] truncate">{row.klub}</td>
+                  <td className="px-2 py-1.5 font-semibold text-navy sm:px-3 sm:py-2">{row.miejsce}</td>
+                  <td className="px-2 py-1.5 text-slate-500 sm:px-3 sm:py-2">{row.skrot}</td>
+                  <td className="hidden max-w-[160px] truncate px-3 py-2 sm:table-cell">{row.klub}</td>
                   {prawa.rankingRounds.map((r) => (
-                    <td key={r.id} className="px-3 py-2 text-center text-slate-600">{row.perRound[r.id] ?? ''}</td>
+                    <td key={r.id} className="px-1.5 py-1.5 text-center text-slate-600 sm:px-3 sm:py-2">{row.perRound[r.id] ?? ''}</td>
                   ))}
-                  <td className="px-3 py-2 text-center font-bold text-navy">{row.suma}</td>
+                  <td className="px-2 py-1.5 text-center font-bold text-navy sm:px-3 sm:py-2">{row.suma}</td>
                 </tr>
               ))}
             </tbody>

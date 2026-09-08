@@ -23,7 +23,7 @@ export const MENU: Item[] = [
   { label: 'Zespoły', href: '/kluby' },
   { label: 'Wyniki', href: '/wyniki' },
   { label: 'Newsy', href: '/newsy' },
-  { label: 'O nas', href: '/o-nas' },
+  { label: 'O nas', href: '/#o-nas' },
   { label: 'Media', href: '/media' },
   { label: 'Wspieramy', href: '/wspieramy' },
   { label: 'Klub', href: '/polski-klub-regatowy' },

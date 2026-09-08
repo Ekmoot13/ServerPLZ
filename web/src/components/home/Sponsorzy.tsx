@@ -163,18 +163,18 @@ function LogoEl({ lo, hCls }: { lo: Logo; hCls: string }) {
 export default function Sponsorzy() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-[1440px] px-4 py-16">
+      <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-16">
         <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Sponsorzy</h2>
-        <div className="mx-auto mt-2 mb-12 h-1 w-16 rounded-full bg-brand-red" />
+        <div className="mx-auto mt-2 mb-10 h-1 w-16 rounded-full bg-brand-red md:mb-12" />
 
-        <div className="space-y-14">
+        <div className="space-y-10 md:space-y-14">
           {TIERS.map((t) => (
             <div key={t.tytul}>
               <h3 className="text-center text-lg font-bold text-navy">{t.tytul}</h3>
               <div className="mx-auto mt-2 mb-8 h-0.5 w-12 rounded-full bg-brand-red" />
               <div className="space-y-8">
                 {t.rzedy.map((rzad, ri) => (
-                  <div key={ri} className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8 md:gap-x-16">
+                  <div key={ri} className="flex flex-wrap items-center justify-center gap-x-8 gap-y-6 sm:gap-x-12 sm:gap-y-8 md:gap-x-16">
                     {rzad.map((lo, li) => (
                       <LogoEl key={li} lo={lo} hCls={t.hCls} />
                     ))}
