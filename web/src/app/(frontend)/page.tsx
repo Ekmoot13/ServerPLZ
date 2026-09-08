@@ -242,8 +242,8 @@ export default async function HomePage() {
             mediaHref="/media"
             poziomyObraz={W.poziomyObraz || '/poziomy-lig.png'}
             jakSledzicKanaly={JAK_SLEDZIC_KANALY}
-            zgloszeniaIntro={W.zgloszeniaIntro || 'Zobacz, w jakich ligach mamy wolne miejsca na kolejny sezon, dowiedz się więcej i wyślij zgłoszenie.'}
-            zgloszeniaLigi={Array.isArray(W.zgloszeniaLigi) && W.zgloszeniaLigi.length ? W.zgloszeniaLigi : ZGLOSZENIA_LIGI}
+            zgloszeniaIntro="Zobacz, w jakich ligach mamy wolne miejsca na kolejny sezon, dowiedz się więcej i wyślij zgłoszenie."
+            zgloszeniaLigi={ZGLOSZENIA_LIGI}
           />
         </div>
       </section>
