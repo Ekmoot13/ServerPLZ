@@ -44,9 +44,9 @@ export function GrupyEditor({ name, initial }: { name: string; initial: any[] })
   const [grupy, setGrupy] = useState<any[]>(initial || [])
 
   const updateGrupa = (gi: number, patch: any) => setGrupy(grupy.map((g, x) => (x === gi ? { ...g, ...patch } : g)))
-  const updateLogo = (gi: number, li: number, k: string, v: string) =>
+  const updateLogo = (gi: number, li: number, k: string, v: string | number) =>
     setGrupy(grupy.map((g, x) => (x === gi ? { ...g, loga: (g.loga || []).map((l: any, y: number) => (y === li ? { ...l, [k]: v } : l)) } : g)))
-  const addLogo = (gi: number) => updateGrupa(gi, { loga: [...(grupy[gi].loga || []), { logoUrl: '', link: '', nazwa: '' }] })
+  const addLogo = (gi: number) => updateGrupa(gi, { loga: [...(grupy[gi].loga || []), { logoUrl: '', link: '', nazwa: '', skala: 100 }] })
   const delLogo = (gi: number, li: number) => updateGrupa(gi, { loga: (grupy[gi].loga || []).filter((_: any, y: number) => y !== li) })
   const moveLogo = (gi: number, li: number, dir: -1 | 1) => updateGrupa(gi, { loga: moveArr(grupy[gi].loga || [], li, dir) })
 
@@ -69,17 +69,32 @@ export function GrupyEditor({ name, initial }: { name: string; initial: any[] })
             </button>
           </div>
           <div className="space-y-2">
-            {(g.loga || []).map((l: any, li: number) => (
-              <div key={li} className="flex items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1">
-                <Prev src={l.logoUrl} />
-                <input className={inp} placeholder="URL logo" value={l.logoUrl || ''} onChange={(e) => updateLogo(gi, li, 'logoUrl', e.target.value)} />
-                <input className={inp} placeholder="Link" value={l.link || ''} onChange={(e) => updateLogo(gi, li, 'link', e.target.value)} />
-                <input className={inp + ' max-w-[120px]'} placeholder="Nazwa" value={l.nazwa || ''} onChange={(e) => updateLogo(gi, li, 'nazwa', e.target.value)} />
-                <button type="button" onClick={() => moveLogo(gi, li, -1)} className="px-1 text-slate-400 hover:text-slate-700">↑</button>
-                <button type="button" onClick={() => moveLogo(gi, li, 1)} className="px-1 text-slate-400 hover:text-slate-700">↓</button>
-                <button type="button" onClick={() => delLogo(gi, li)} className="px-1 text-red-500 hover:text-red-700">✕</button>
-              </div>
-            ))}
+            {(g.loga || []).map((l: any, li: number) => {
+              const skala = typeof l.skala === 'number' ? l.skala : 100
+              return (
+                <div key={li} className="flex flex-wrap items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1.5">
+                  <Prev src={l.logoUrl} />
+                  <input className={inp + ' min-w-[160px] flex-1'} placeholder="URL logo" value={l.logoUrl || ''} onChange={(e) => updateLogo(gi, li, 'logoUrl', e.target.value)} />
+                  <input className={inp + ' min-w-[120px] flex-1'} placeholder="Link" value={l.link || ''} onChange={(e) => updateLogo(gi, li, 'link', e.target.value)} />
+                  <input className={inp + ' max-w-[110px]'} placeholder="Nazwa" value={l.nazwa || ''} onChange={(e) => updateLogo(gi, li, 'nazwa', e.target.value)} />
+                  <div className="flex items-center gap-1.5" title="Skala (rozmiar logo)">
+                    <input
+                      type="range"
+                      min={40}
+                      max={200}
+                      step={5}
+                      value={skala}
+                      onChange={(e) => updateLogo(gi, li, 'skala', Number(e.target.value))}
+                      className="w-24 accent-sky-600"
+                    />
+                    <span className="w-10 text-right text-xs tabular-nums text-slate-500">{skala}%</span>
+                  </div>
+                  <button type="button" onClick={() => moveLogo(gi, li, -1)} className="px-1 text-slate-400 hover:text-slate-700">↑</button>
+                  <button type="button" onClick={() => moveLogo(gi, li, 1)} className="px-1 text-slate-400 hover:text-slate-700">↓</button>
+                  <button type="button" onClick={() => delLogo(gi, li)} className="px-1 text-red-500 hover:text-red-700">✕</button>
+                </div>
+              )
+            })}
             <button type="button" onClick={() => addLogo(gi)} className="rounded border border-slate-300 bg-white px-3 py-1 text-xs hover:bg-slate-50">
               + Dodaj logo
             </button>

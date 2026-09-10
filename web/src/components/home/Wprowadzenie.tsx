@@ -5,7 +5,7 @@ import Link from 'next/link'
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 
-export type ZgloszenieLiga = { nazwa?: string; logoUrl?: string; wiecejLink?: string; wyslijLink?: string }
+export type ZgloszenieLiga = { nazwa?: string; logoUrl?: string; wiecejLink?: string; wyslijLink?: string; tloCiemne?: boolean }
 export type Kanal = { logo?: string; nazwa?: string; opis?: string; url?: string }
 
 export type WprowadzenieProps = {
@@ -125,11 +125,15 @@ export default function Wprowadzenie(props: WprowadzenieProps) {
           <div className="mx-auto grid max-w-2xl gap-4 sm:grid-cols-2">
             {(props.zgloszeniaLigi || []).map((z, i) => (
               <div key={i} className="flex flex-col items-center rounded-xl border border-slate-200 p-6 text-center">
-                <div className="mb-5 flex h-32 items-center justify-center">
+                <div
+                  className={`mb-5 flex h-32 w-full items-center justify-center overflow-hidden rounded-xl ${
+                    z.tloCiemne ? 'bg-navy p-4' : ''
+                  }`}
+                >
                   {z.logoUrl ? (
-                    <Img src={z.logoUrl} alt={z.nazwa || ''} className="max-h-32 w-auto object-contain" />
+                    <Img src={z.logoUrl} alt={z.nazwa || ''} className="max-h-full w-auto object-contain" />
                   ) : (
-                    <span className="text-lg font-bold text-navy">{z.nazwa}</span>
+                    <span className={`text-lg font-bold ${z.tloCiemne ? 'text-white' : 'text-navy'}`}>{z.nazwa}</span>
                   )}
                 </div>
                 <div className="mt-auto flex w-full flex-col gap-2.5">

@@ -74,6 +74,7 @@ const ZGLOSZENIA_LIGI = [
     logoUrl: `${U}/2025/10/Projekt-bez-nazwy-scaled-e1761668969140.png`,
     wiecejLink: '/mlodziezowa-liga-zeglarska',
     wyslijLink: 'mailto:info@ligazeglarska.pl',
+    tloCiemne: true,
   },
   {
     nazwa: 'Trójmiejska Liga Żeglarska',
@@ -116,6 +117,8 @@ export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
   const sg: any = await payload.findGlobal({ slug: 'strona-glowna' as any }).catch(() => null)
   const W = sg?.wprowadzenie || {}
+  const SP = sg?.sponsorzy || {}
+  const grupySponsorow: any[] = Array.isArray(SP.grupy) ? SP.grupy : []
 
   const newsRes = await payload
     .find({ collection: 'posts', where: { _status: { equals: 'published' } }, sort: '-publishedAt', limit: 5, depth: 1 })
@@ -382,7 +385,7 @@ export default async function HomePage() {
       </section>
 
       {/* SPONSORZY */}
-      <Sponsorzy />
+      <Sponsorzy grupy={grupySponsorow} tytul={SP.tytul || 'Sponsorzy'} />
     </main>
   )
 }

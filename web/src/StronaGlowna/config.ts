@@ -164,6 +164,7 @@ export const StronaGlowna: GlobalConfig = {
                 { name: 'logoUrl', type: 'text', label: 'URL logo' },
                 { name: 'link', type: 'text', label: 'Link' },
                 { name: 'nazwa', type: 'text', label: 'Nazwa (alt)' },
+                { name: 'skala', type: 'number', label: 'Skala (%)', defaultValue: 100 },
               ],
             },
           ],

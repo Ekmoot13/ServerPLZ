@@ -288,38 +288,13 @@ export async function updateStronaGlowna(formData: FormData) {
   await requireUser()
   const payload = await getPayload({ config })
   const g = (k: string) => String(formData.get(k) || '')
-  const bool = (k: string) => formData.get(k) === 'on'
 
+  // Zapisujemy tylko żywe sekcje (reszta strony bierze dane automatycznie).
   const data: any = {
-    aktualnosci: {
-      tryb: g('tryb') === 'pojedynczy' ? 'pojedynczy' : 'rotacja',
-      pojedynczyElement: g('pojedynczyElement') || 'baner',
-      pokazFacebook: bool('pokazFacebook'),
-      pokazInstagram: bool('pokazInstagram'),
-      pokazBaner: bool('pokazBaner'),
-      fbPageId: g('fbPageId'),
-      fbToken: g('fbToken'),
-      igUserId: g('igUserId'),
-      igToken: g('igToken'),
-      banerTytul: g('banerTytul'),
-      banerTekst: g('banerTekst'),
-      banerLink: g('banerLink'),
-      banerObraz: g('banerObraz'),
-    },
-    nastepneRegaty: {
-      pokaz: bool('nrPokaz'),
-      tytul: g('nrTytul'),
-    },
     wprowadzenie: {
       tytul: g('wTytul'),
       tekst: g('wTekst'),
-      obrazTla: g('wObrazTla'),
-      jakSieScigamyHtml: g('jakSieScigamyHtml'),
       poziomyObraz: g('poziomyObraz'),
-      jakSledzic: parseJson<any[]>(g('jakSledzic'), []),
-      media: parseJson<any[]>(g('media'), []),
-      zgloszeniaIntro: g('zgloszeniaIntro'),
-      zgloszeniaLigi: parseJson<any[]>(g('zgloszeniaLigi'), []),
     },
     sponsorzy: {
       tytul: g('spTytul'),
