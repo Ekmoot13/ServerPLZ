@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 
-export type Item = { id: string; nazwa: string; poziomLigi?: string }
+export type Item = { id: string; nazwa: string; poziomLigi?: string; idZestawienia?: number | null }
 
 function norm(s: string): string {
   return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
@@ -35,6 +35,15 @@ export default function ListaKlubow({ items }: { items: Item[] }) {
           >
             <span className="font-medium text-slate-800">{k.nazwa}</span>
             <span className="flex items-center gap-3">
+              {k.idZestawienia != null ? (
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 ring-1 ring-emerald-200">
+                  #{k.idZestawienia}
+                </span>
+              ) : (
+                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 ring-1 ring-amber-200">
+                  brak powiązania
+                </span>
+              )}
               {k.poziomLigi && <span className="text-xs text-slate-400">{k.poziomLigi}</span>}
               <span className="text-sky-600">Edytuj →</span>
             </span>

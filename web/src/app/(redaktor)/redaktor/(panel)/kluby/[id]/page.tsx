@@ -2,7 +2,8 @@ import React from 'react'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import KlubForm, { KlubInitial } from '../KlubForm'
+import KlubForm, { KlubInitial, LigaKlub } from '../KlubForm'
+import { getKluby } from '@/lib/liga'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,12 +53,26 @@ export default async function EditKlubPage({
     instagram: doc.instagram || '',
     youtube: doc.youtube || '',
     zaloga,
+    idZestawienia: typeof doc.idZestawienia === 'number' ? doc.idZestawienia : null,
+  }
+
+  let ligaKluby: LigaKlub[] = []
+  try {
+    ligaKluby = (await getKluby()).map((k) => ({ id: k.id, nazwa: k.nazwa }))
+  } catch {
+    ligaKluby = []
   }
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold">Edytuj klub: {initial.nazwa}</h1>
-      <KlubForm id={String(doc.id)} initial={initial} zawodnicy={zawodnicy} ok={sp?.ok === '1'} />
+      <KlubForm
+        id={String(doc.id)}
+        initial={initial}
+        zawodnicy={zawodnicy}
+        ligaKluby={ligaKluby}
+        ok={sp?.ok === '1'}
+      />
     </div>
   )
 }

@@ -88,6 +88,8 @@ export async function getKlubPanel(idZestawienia: number): Promise<KlubPanel | n
     const res = await payload.find({
       collection: 'kluby',
       where: { idZestawienia: { equals: idZestawienia } },
+      // Przy duplikatach powiązania wybierz wpis aktywny (goły duplikat zwykle jest nieaktywny).
+      sort: '-aktywny',
       limit: 1,
       depth: 2,
     })

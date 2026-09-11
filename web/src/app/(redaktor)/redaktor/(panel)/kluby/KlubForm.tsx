@@ -13,9 +13,11 @@ export type KlubInitial = {
   instagram: string
   youtube: string
   zaloga: string[]
+  idZestawienia: number | null
 }
 
 type Osoba = { id: string; name: string }
+export type LigaKlub = { id: number; nazwa: string }
 
 function norm(s: string): string {
   return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
@@ -28,15 +30,31 @@ export default function KlubForm({
   id,
   initial,
   zawodnicy,
+  ligaKluby,
   ok,
 }: {
   id: string
   initial: KlubInitial
   zawodnicy: Osoba[]
+  ligaKluby: LigaKlub[]
   ok?: boolean
 }) {
   const [selected, setSelected] = useState<string[]>(initial.zaloga || [])
   const [q, setQ] = useState('')
+  const [idZest, setIdZest] = useState<number | null>(initial.idZestawienia)
+  const [qZest, setQZest] = useState('')
+
+  const zestById = useMemo(() => {
+    const m = new Map<number, string>()
+    for (const k of ligaKluby) m.set(k.id, k.nazwa)
+    return m
+  }, [ligaKluby])
+
+  const wynikiZest = useMemo(() => {
+    const nq = norm(qZest.trim())
+    if (!nq) return []
+    return ligaKluby.filter((k) => norm(k.nazwa).includes(nq) || String(k.id).includes(nq)).slice(0, 8)
+  }, [qZest, ligaKluby])
 
   const nameById = useMemo(() => {
     const m = new Map<string, string>()
@@ -62,6 +80,7 @@ export default function KlubForm({
     <form action={updateKlub} className="space-y-6">
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="zaloga" value={JSON.stringify(selected)} />
+      <input type="hidden" name="idZestawienia" value={idZest == null ? '' : String(idZest)} />
 
       {ok && (
         <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700">
@@ -107,6 +126,55 @@ export default function KlubForm({
           <input type="checkbox" name="aktywny" defaultChecked={initial.aktywny} />
           Aktywny
         </label>
+      </div>
+
+      {/* Powiązanie z bazą wyników */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Klub w bazie wyników (ID zestawienia)
+        </label>
+        <p className="mb-2 text-xs text-slate-500">
+          Łączy ten wpis z wynikami i profilem klubu na stronie. Zespoły młodzieżowe będące sekcją
+          klubu-matki (np. Yacht Club Gdańsk Cadetti) zostaw bez powiązania — profil na stronie ma
+          klub-matka.
+        </p>
+        {idZest != null ? (
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm text-emerald-800 ring-1 ring-emerald-200">
+            {zestById.get(idZest) || 'Nieznany klub'} <span className="text-emerald-600">#{idZest}</span>
+            <button type="button" onClick={() => setIdZest(null)} className="text-red-600 hover:text-red-700">
+              ✕
+            </button>
+          </div>
+        ) : (
+          <div className="mb-2 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-500">
+            Brak powiązania
+          </div>
+        )}
+        <div className="relative">
+          <input
+            value={qZest}
+            onChange={(e) => setQZest(e.target.value)}
+            placeholder="Wpisz nazwę klubu z bazy wyników, aby powiązać…"
+            className={inputCls}
+          />
+          {wynikiZest.length > 0 && (
+            <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow">
+              {wynikiZest.map((k) => (
+                <button
+                  key={k.id}
+                  type="button"
+                  onClick={() => {
+                    setIdZest(k.id)
+                    setQZest('')
+                  }}
+                  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+                >
+                  {k.nazwa} <span className="text-slate-400">#{k.id}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Linki */}

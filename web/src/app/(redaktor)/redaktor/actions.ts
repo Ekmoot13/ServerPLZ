@@ -78,10 +78,13 @@ export async function updateKlub(formData: FormData) {
     }
   }
 
+  const idZestawieniaRaw = String(formData.get('idZestawienia') || '').trim()
+
   const data: any = {
     nazwa: String(formData.get('nazwa') || ''),
     aktywny: formData.get('aktywny') === 'on',
     poziomLigi: String(formData.get('poziomLigi') || '') || null,
+    idZestawienia: idZestawieniaRaw && /^\d+$/.test(idZestawieniaRaw) ? Number(idZestawieniaRaw) : null,
     www: String(formData.get('www') || ''),
     facebook: String(formData.get('facebook') || ''),
     instagram: String(formData.get('instagram') || ''),

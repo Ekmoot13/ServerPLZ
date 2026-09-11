@@ -18,6 +18,7 @@ export default async function KlubyListPage() {
     id: String(d.id),
     nazwa: d.nazwa || '',
     poziomLigi: d.poziomLigi || undefined,
+    idZestawienia: typeof d.idZestawienia === 'number' ? d.idZestawienia : null,
   }))
 
   return (
