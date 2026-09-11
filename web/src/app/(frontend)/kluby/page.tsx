@@ -20,17 +20,17 @@ export default async function KlubyPage() {
   const grupy: Grupa[] = grupyRaw.map((g) => ({
     poziom: g.poziom,
     kluby: g.kluby.map((k) => {
-      // Panel ma pierwszeństwo: wpis dla wariantu (sekcja), potem wpis klubu-matki.
+      // Nazwa zawsze z bazy wyników — to ona nazywa zespół w danej lidze.
+      // (Część wariantów pływa w dwóch ligach, więc nazwa z panelu potrafi mylić.)
+      const m = getKlubMedia(k.nazwa)
       const zPanelu =
         k.warianty.map((w) => karty.poWariancie.get(w)).find(Boolean) || karty.poZestawieniu.get(k.id)
-      const nazwa = zPanelu?.nazwa || k.nazwa
-      const m = getKlubMedia(k.nazwa) || getKlubMedia(nazwa)
       return {
-        nazwa,
+        nazwa: k.nazwa,
         slug: k.slug,
         miejsce: k.miejsce,
         foto: m?.foto || null,
-        logo: zPanelu?.logoUrl || m?.logo || null,
+        logo: m?.logo || zPanelu?.logoUrl || null,
       }
     }),
   }))
