@@ -3,19 +3,35 @@
 import React from 'react'
 import { getAktualneKluby, getZawodnicy, getKluby } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
+import { getKlubyKarty } from '@/lib/panel'
 import ZespolyWidok, { type Grupa } from './ZespolyWidok'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Zespoły — Polska Liga Żeglarska' }
 
 export default async function KlubyPage() {
-  const [grupyRaw, zawodnicyRaw, klubyRaw] = await Promise.all([getAktualneKluby(), getZawodnicy(), getKluby()])
+  const [grupyRaw, zawodnicyRaw, klubyRaw, karty] = await Promise.all([
+    getAktualneKluby(),
+    getZawodnicy(),
+    getKluby(),
+    getKlubyKarty(),
+  ])
 
   const grupy: Grupa[] = grupyRaw.map((g) => ({
     poziom: g.poziom,
     kluby: g.kluby.map((k) => {
-      const m = getKlubMedia(k.nazwa)
-      return { nazwa: k.nazwa, slug: k.slug, miejsce: k.miejsce, foto: m?.foto || null, logo: m?.logo || null }
+      // Panel ma pierwszeństwo: wpis dla wariantu (sekcja), potem wpis klubu-matki.
+      const zPanelu =
+        k.warianty.map((w) => karty.poWariancie.get(w)).find(Boolean) || karty.poZestawieniu.get(k.id)
+      const nazwa = zPanelu?.nazwa || k.nazwa
+      const m = getKlubMedia(k.nazwa) || getKlubMedia(nazwa)
+      return {
+        nazwa,
+        slug: k.slug,
+        miejsce: k.miejsce,
+        foto: m?.foto || null,
+        logo: zPanelu?.logoUrl || m?.logo || null,
+      }
     }),
   }))
 

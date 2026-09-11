@@ -986,10 +986,19 @@ export async function getStartyKlubu(
   }))
 }
 
-// --- Aktualne kluby pogrupowane wg poziomu ligi, uszeregowane wg miejsca w bieżącym sezonie ---
+// --- Zespoły bieżącego sezonu wg poziomu ligi, uszeregowane jak Ranking Sezonu ---
+// Zespół = wariant klubu (grupowanie po skrócie, tak samo jak w getWynikiSezonu),
+// dzięki czemu sekcje młodzieżowe i drugie załogi są osobnymi kafelkami,
+// a nie zlewają się w klub-matkę z zsumowanymi punktami.
 export type AktualnaGrupa = {
   poziom: string
-  kluby: { id: number; nazwa: string; slug: string; miejsce: number }[]
+  kluby: {
+    id: number // zestawienie klubu-matki (do profilu i dopasowania panelu)
+    nazwa: string // nazwa zespołu z bazy wyników
+    slug: string // profil klubu-matki
+    miejsce: number
+    warianty: number[]
+  }[]
 }
 
 export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
@@ -1004,8 +1013,18 @@ export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
 
   const groups: AktualnaGrupa[] = []
   for (const s of seasons) {
-    const rows = await ligaQuery<{ id: number; klubnazwa: string; id_regat: number; miejsce: number }>(
-      `SELECT zk.id_zestawienia_klubow AS id, zk.nazwa AS klubnazwa, r.id_regat, m.miejscewregatach AS miejsce
+    const rows = await ligaQuery<{
+      rodzicid: number
+      rodzicnazwa: string
+      wariantid: number
+      skrot: string
+      zespol: string
+      id_regat: number
+      miejsce: number
+    }>(
+      `SELECT zk.id_zestawienia_klubow AS rodzicid, zk.nazwa AS rodzicnazwa,
+              kw.id_wariantu_klubu AS wariantid, kw.skrot, kw.nazwa AS zespol,
+              r.id_regat, m.miejscewregatach AS miejsce
        FROM liga_wynikregatmanual m
        JOIN liga_regaty r ON r.id_regat = m.regaty
        JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
@@ -1019,39 +1038,56 @@ export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
     for (const row of rows) boats.set(row.id_regat, (boats.get(row.id_regat) || 0) + 1)
     const maxFleet = Math.max(0, ...boats.values())
 
-    type T = { punkty: number; miejsca: number[]; nazwa: string }
-    const byClub = new Map<number, T>()
+    type T = {
+      punkty: number
+      miejsca: number[]
+      nazwa: string
+      rodzicid: number
+      rodzicnazwa: string
+      warianty: Set<number>
+    }
+    const byTeam = new Map<string, T>()
     for (const row of rows) {
-      if (!byClub.has(row.id)) byClub.set(row.id, { punkty: 0, miejsca: [], nazwa: row.klubnazwa })
-      const t = byClub.get(row.id)!
+      const key = row.skrot || String(row.wariantid)
+      if (!byTeam.has(key)) {
+        byTeam.set(key, {
+          punkty: 0,
+          miejsca: [],
+          nazwa: row.zespol || row.rodzicnazwa,
+          rodzicid: Number(row.rodzicid),
+          rodzicnazwa: row.rodzicnazwa || '',
+          warianty: new Set(),
+        })
+      }
+      const t = byTeam.get(key)!
       const m = Number(row.miejsce)
       let pkt = maxFleet - m + 1
       if (Number(s.rok) <= 2017 && m === 1) pkt += 1
       t.punkty += pkt
       t.miejsca.push(m)
-      t.nazwa = row.klubnazwa
+      t.nazwa = row.zespol || t.nazwa
+      t.warianty.add(Number(row.wariantid))
     }
 
-    const ranked = [...byClub.entries()]
-      .map(([id, t]) => ({ id, ...t }))
-      .sort((a, b) => {
-        if (a.punkty !== b.punkty) return b.punkty - a.punkty
-        const cA = countPlaces(a.miejsca)
-        const cB = countPlaces(b.miejsca)
-        for (let i = 1; i <= 50; i++) {
-          const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-          if (d !== 0) return d
-        }
-        return 0
-      })
+    const ranked = [...byTeam.values()].sort((a, b) => {
+      if (a.punkty !== b.punkty) return b.punkty - a.punkty
+      const cA = countPlaces(a.miejsca)
+      const cB = countPlaces(b.miejsca)
+      for (let i = 1; i <= 50; i++) {
+        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
+        if (d !== 0) return d
+      }
+      return 0
+    })
 
     groups.push({
       poziom: ligaLabel(s.liga_poziom),
       kluby: ranked.map((r, idx) => ({
-        id: r.id,
+        id: r.rodzicid,
         nazwa: r.nazwa,
-        slug: klubSlug(r.nazwa),
+        slug: klubSlug(r.rodzicnazwa),
         miejsce: idx + 1,
+        warianty: [...r.warianty],
       })),
     })
   }

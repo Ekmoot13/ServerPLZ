@@ -137,3 +137,42 @@ export async function getWykluczoneWarianty(idZestawienia: number): Promise<numb
   const panel = await getKlubPanel(idZestawienia)
   return panel?.wykluczWarianty || []
 }
+
+// Nazwy i logotypy z panelu, indeksowane po wariancie i po zestawieniu.
+// Kafelek zespołu bierze najpierw wpis dla swojego wariantu (np. sekcja młodzieżowa),
+// dopiero potem wpis klubu-matki.
+export type KlubKarta = { nazwa?: string; logoUrl?: string }
+
+export async function getKlubyKarty(): Promise<{
+  poWariancie: Map<number, KlubKarta>
+  poZestawieniu: Map<number, KlubKarta>
+}> {
+  const poWariancie = new Map<number, KlubKarta>()
+  const poZestawieniu = new Map<number, KlubKarta>()
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const res = await payload.find({
+      collection: 'kluby',
+      where: { aktywny: { equals: true } },
+      limit: 0,
+      pagination: false,
+      depth: 1,
+    })
+    for (const d of res.docs as any[]) {
+      const karta: KlubKarta = { nazwa: d.nazwa || undefined, logoUrl: mediaUrl(d.logo) }
+      if (!karta.nazwa && !karta.logoUrl) continue
+      if (Array.isArray(d.warianty)) {
+        for (const w of d.warianty) {
+          const n = Number(w)
+          if (Number.isFinite(n)) poWariancie.set(n, karta)
+        }
+      }
+      if (d.trybPowiazania !== 'warianty' && typeof d.idZestawienia === 'number') {
+        poZestawieniu.set(d.idZestawienia, karta)
+      }
+    }
+  } catch {
+    /* panel niedostępny — kafelki lecą na lokalnych mediach */
+  }
+  return { poWariancie, poZestawieniu }
+}
