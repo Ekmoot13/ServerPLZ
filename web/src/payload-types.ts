@@ -826,9 +826,21 @@ export interface Kluby {
    */
   zaloga?: (number | Zawodnicy)[] | null;
   /**
+   * „Cały klub" zbiera wyniki wszystkich wariantów (także historycznych nazw). „Wybrane warianty" opisuje pojedynczy zespół, np. sekcję młodzieżową.
+   */
+  trybPowiazania?: ('zestawienie' | 'warianty') | null;
+  /**
    * Łącznik do bazy wyników (liga_ZestawienieKlubow).
    */
   idZestawienia?: number | null;
+  /**
+   * ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu.
+   */
+  wykluczoneWarianty?: number[] | null;
+  /**
+   * ID wariantów (liga_KlubWariant) składających się na ten zespół.
+   */
+  warianty?: number[] | null;
   www?: string | null;
   facebook?: string | null;
   instagram?: string | null;
@@ -1421,7 +1433,10 @@ export interface KlubySelect<T extends boolean = true> {
   gdzieStartuje?: T;
   poziomLigi?: T;
   zaloga?: T;
+  trybPowiazania?: T;
   idZestawienia?: T;
+  wykluczoneWarianty?: T;
+  warianty?: T;
   www?: T;
   facebook?: T;
   instagram?: T;

@@ -63,11 +63,47 @@ export const Kluby: CollectionConfig = {
       admin: { description: 'Aktualny skład — pokazywany w sekcji „Zawodnicy klubu".' },
     },
     {
+      name: 'trybPowiazania',
+      type: 'select',
+      label: 'Tryb powiązania z bazą wyników',
+      defaultValue: 'zestawienie',
+      options: [
+        { label: 'Cały klub (zestawienie) — wszystkie warianty', value: 'zestawienie' },
+        { label: 'Wybrane warianty (osobny zespół)', value: 'warianty' },
+      ],
+      admin: {
+        description:
+          '„Cały klub" zbiera wyniki wszystkich wariantów (także historycznych nazw). ' +
+          '„Wybrane warianty" opisuje pojedynczy zespół, np. sekcję młodzieżową.',
+      },
+    },
+    {
       name: 'idZestawienia',
       type: 'number',
       label: 'ID zestawienia (powiązanie z wynikami liga_)',
       admin: {
         description: 'Łącznik do bazy wyników (liga_ZestawienieKlubow).',
+      },
+    },
+    {
+      name: 'wykluczoneWarianty',
+      type: 'number',
+      hasMany: true,
+      label: 'Warianty wyłączone z wyświetlania',
+      admin: {
+        description:
+          'ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu ' +
+          '— np. sekcja młodzieżowa mająca własny wpis. Działa w trybie „Cały klub".',
+      },
+    },
+    {
+      name: 'warianty',
+      type: 'number',
+      hasMany: true,
+      label: 'Warianty tego zespołu',
+      admin: {
+        description:
+          'ID wariantów (liga_KlubWariant) składających się na ten zespół. Działa w trybie „Wybrane warianty".',
       },
     },
     {

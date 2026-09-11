@@ -80,6 +80,8 @@ export type KlubPanel = {
   poziomLigi?: string
   links: { label: string; href: string }[]
   zaloga: { id: number | null; imie: string; nazwisko: string; slug: string; zdjecieUrl?: string }[]
+  // Warianty wyłączone przez redaktora z wyników tego klubu (np. sekcja młodzieżowa).
+  wykluczWarianty: number[]
 }
 
 export async function getKlubPanel(idZestawienia: number): Promise<KlubPanel | null> {
@@ -87,7 +89,11 @@ export async function getKlubPanel(idZestawienia: number): Promise<KlubPanel | n
     const payload = await getPayload({ config: configPromise })
     const res = await payload.find({
       collection: 'kluby',
-      where: { idZestawienia: { equals: idZestawienia } },
+      where: {
+        idZestawienia: { equals: idZestawienia },
+        // Wpisy w trybie „wybrane warianty" opisują osobny zespół, nie cały klub.
+        trybPowiazania: { not_equals: 'warianty' },
+      },
       // Przy duplikatach powiązania wybierz wpis aktywny (goły duplikat zwykle jest nieaktywny).
       sort: '-aktywny',
       limit: 1,
@@ -117,8 +123,17 @@ export async function getKlubPanel(idZestawienia: number): Promise<KlubPanel | n
       poziomLigi: d.poziomLigi || undefined,
       links,
       zaloga,
+      wykluczWarianty: Array.isArray(d.wykluczoneWarianty)
+        ? d.wykluczoneWarianty.map(Number).filter((n: number) => Number.isFinite(n))
+        : [],
     }
   } catch {
     return null
   }
+}
+
+// Warianty wyłączone dla danego zestawienia — potrzebne zanim pobierzemy wyniki.
+export async function getWykluczoneWarianty(idZestawienia: number): Promise<number[]> {
+  const panel = await getKlubPanel(idZestawienia)
+  return panel?.wykluczWarianty || []
 }

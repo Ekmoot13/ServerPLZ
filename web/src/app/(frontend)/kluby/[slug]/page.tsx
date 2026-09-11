@@ -26,13 +26,17 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
   const klub = await findKlubBySlug(slug)
   if (!klub) notFound()
 
-  const [sklad, sezony, statystyki, pods, starty, panel] = await Promise.all([
-    getSkladKlubu(klub.id),
-    getSezonyKlubu(klub.id),
-    getStatystykiKlubu(klub.id),
-    getPodsumowanieKlubu(klub.id),
-    getStartyKlubu(klub.id),
-    getKlubPanel(klub.id),
+  // Panel najpierw — redaktor może wyłączyć warianty (np. sekcję młodzieżową),
+  // a to zmienia zakres wszystkich poniższych zapytań o wyniki.
+  const panel = await getKlubPanel(klub.id)
+  const zakres = { wykluczWarianty: panel?.wykluczWarianty || [] }
+
+  const [sklad, sezony, statystyki, pods, starty] = await Promise.all([
+    getSkladKlubu(klub.id, zakres),
+    getSezonyKlubu(klub.id, zakres),
+    getStatystykiKlubu(klub.id, zakres),
+    getPodsumowanieKlubu(klub.id, zakres),
+    getStartyKlubu(klub.id, zakres),
   ])
 
   const photos = await getZawodnicyPhotos(sklad.players.map((p) => p.id))

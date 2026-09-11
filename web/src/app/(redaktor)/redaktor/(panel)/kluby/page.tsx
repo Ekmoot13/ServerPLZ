@@ -14,11 +14,15 @@ export default async function KlubyListPage() {
     depth: 0,
     sort: 'nazwa',
   })
+  const len = (v: unknown): number => (Array.isArray(v) ? v.length : 0)
   const items: Item[] = (res.docs as any[]).map((d) => ({
     id: String(d.id),
     nazwa: d.nazwa || '',
     poziomLigi: d.poziomLigi || undefined,
     idZestawienia: typeof d.idZestawienia === 'number' ? d.idZestawienia : null,
+    tryb: d.trybPowiazania === 'warianty' ? 'warianty' : 'zestawienie',
+    liczbaWariantow: len(d.warianty),
+    wykluczone: len(d.wykluczoneWarianty),
   }))
 
   return (

@@ -323,21 +323,84 @@ export async function findKlubBySlug(slug: string): Promise<{ id: number; nazwa:
   return null
 }
 
+// --- Zakres klubu: całe zestawienie (minus wykluczone warianty) albo jawna lista wariantów ---
+// Panel redaktora może wyłączyć wyświetlanie wybranych wariantów (np. sekcji młodzieżowej)
+// na stronie klubu-matki, albo powiązać wpis panelowy z konkretnymi wariantami.
+export type KlubZakres = {
+  wykluczWarianty?: number[]
+  tylkoWarianty?: number[]
+}
+
+// Warunek SQL na aliasie `kw` (liga_klubwariant); parametry numerowane od startIdx.
+function zakresCond(
+  idZestawienia: number,
+  zakres: KlubZakres,
+  startIdx: number,
+): { cond: string; params: unknown[] } {
+  if (zakres.tylkoWarianty && zakres.tylkoWarianty.length > 0) {
+    return { cond: `kw.id_wariantu_klubu = ANY($${startIdx}::int[])`, params: [zakres.tylkoWarianty] }
+  }
+  if (zakres.wykluczWarianty && zakres.wykluczWarianty.length > 0) {
+    return {
+      cond: `kw.id_zestawienia_klubow = $${startIdx} AND NOT (kw.id_wariantu_klubu = ANY($${startIdx + 1}::int[]))`,
+      params: [idZestawienia, zakres.wykluczWarianty],
+    }
+  }
+  return { cond: `kw.id_zestawienia_klubow = $${startIdx}`, params: [idZestawienia] }
+}
+
+// Predykat "ten wiersz należy do klubu" dla przetwarzania w pamięci.
+function zakresTarget(
+  idZestawienia: number,
+  zakres: KlubZakres,
+): (rodzicid: number, wariantid: number) => boolean {
+  if (zakres.tylkoWarianty && zakres.tylkoWarianty.length > 0) {
+    const set = new Set(zakres.tylkoWarianty.map(Number))
+    return (_rodzicid, wariantid) => set.has(Number(wariantid))
+  }
+  const wyk = new Set((zakres.wykluczWarianty || []).map(Number))
+  return (rodzicid, wariantid) => Number(rodzicid) === idZestawienia && !wyk.has(Number(wariantid))
+}
+
+// --- Wszystkie warianty klubów (do panelu redaktora) ---
+export type WariantKlubu = { id: number; skrot: string; nazwa: string; idZestawienia: number }
+
+export async function getWariantyKlubow(): Promise<WariantKlubu[]> {
+  const rows = await ligaQuery<{
+    id_wariantu_klubu: number
+    skrot: string
+    nazwa: string
+    id_zestawienia_klubow: number
+  }>(
+    `SELECT id_wariantu_klubu, skrot, nazwa, id_zestawienia_klubow
+     FROM liga_klubwariant ORDER BY nazwa ASC`,
+  )
+  return rows.map((r) => ({
+    id: Number(r.id_wariantu_klubu),
+    skrot: r.skrot || '',
+    nazwa: r.nazwa || '',
+    idZestawienia: Number(r.id_zestawienia_klubow),
+  }))
+}
+
 // --- Skład klubu z ostatniego roku (short-code: sklad_klubu) ---
 export async function getSkladKlubu(
   idZestawienia: number,
+  zakres: KlubZakres = {},
 ): Promise<{ rok: number | null; players: SkladPlayer[] }> {
+  const zc = zakresCond(idZestawienia, zakres, 1)
   const rokRows = await ligaQuery<{ rok: number }>(
     `SELECT MAX(r.rok) AS rok
      FROM liga_wystepowanie_w_regatach wr
      JOIN liga_regaty r ON r.id_regat = wr.id_regat
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = wr.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1`,
-    [idZestawienia],
+     WHERE ${zc.cond}`,
+    zc.params,
   )
   const rok = rokRows[0]?.rok ? Number(rokRows[0].rok) : null
   if (!rok) return { rok: null, players: [] }
 
+  const zc2 = zakresCond(idZestawienia, zakres, 2)
   const rows = await ligaQuery<{
     id_zawodnika: number
     imie: string
@@ -352,10 +415,10 @@ export async function getSkladKlubu(
      JOIN liga_regaty r ON r.id_regat = wr.id_regat
      JOIN liga_zawodnik z ON z.id_zawodnika = wr.id_zawodnika
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = wr.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1 AND r.rok = $2
+     WHERE r.rok = $1 AND ${zc2.cond}
      GROUP BY z.id_zawodnika, z.imie, z.nazwisko
      ORDER BY starty DESC, z.nazwisko ASC, z.imie ASC`,
-    [idZestawienia, rok],
+    [rok, ...zc2.params],
   )
   const players: SkladPlayer[] = rows.map((r) => ({
     id: r.id_zawodnika,
@@ -369,18 +432,23 @@ export async function getSkladKlubu(
 }
 
 // --- Historia sezonów klubu (short-code: wyniki_klubu_sezony), ranking High Point ---
-export async function getSezonyKlubu(idZestawienia: number): Promise<KlubSezonRow[]> {
+export async function getSezonyKlubu(
+  idZestawienia: number,
+  zakres: KlubZakres = {},
+): Promise<KlubSezonRow[]> {
+  const zc = zakresCond(idZestawienia, zakres, 1)
   const seasonRows = await ligaQuery<{ sk: string }>(
     `SELECT DISTINCT (r.rok || '|' || r.liga_poziom) AS sk
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1`,
-    [idZestawienia],
+     WHERE ${zc.cond}`,
+    zc.params,
   )
   const seasonKeys = seasonRows.map((r) => r.sk).filter(Boolean)
   if (seasonKeys.length === 0) return []
 
+  // Pełna stawka sezonu (bez filtra klubu) — potrzebna do policzenia rankingu.
   const raw = await ligaQuery<{
     rok: number
     liga_poziom: string
@@ -388,11 +456,13 @@ export async function getSezonyKlubu(idZestawienia: number): Promise<KlubSezonRo
     klubnazwa: string
     klubskrot: string
     rodzicid: number
+    wariantid: number
     miejsce: number
   }>(
     `SELECT r.rok, r.liga_poziom, r.id_regat,
             kw.nazwa AS klubnazwa, kw.skrot AS klubskrot,
             kw.id_zestawienia_klubow AS rodzicid,
+            kw.id_wariantu_klubu AS wariantid,
             m.miejscewregatach AS miejsce
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
@@ -401,6 +471,7 @@ export async function getSezonyKlubu(idZestawienia: number): Promise<KlubSezonRo
     [seasonKeys],
   )
   if (raw.length === 0) return []
+  const isTarget = zakresTarget(idZestawienia, zakres)
 
   const boatsPerRound = new Map<number, number>()
   for (const row of raw) boatsPerRound.set(row.id_regat, (boatsPerRound.get(row.id_regat) || 0) + 1)
@@ -422,7 +493,7 @@ export async function getSezonyKlubu(idZestawienia: number): Promise<KlubSezonRo
       bucket.set(teamKey, { punkty: 0, miejsca: [], nazwa: row.klubnazwa, isTarget: false })
     }
     const team = bucket.get(teamKey)!
-    if (Number(row.rodzicid) === idZestawienia) team.isTarget = true
+    if (isTarget(row.rodzicid, row.wariantid)) team.isTarget = true
     const m = Number(row.miejsce)
     let pkt = (seasonMaxFleet.get(sk) || 0) - m + 1
     if (Number(row.rok) <= 2017 && m === 1) pkt += 1
@@ -692,33 +763,37 @@ export async function getObecnyKlubZawodnika(
 // --- Statystyki klubu + TOP3 podia (short-code: statystyki_klubu) ---
 export async function getStatystykiKlubu(
   idZestawienia: number,
+  zakres: KlubZakres = {},
 ): Promise<{ podia: PodiumLiga[]; stats: StatystykiTabela }> {
+  const zc = zakresCond(idZestawienia, zakres, 1)
   const seasonRows = await ligaQuery<{ sk: string }>(
     `SELECT DISTINCT (r.rok || '|' || r.liga_poziom) AS sk
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1`,
-    [idZestawienia],
+     WHERE ${zc.cond}`,
+    zc.params,
   )
   const seasonKeys = seasonRows.map((r) => r.sk).filter(Boolean)
 
   const raw =
     seasonKeys.length === 0
       ? []
-      : await ligaQuery<{ liga_poziom: string; rodzicid: number; miejsce: number }>(
-          `SELECT r.liga_poziom, kw.id_zestawienia_klubow AS rodzicid, m.miejscewregatach AS miejsce
+      : await ligaQuery<{ liga_poziom: string; rodzicid: number; wariantid: number; miejsce: number }>(
+          `SELECT r.liga_poziom, kw.id_zestawienia_klubow AS rodzicid,
+                  kw.id_wariantu_klubu AS wariantid, m.miejscewregatach AS miejsce
            FROM liga_wynikregatmanual m
            JOIN liga_regaty r ON r.id_regat = m.regaty
            JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
            WHERE (r.rok || '|' || r.liga_poziom) = ANY($1) AND m.miejscewregatach > 0`,
           [seasonKeys],
         )
+  const isTarget = zakresTarget(idZestawienia, zakres)
 
   type Reg = { n: number; sum: number; p1: number; p2: number; p3: number }
   const statsRegaty = new Map<string, Reg>()
   for (const row of raw) {
-    if (Number(row.rodzicid) !== idZestawienia) continue
+    if (!isTarget(row.rodzicid, row.wariantid)) continue
     const l = row.liga_poziom
     if (!statsRegaty.has(l)) statsRegaty.set(l, { n: 0, sum: 0, p1: 0, p2: 0, p3: 0 })
     const s = statsRegaty.get(l)!
@@ -744,9 +819,9 @@ export async function getStatystykiKlubu(
      JOIN liga_wyscigi w ON w.id_wyscigu = m.id_wyscigu
      JOIN liga_regaty r ON r.id_regat = w.id_regat
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1
+     WHERE ${zakresCond(idZestawienia, zakres, 1).cond}
      GROUP BY r.liga_poziom`,
-    [idZestawienia],
+    zakresCond(idZestawienia, zakres, 1).params,
   )
   const wyscigiByLiga = new Map<string, { n: number; avg: number; wygrane: number }>()
   for (const w of wyscigi) {
@@ -786,14 +861,18 @@ export async function getStatystykiKlubu(
 }
 
 // --- Podsumowanie klubu (short-code: podsumowanie_klubu) ---
-export async function getPodsumowanieKlubu(idZestawienia: number): Promise<Podsumowanie> {
+export async function getPodsumowanieKlubu(
+  idZestawienia: number,
+  zakres: KlubZakres = {},
+): Promise<Podsumowanie> {
+  const zc = zakresCond(idZestawienia, zakres, 1)
   const seasonRows = await ligaQuery<{ sk: string }>(
     `SELECT DISTINCT (r.rok || '|' || r.liga_poziom) AS sk
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1`,
-    [idZestawienia],
+     WHERE ${zc.cond}`,
+    zc.params,
   )
   const seasonKeys = seasonRows.map((r) => r.sk).filter(Boolean)
   if (seasonKeys.length === 0) return { starty: 0, wygraneRegaty: 0, punkty: 0, mistrzostwa: 0 }
@@ -804,9 +883,11 @@ export async function getPodsumowanieKlubu(idZestawienia: number): Promise<Podsu
     id_regat: number
     skrot: string
     rodzicid: number
+    wariantid: number
     miejsce: number
   }>(
-    `SELECT r.rok, r.liga_poziom, r.id_regat, kw.skrot, kw.id_zestawienia_klubow AS rodzicid, m.miejscewregatach AS miejsce
+    `SELECT r.rok, r.liga_poziom, r.id_regat, kw.skrot, kw.id_zestawienia_klubow AS rodzicid,
+            kw.id_wariantu_klubu AS wariantid, m.miejscewregatach AS miejsce
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
@@ -814,6 +895,7 @@ export async function getPodsumowanieKlubu(idZestawienia: number): Promise<Podsu
     [seasonKeys],
   )
   if (all.length === 0) return { starty: 0, wygraneRegaty: 0, punkty: 0, mistrzostwa: 0 }
+  const isTarget = zakresTarget(idZestawienia, zakres)
 
   const boatsPerRound = new Map<number, number>()
   for (const row of all) boatsPerRound.set(row.id_regat, (boatsPerRound.get(row.id_regat) || 0) + 1)
@@ -837,7 +919,7 @@ export async function getPodsumowanieKlubu(idZestawienia: number): Promise<Podsu
     if (!bucket.has(row.skrot)) bucket.set(row.skrot, { punkty: 0, miejsca: [], isTarget: false })
     const t = bucket.get(row.skrot)!
     const m = Number(row.miejsce)
-    if (Number(row.rodzicid) === idZestawienia) {
+    if (isTarget(row.rodzicid, row.wariantid)) {
       t.isTarget = true
       starty++
       if (m === 1) wygraneRegaty++
@@ -882,15 +964,19 @@ export async function getPodsumowanieKlubu(idZestawienia: number): Promise<Podsu
 }
 
 // --- Lista startów klubu (short-code: wyniki_klubu) ---
-export async function getStartyKlubu(idZestawienia: number): Promise<KlubStart[]> {
+export async function getStartyKlubu(
+  idZestawienia: number,
+  zakres: KlubZakres = {},
+): Promise<KlubStart[]> {
+  const zc = zakresCond(idZestawienia, zakres, 1)
   const rows = await ligaQuery<{ rok: number; regaty: string; zespol: string; miejsce: number }>(
     `SELECT r.rok, r.nazwa AS regaty, kw.nazwa AS zespol, wrm.miejscewregatach AS miejsce
      FROM liga_wynikregatmanual wrm
      JOIN liga_regaty r ON r.id_regat = wrm.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = wrm.id_wariantu_klubu
-     WHERE kw.id_zestawienia_klubow = $1
+     WHERE ${zc.cond}
      ORDER BY r.rok DESC, r.nazwa ASC`,
-    [idZestawienia],
+    zc.params,
   )
   return rows.map((r) => ({
     rok: Number(r.rok) || 0,

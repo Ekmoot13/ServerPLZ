@@ -2,7 +2,15 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 
-export type Item = { id: string; nazwa: string; poziomLigi?: string; idZestawienia?: number | null }
+export type Item = {
+  id: string
+  nazwa: string
+  poziomLigi?: string
+  idZestawienia?: number | null
+  tryb?: 'zestawienie' | 'warianty'
+  liczbaWariantow?: number
+  wykluczone?: number
+}
 
 function norm(s: string): string {
   return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
@@ -35,9 +43,14 @@ export default function ListaKlubow({ items }: { items: Item[] }) {
           >
             <span className="font-medium text-slate-800">{k.nazwa}</span>
             <span className="flex items-center gap-3">
-              {k.idZestawienia != null ? (
+              {k.tryb === 'warianty' ? (
+                <span className="rounded-full bg-sky-50 px-2 py-0.5 text-xs text-sky-700 ring-1 ring-sky-200">
+                  {k.liczbaWariantow ? `${k.liczbaWariantow} wariant(y)` : 'warianty: brak'}
+                </span>
+              ) : k.idZestawienia != null ? (
                 <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 ring-1 ring-emerald-200">
                   #{k.idZestawienia}
+                  {k.wykluczone ? ` · −${k.wykluczone}` : ''}
                 </span>
               ) : (
                 <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 ring-1 ring-amber-200">

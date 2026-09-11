@@ -2,10 +2,14 @@ import React from 'react'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import KlubForm, { KlubInitial, LigaKlub } from '../KlubForm'
-import { getKluby } from '@/lib/liga'
+import KlubForm, { KlubInitial, LigaKlub, LigaWariant } from '../KlubForm'
+import { getKluby, getWariantyKlubow } from '@/lib/liga'
 
 export const dynamic = 'force-dynamic'
+
+function numbers(v: unknown): number[] {
+  return Array.isArray(v) ? v.map(Number).filter((n) => Number.isFinite(n)) : []
+}
 
 export default async function EditKlubPage({
   params,
@@ -54,13 +58,19 @@ export default async function EditKlubPage({
     youtube: doc.youtube || '',
     zaloga,
     idZestawienia: typeof doc.idZestawienia === 'number' ? doc.idZestawienia : null,
+    trybPowiazania: doc.trybPowiazania === 'warianty' ? 'warianty' : 'zestawienie',
+    wykluczoneWarianty: numbers(doc.wykluczoneWarianty),
+    warianty: numbers(doc.warianty),
   }
 
   let ligaKluby: LigaKlub[] = []
+  let ligaWarianty: LigaWariant[] = []
   try {
-    ligaKluby = (await getKluby()).map((k) => ({ id: k.id, nazwa: k.nazwa }))
+    const [kluby, warianty] = await Promise.all([getKluby(), getWariantyKlubow()])
+    ligaKluby = kluby.map((k) => ({ id: k.id, nazwa: k.nazwa }))
+    ligaWarianty = warianty
   } catch {
-    ligaKluby = []
+    // Baza wyników niedostępna — formularz działa bez podpowiedzi.
   }
 
   return (
@@ -71,6 +81,7 @@ export default async function EditKlubPage({
         initial={initial}
         zawodnicy={zawodnicy}
         ligaKluby={ligaKluby}
+        ligaWarianty={ligaWarianty}
         ok={sp?.ok === '1'}
       />
     </div>
