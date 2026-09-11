@@ -8,6 +8,8 @@ export const KLUB_MEDIA: KlubMedia[] = [
   { nazwa: 'Yacht Club Gdańsk', foto: `${L}/2024/01/EXR1_127_gwidon_libera-scaled.jpg`, logo: `${L}/2024/02/ycg.webp` },
   { nazwa: 'YKP Gdynia', foto: `${L}/2025/01/PLZ_NGP_EXR1_D1_0237_Gwidon_Libera_SR507840-scaled.jpg`, logo: `${L}/2025/01/YKP.png` },
   { nazwa: 'Energa Giżycka Grupa Regatowa', foto: `${L}/2025/01/PLZ_NGP_EXR1_D1_0246_Gwidon_Libera_SR507898-scaled.jpg`, logo: `${L}/2025/01/GGR-logo.png` },
+  // Ten sam klub pod nazwą z bazy wyników (bez sponsora w nazwie).
+  { nazwa: 'Giżycka Grupa Regatowa Nowy Sztynort Osada Wolności', foto: `${L}/2025/01/PLZ_NGP_EXR1_D1_0246_Gwidon_Libera_SR507898-scaled.jpg`, logo: `${L}/2025/01/GGR-logo.png` },
   { nazwa: 'On Lemon Rockstars Racing', foto: `${L}/2025/01/PLZ_NGP_EXR1_D1_0253_Gwidon_Libera_SR507967-scaled.jpg`, logo: `${L}/2024/01/on-lemon-rockstars-racing-logo-1-scaled.png` },
   { nazwa: 'HRM Racing', foto: `${L}/2025/01/PLZ_NGP_EXR1_D1_0241_Gwidon_Libera_SR507874-scaled.jpg`, logo: `${L}/2024/01/logo-HRM-kwadrat-ramka.png` },
   { nazwa: 'Yacht Club Sopot', foto: `${L}/2025/01/PLZ_NGP_EXR1_D1_0248_Gwidon_Libera_SR507906-scaled.jpg`, logo: `${L}/2025/01/YCSY.png` },
