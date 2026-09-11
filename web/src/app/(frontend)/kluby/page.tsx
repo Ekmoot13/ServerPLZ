@@ -22,9 +22,11 @@ export default async function KlubyPage() {
     kluby: g.kluby.map((k) => {
       // Nazwa zawsze z bazy wyników — to ona nazywa zespół w danej lidze.
       // (Część wariantów pływa w dwóch ligach, więc nazwa z panelu potrafi mylić.)
-      const m = getKlubMedia(k.nazwa)
       const zPanelu =
         k.warianty.map((w) => karty.poWariancie.get(w)).find(Boolean) || karty.poZestawieniu.get(k.id)
+      // Nazwa z panelu służy tylko do znalezienia grafiki, gdy w bazie zespół
+      // nazywa się inaczej niż w mapie zdjęć (np. „Yacht Klub Polski Gdynia" vs „YKP Gdynia").
+      const m = getKlubMedia(k.nazwa) || (zPanelu?.nazwa ? getKlubMedia(zPanelu.nazwa) : null)
       return {
         nazwa: k.nazwa,
         slug: k.slug,
