@@ -87,23 +87,21 @@ export const Kluby: CollectionConfig = {
     },
     {
       name: 'wykluczoneWarianty',
-      type: 'number',
-      hasMany: true,
+      type: 'json',
       label: 'Warianty wyłączone z wyświetlania',
       admin: {
         description:
-          'ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu ' +
+          'Tablica ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu ' +
           '— np. sekcja młodzieżowa mająca własny wpis. Działa w trybie „Cały klub".',
       },
     },
     {
       name: 'warianty',
-      type: 'number',
-      hasMany: true,
+      type: 'json',
       label: 'Warianty tego zespołu',
       admin: {
         description:
-          'ID wariantów (liga_KlubWariant) składających się na ten zespół. Działa w trybie „Wybrane warianty".',
+          'Tablica ID wariantów (liga_KlubWariant) składających się na ten zespół. Działa w trybie „Wybrane warianty".',
       },
     },
     {

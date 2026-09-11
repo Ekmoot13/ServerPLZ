@@ -836,11 +836,27 @@ export interface Kluby {
   /**
    * ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu.
    */
-  wykluczoneWarianty?: number[] | null;
+  wykluczoneWarianty?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   /**
    * ID wariantów (liga_KlubWariant) składających się na ten zespół.
    */
-  warianty?: number[] | null;
+  warianty?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   www?: string | null;
   facebook?: string | null;
   instagram?: string | null;
