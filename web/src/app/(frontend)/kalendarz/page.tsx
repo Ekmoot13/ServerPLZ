@@ -149,13 +149,14 @@ export default async function KalendarzPage() {
                           past ? 'opacity-70' : 'hover:-translate-y-1 hover:shadow-lg'
                         }`}
                         style={{
-                          borderColor: past ? '#e2e8f0' : `${styl.kolor}59`,
+                          // Kolor ligi niosa ramka i pasek takze po regatach - tylko przygaszony.
+                          borderColor: `${styl.kolor}${past ? '24' : '59'}`,
                           boxShadow: live ? `0 0 0 2px ${styl.kolor}` : undefined,
                         }}
                       >
                         <div
                           className="h-1.5 w-full"
-                          style={{ backgroundColor: past ? '#cbd5e1' : styl.kolor }}
+                          style={{ backgroundColor: `${styl.kolor}${past ? '66' : ''}` }}
                         />
                         <div className="p-4">
                           <div className="mb-3 flex items-center justify-between">
