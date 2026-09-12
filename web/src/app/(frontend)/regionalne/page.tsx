@@ -48,23 +48,19 @@ export default async function RegionalnePage() {
     .catch(() => ({ docs: [] as any[] }))
   const newsy = postRes.docs as any[]
 
-  // Licznik dla kazdej ligi regionalnej i dla Finalu: najblizsza runda,
-  // a gdy sezon danej ligi juz sie zakonczyl - ostatnia runda z adnotacja.
+  // Jeden licznik - do najblizszej imprezy z calej rodziny regionalnej
+  // (rundy trzech lig + Final). Dzis najblizszy jest Final, w kolejnym
+  // sezonie beda to po kolei rundy poszczegolnych lig.
+  const POZIOMY_REGIONALNE = [...LIGI.map((l) => l.nazwa), 'Finał Lig Regionalnych']
   const kalRes = await payload
     .find({ collection: 'kalendarz' as any, limit: 200, depth: 0, sort: 'dataOd' })
     .catch(() => ({ docs: [] as any[] }))
-  const terminy = kalRes.docs as any[]
-  const licznikDla = (poziom: string) => {
-    const wlasne = terminy.filter((t) => (t.poziom || '').trim() === poziom)
-    if (wlasne.length === 0) return null
-    const nastepna = wlasne.find((t) => statusRegat(t) !== 'odbyly-sie')
-    const t = nastepna || wlasne[wlasne.length - 1]
-    return { t, zakonczone: !nastepna }
-  }
-  const licznikiLig = LIGI.map((l) => ({ nazwa: l.nazwa, kolor: l.kolor, ...(licznikDla(l.nazwa) || {}) })).filter(
-    (x): x is { nazwa: string; kolor: string; t: any; zakonczone: boolean } => Boolean((x as any).t),
+  const terminyRegionalne = (kalRes.docs as any[]).filter((t) =>
+    POZIOMY_REGIONALNE.includes((t.poziom || '').trim()),
   )
-  const finalLR = licznikDla('Finał Lig Regionalnych')
+  const nastepnaImpreza = terminyRegionalne.find((t) => statusRegat(t) !== 'odbyly-sie')
+  // Po sezonie zostaje ostatnia impreza z adnotacja, zeby pasek nie znikal.
+  const licznik = nastepnaImpreza || terminyRegionalne[terminyRegionalne.length - 1] || null
 
   return (
     <main className="bg-slate-50">
@@ -90,37 +86,19 @@ export default async function RegionalnePage() {
         </div>
       </section>
 
-      {/* LICZNIKI: kazda liga regionalna + Final Lig Regionalnych na koncu */}
-      {(licznikiLig.length > 0 || finalLR) && (
-        <div>
-          {licznikiLig.map((l) => (
-            <PasekRegat
-              key={l.nazwa}
-              pokazPrzycisk={false}
-              statusTekst={l.zakonczone ? 'Sezon zakończony' : undefined}
-              dane={{
-                nazwa: l.nazwa,
-                miejsce: l.nazwa,
-                poziom: l.t.miejsce,
-                dataOd: l.t.dataOd,
-                dataDo: l.t.dataDo,
-              }}
-            />
-          ))}
-          {finalLR && (
-            <PasekRegat
-              pokazPrzycisk={false}
-              statusTekst={finalLR.zakonczone ? 'Po regatach' : undefined}
-              dane={{
-                nazwa: 'Finał Lig Regionalnych',
-                miejsce: 'Finał Lig Regionalnych',
-                poziom: finalLR.t.miejsce,
-                dataOd: finalLR.t.dataOd,
-                dataDo: finalLR.t.dataDo,
-              }}
-            />
-          )}
-        </div>
+      {/* LICZNIK do najblizszej imprezy regionalnej (rundy lig albo Final) */}
+      {licznik && (
+        <PasekRegat
+          pokazPrzycisk={false}
+          statusTekst={nastepnaImpreza ? undefined : 'Sezon zakończony'}
+          dane={{
+            nazwa: licznik.nazwa,
+            miejsce: (licznik.poziom || '').trim(),
+            poziom: licznik.miejsce,
+            dataOd: licznik.dataOd,
+            dataDo: licznik.dataDo,
+          }}
+        />
       )}
 
       {/* ZOBACZ NASZE LIGI */}
