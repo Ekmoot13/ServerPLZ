@@ -1300,7 +1300,7 @@ export type WRoundDetail = {
   miasto: string
   numer: number | null
   races: WRaceCol[]
-  rows: { miejsce: number; skrot: string; klub: string; slug: string; places: Record<string, string> }[]
+  rows: { miejsce: number; skrot: string; klub: string; slug: string; places: Record<string, string>; suma: string }[]
 }
 export type WLigaPelna = {
   poziom: string
@@ -1376,15 +1376,11 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
     }
     const roundsSorted = [...roundMeta.values()].sort((a, b) => (a.numer ?? 999) - (b.numer ?? 999))
 
-    // etykiety kolumn (miasto; przy powtórce dopisz numer)
-    const miastoCount = new Map<string, number>()
-    for (const r of roundsSorted) miastoCount.set(r.miasto, (miastoCount.get(r.miasto) || 0) + 1)
+    // etykiety kolumn = miasto rundy (powtorzone miasto zostaje powtorzone,
+    // kolejnosc kolumn i tak wynika z numeru rundy)
     const rankingRounds: WRound[] = roundsSorted.map((r) => ({
       id: r.id,
-      label:
-        (miastoCount.get(r.miasto) || 0) > 1 || !r.miasto
-          ? `${r.miasto || 'Runda'}${r.numer != null ? ` (R${r.numer})` : ''}`
-          : r.miasto,
+      label: r.miasto || (r.numer != null ? `Runda ${r.numer}` : 'Runda'),
     }))
 
     // liczebność floty na rundę
@@ -1443,11 +1439,14 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
         key: String(id),
         label: meta.finalowy ? `Fi${meta.numer ? ' ' + meta.numer : ''}` : `F${meta.numer}`,
       }))
-      // miejsca per klub
+      // miejsca per klub + suma punktow rundy (suma miejsc w wyscigach, nizej = lepiej)
       const placesBy = new Map<string, Record<string, string>>()
+      const sumaBy = new Map<string, number>()
       for (const x of rr) {
         if (!placesBy.has(x.skrot)) placesBy.set(x.skrot, {})
         placesBy.get(x.skrot)![String(x.id_wyscigu)] = fmtPlace(x.zajete_miejsce)
+        const n = Number(x.zajete_miejsce)
+        if (isFinite(n) && n > 0) sumaBy.set(x.skrot, (sumaBy.get(x.skrot) || 0) + n)
       }
       // wiersze wg końcowego miejsca w rundzie
       const finalOfRound = srows.filter((s) => s.id_regat === rm.id).sort((a, b) => Number(a.miejsce) - Number(b.miejsce))
@@ -1457,6 +1456,7 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
         klub: s.klub || '',
         slug: klubSlug(s.klub),
         places: placesBy.get(s.skrot) || {},
+        suma: fmtPlace(sumaBy.get(s.skrot)),
       }))
       rundy.push({ id: rm.id, nazwa: rm.nazwa, miasto: rm.miasto, numer: rm.numer, races: races2, rows })
     }

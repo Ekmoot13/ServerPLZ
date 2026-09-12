@@ -5,7 +5,7 @@ import Link from 'next/link'
 // Typy zgodne z danymi z getWynikiPelne (lib/liga).
 type RankRow = { miejsce: number; skrot: string; klub: string; slug: string; perRound: Record<string, any>; suma: any }
 type RoundCol = { key: string; label: string }
-type RoundRow = { miejsce: number; skrot: string; klub: string; slug: string; places: Record<string, any> }
+type RoundRow = { miejsce: number; skrot: string; klub: string; slug: string; places: Record<string, any>; suma?: any }
 type Runda = { id: string; numer: number | null; nazwa: string; miasto?: string; races: RoundCol[]; rows: RoundRow[] }
 type Liga = {
   poziom: string
@@ -135,6 +135,7 @@ export default function WynikiWidok({ ligi, ukryjPrzelacznik = false }: { ligi: 
                       {c.label}
                     </th>
                   ))}
+                  <th className="px-3 py-2.5 text-center font-bold">Σ</th>
                 </tr>
               </thead>
               <tbody>
@@ -155,6 +156,7 @@ export default function WynikiWidok({ ligi, ukryjPrzelacznik = false }: { ligi: 
                         {row.places[c.key] ?? '-'}
                       </td>
                     ))}
+                    <td className="px-3 py-2 text-center font-bold text-navy">{row.suma ?? '-'}</td>
                   </tr>
                 ))}
               </tbody>
