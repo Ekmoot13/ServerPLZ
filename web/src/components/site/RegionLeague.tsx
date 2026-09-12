@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { statusRegat } from '@/lib/kalendarz'
+import PasekRegat from '@/components/home/PasekRegat'
 import { Instagram, Facebook } from 'lucide-react'
 
 const DARK = '#191919'
@@ -96,6 +97,10 @@ export default async function RegionLeague({ cfg }: { cfg: RegionCfg }) {
     .catch(() => ({ docs: [] as any[] }))
   const newsy = postRes.docs as any[]
 
+  // Licznik do najblizszej rundy tej ligi; po sezonie pokazujemy ostatnia z adnotacja.
+  const nastepnaRunda = terminy.find((t) => statusRegat(t) !== 'odbyly-sie')
+  const rundaLicznika = nastepnaRunda || terminy[terminy.length - 1] || null
+
   const btnOutline = (jasny: boolean) =>
     `inline-block rounded-[10px] border-2 px-6 py-2.5 text-sm font-bold uppercase tracking-wide transition ${
       jasny ? 'border-white text-white hover:bg-white hover:text-neutral-900' : 'border-neutral-800 text-neutral-900 hover:bg-neutral-900 hover:text-white'
@@ -134,6 +139,21 @@ export default async function RegionLeague({ cfg }: { cfg: RegionCfg }) {
           </div>
         )}
       </section>
+
+      {/* LICZNIK DO NAJBLIZSZEJ RUNDY (bez przycisku) */}
+      {rundaLicznika && (
+        <PasekRegat
+          pokazPrzycisk={false}
+          statusTekst={nastepnaRunda ? undefined : 'Sezon zakończony'}
+          dane={{
+            nazwa: cfg.tytul,
+            miejsce: rundaLicznika.miejsce || cfg.tytul,
+            poziom: rundaLicznika.nazwa,
+            dataOd: rundaLicznika.dataOd,
+            dataDo: rundaLicznika.dataDo,
+          }}
+        />
+      )}
 
       {/* REGULAMIN + TERMINY */}
       <section className="bg-white">

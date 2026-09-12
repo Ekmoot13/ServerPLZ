@@ -36,10 +36,13 @@ function Box({ v, label }: { v: number; label: string }) {
 export default function PasekRegat({
   dane,
   pokazPrzycisk = true,
+  statusTekst,
 }: {
   dane: PasekDane
   /** Strony poziomow ligi pokazuja sam licznik - bez przycisku Sledz regaty. */
   pokazPrzycisk?: boolean
+  /** Zamiast odliczania pokaz staly komunikat, np. gdy sezon sie skonczyl. */
+  statusTekst?: string
 }) {
   const od = new Date(dane.dataOd)
   const doo = dane.dataDo ? new Date(dane.dataDo) : null
@@ -74,7 +77,9 @@ export default function PasekRegat({
 
         {/* odliczanie */}
         <div className="flex items-center gap-2 md:gap-3">
-          {trwa ? (
+          {statusTekst ? (
+            <span className="text-sm font-extrabold uppercase tracking-widest text-white/60">{statusTekst}</span>
+          ) : trwa ? (
             <span className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-widest text-brand-red">
               <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand-red" /> Trwają regaty
             </span>

@@ -2,6 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import PasekRegat from '@/components/home/PasekRegat'
+import { statusRegat } from '@/lib/kalendarz'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Ligi Regionalne — Polska Liga Żeglarska' }
@@ -46,6 +48,24 @@ export default async function RegionalnePage() {
     .catch(() => ({ docs: [] as any[] }))
   const newsy = postRes.docs as any[]
 
+  // Licznik dla kazdej ligi regionalnej i dla Finalu: najblizsza runda,
+  // a gdy sezon danej ligi juz sie zakonczyl - ostatnia runda z adnotacja.
+  const kalRes = await payload
+    .find({ collection: 'kalendarz' as any, limit: 200, depth: 0, sort: 'dataOd' })
+    .catch(() => ({ docs: [] as any[] }))
+  const terminy = kalRes.docs as any[]
+  const licznikDla = (poziom: string) => {
+    const wlasne = terminy.filter((t) => (t.poziom || '').trim() === poziom)
+    if (wlasne.length === 0) return null
+    const nastepna = wlasne.find((t) => statusRegat(t) !== 'odbyly-sie')
+    const t = nastepna || wlasne[wlasne.length - 1]
+    return { t, zakonczone: !nastepna }
+  }
+  const licznikiLig = LIGI.map((l) => ({ nazwa: l.nazwa, kolor: l.kolor, ...(licznikDla(l.nazwa) || {}) })).filter(
+    (x): x is { nazwa: string; kolor: string; t: any; zakonczone: boolean } => Boolean((x as any).t),
+  )
+  const finalLR = licznikDla('Finał Lig Regionalnych')
+
   return (
     <main className="bg-slate-50">
       {/* HERO */}
@@ -69,6 +89,39 @@ export default async function RegionalnePage() {
           </a>
         </div>
       </section>
+
+      {/* LICZNIKI: kazda liga regionalna + Final Lig Regionalnych na koncu */}
+      {(licznikiLig.length > 0 || finalLR) && (
+        <div>
+          {licznikiLig.map((l) => (
+            <PasekRegat
+              key={l.nazwa}
+              pokazPrzycisk={false}
+              statusTekst={l.zakonczone ? 'Sezon zakończony' : undefined}
+              dane={{
+                nazwa: l.nazwa,
+                miejsce: l.nazwa,
+                poziom: l.t.miejsce,
+                dataOd: l.t.dataOd,
+                dataDo: l.t.dataDo,
+              }}
+            />
+          ))}
+          {finalLR && (
+            <PasekRegat
+              pokazPrzycisk={false}
+              statusTekst={finalLR.zakonczone ? 'Po regatach' : undefined}
+              dane={{
+                nazwa: 'Finał Lig Regionalnych',
+                miejsce: 'Finał Lig Regionalnych',
+                poziom: finalLR.t.miejsce,
+                dataOd: finalLR.t.dataOd,
+                dataDo: finalLR.t.dataDo,
+              }}
+            />
+          )}
+        </div>
+      )}
 
       {/* ZOBACZ NASZE LIGI */}
       <section className="mx-auto max-w-[1440px] px-4 py-14">

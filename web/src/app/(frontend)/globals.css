@@ -249,6 +249,13 @@ html[data-theme='light'] {
   main article li {
     text-align: left;
   }
+  /* Kontener z jawnym wyrownaniem (np. text-center na sekcji) ma wygrywac
+     z justowaniem takze wtedy, gdy klasa stoi na rodzicu, a nie na <p>. */
+  main .text-center p,
+  main .text-left p,
+  main .text-right p {
+    text-align: inherit;
+  }
 }
 
 /* Marquee — poziomy, ciągły przewijany pas (mistrzowie, sponsorzy) */
