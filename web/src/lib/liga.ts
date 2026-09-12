@@ -431,6 +431,70 @@ export async function getSkladKlubu(
   return { rok, players }
 }
 
+// --- Skład klubu rozbity na poziomy lig, wg przypisań sezonu z panelu ---
+// Klub może startować na kilku poziomach (np. Ekstraklasa + Młodzieżowa),
+// a wtedy „Zawodnicy klubu" muszą być pokazani osobno dla każdego poziomu.
+export type SkladPoziom = { poziom: string; rok: number | null; players: SkladPlayer[] }
+
+export async function getSkladWgPoziomow(
+  przypisania: { poziom: string; wariant: number }[],
+): Promise<SkladPoziom[]> {
+  const poPoziomie = new Map<string, number[]>()
+  for (const p of przypisania) {
+    if (!p?.poziom || !Number.isFinite(Number(p.wariant))) continue
+    if (!poPoziomie.has(p.poziom)) poPoziomie.set(p.poziom, [])
+    poPoziomie.get(p.poziom)!.push(Number(p.wariant))
+  }
+  if (poPoziomie.size === 0) return []
+
+  const out: SkladPoziom[] = []
+  for (const [poziom, warianty] of poPoziomie) {
+    const rokRows = await ligaQuery<{ rok: number }>(
+      `SELECT MAX(r.rok) AS rok
+       FROM liga_wystepowanie_w_regatach wr
+       JOIN liga_regaty r ON r.id_regat = wr.id_regat
+       WHERE wr.id_wariantu_klubu = ANY($1::int[]) AND r.liga_poziom = $2`,
+      [warianty, poziom],
+    )
+    const rok = rokRows[0]?.rok ? Number(rokRows[0].rok) : null
+    if (!rok) continue
+
+    const rows = await ligaQuery<{
+      id_zawodnika: number
+      imie: string
+      nazwisko: string
+      starty: string
+    }>(
+      `SELECT z.id_zawodnika, z.imie, z.nazwisko, COUNT(wr.id_wystepowania) AS starty
+       FROM liga_wystepowanie_w_regatach wr
+       JOIN liga_regaty r ON r.id_regat = wr.id_regat
+       JOIN liga_zawodnik z ON z.id_zawodnika = wr.id_zawodnika
+       WHERE wr.id_wariantu_klubu = ANY($1::int[]) AND r.liga_poziom = $2 AND r.rok = $3
+       GROUP BY z.id_zawodnika, z.imie, z.nazwisko
+       ORDER BY starty DESC, z.nazwisko ASC, z.imie ASC`,
+      [warianty, poziom, rok],
+    )
+    if (rows.length === 0) continue
+
+    out.push({
+      poziom: ligaLabel(poziom),
+      rok,
+      players: rows.map((r) => ({
+        id: r.id_zawodnika,
+        imie: r.imie || '',
+        nazwisko: r.nazwisko || '',
+        slug: zawodnikSlug(r.nazwisko, r.imie),
+        starty: Number(r.starty) || 0,
+        ligi: ligaLabel(poziom),
+      })),
+    })
+  }
+
+  const kolejnosc: Record<string, number> = { Ekstraklasa: 0, '1 Liga': 1, '2 Liga': 2, Młodzieżowa: 3 }
+  out.sort((a, b) => (kolejnosc[a.poziom] ?? 99) - (kolejnosc[b.poziom] ?? 99))
+  return out
+}
+
 // --- Historia sezonów klubu (short-code: wyniki_klubu_sezony), ranking High Point ---
 export async function getSezonyKlubu(
   idZestawienia: number,
@@ -992,9 +1056,12 @@ export async function getStartyKlubu(
 // a nie zlewają się w klub-matkę z zsumowanymi punktami.
 export type AktualnaGrupa = {
   poziom: string
+  poziomRaw: string // wartość z bazy (np. „Youth"), klucz przypisań
+  rok: number
   kluby: {
     id: number // zestawienie klubu-matki (do profilu i dopasowania panelu)
     nazwa: string // nazwa zespołu z bazy wyników
+    klubMatka: string // nazwa zestawienia (klub-matka)
     slug: string // profil klubu-matki
     miejsce: number
     warianty: number[]
@@ -1082,9 +1149,12 @@ export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
 
     groups.push({
       poziom: ligaLabel(s.liga_poziom),
+      poziomRaw: s.liga_poziom,
+      rok: Number(s.rok),
       kluby: ranked.map((r, idx) => ({
         id: r.rodzicid,
         nazwa: r.nazwa,
+        klubMatka: r.rodzicnazwa,
         slug: klubSlug(r.rodzicnazwa),
         miejsce: idx + 1,
         warianty: [...r.warianty],

@@ -74,6 +74,25 @@ export async function getZawodnicyPhotos(ids: number[]): Promise<Map<number, str
   return map
 }
 
+export type SezonPrzypisanie = { poziom: string; wariant: number }
+
+// Odczyt pola json z Payloada — bywa tablicą albo (po ręcznym wpisie) tekstem.
+export function czytajPrzypisania(v: unknown): SezonPrzypisanie[] {
+  const arr = typeof v === 'string' ? safeParse(v) : v
+  if (!Array.isArray(arr)) return []
+  return arr
+    .map((x: any) => ({ poziom: String(x?.poziom || ''), wariant: Number(x?.wariant) }))
+    .filter((x) => x.poziom && Number.isFinite(x.wariant))
+}
+
+function safeParse(s: string): unknown {
+  try {
+    return JSON.parse(s)
+  } catch {
+    return null
+  }
+}
+
 export type KlubPanel = {
   nazwa?: string
   logoUrl?: string
@@ -82,6 +101,8 @@ export type KlubPanel = {
   zaloga: { id: number | null; imie: string; nazwisko: string; slug: string; zdjecieUrl?: string }[]
   // Warianty wyłączone przez redaktora z wyników tego klubu (np. sekcja młodzieżowa).
   wykluczWarianty: number[]
+  // Zespoły sezonu przypisane do klubu — źródło poziomów ligi i podziału składu.
+  przypisania: SezonPrzypisanie[]
 }
 
 export async function getKlubPanel(idZestawienia: number): Promise<KlubPanel | null> {
@@ -126,10 +147,45 @@ export async function getKlubPanel(idZestawienia: number): Promise<KlubPanel | n
       wykluczWarianty: Array.isArray(d.wykluczoneWarianty)
         ? d.wykluczoneWarianty.map(Number).filter((n: number) => Number.isFinite(n))
         : [],
+      przypisania: czytajPrzypisania(d.sezonPrzypisania),
     }
   } catch {
     return null
   }
+}
+
+// Przypisania całego sezonu: klucz „poziom|wariant" → klub panelu.
+export type KlubSkrot = { id: string; nazwa: string; logoUrl?: string }
+
+export async function getPrzypisaniaSezonu(): Promise<{
+  poKluczu: Map<string, KlubSkrot>
+  poKlubie: Map<string, SezonPrzypisanie[]>
+}> {
+  const poKluczu = new Map<string, KlubSkrot>()
+  const poKlubie = new Map<string, SezonPrzypisanie[]>()
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const res = await payload.find({
+      collection: 'kluby',
+      limit: 0,
+      pagination: false,
+      depth: 1,
+    })
+    for (const d of res.docs as any[]) {
+      const przypisania = czytajPrzypisania(d.sezonPrzypisania)
+      if (przypisania.length === 0) continue
+      const karta: KlubSkrot = {
+        id: String(d.id),
+        nazwa: d.nazwa || '',
+        logoUrl: mediaUrl(d.logo),
+      }
+      poKlubie.set(karta.id, przypisania)
+      for (const p of przypisania) poKluczu.set(`${p.poziom}|${p.wariant}`, karta)
+    }
+  } catch {
+    /* panel niedostępny */
+  }
+  return { poKluczu, poKlubie }
 }
 
 // Warianty wyłączone dla danego zestawienia — potrzebne zanim pobierzemy wyniki.

@@ -3,36 +3,43 @@
 import React from 'react'
 import { getAktualneKluby, getZawodnicy, getKluby } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
-import { getKlubyKarty } from '@/lib/panel'
+import { getKlubyKarty, getPrzypisaniaSezonu } from '@/lib/panel'
 import ZespolyWidok, { type Grupa } from './ZespolyWidok'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Zespoły — Polska Liga Żeglarska' }
 
 export default async function KlubyPage() {
-  const [grupyRaw, zawodnicyRaw, klubyRaw, karty] = await Promise.all([
+  const [grupyRaw, zawodnicyRaw, klubyRaw, karty, przypisania] = await Promise.all([
     getAktualneKluby(),
     getZawodnicy(),
     getKluby(),
     getKlubyKarty(),
+    getPrzypisaniaSezonu(),
   ])
 
   const grupy: Grupa[] = grupyRaw.map((g) => ({
     poziom: g.poziom,
     kluby: g.kluby.map((k) => {
-      // Nazwa zawsze z bazy wyników — to ona nazywa zespół w danej lidze.
-      // (Część wariantów pływa w dwóch ligach, więc nazwa z panelu potrafi mylić.)
+      // Przypisanie z „Kluby w sezonie" decyduje, jako który klub panelu pokazuje się zespół.
+      const przypisany = k.warianty
+        .map((w) => przypisania.poKluczu.get(`${g.poziomRaw}|${w}`))
+        .find(Boolean)
+      // Bez przypisania zostajemy przy nazwie z bazy wyników (zgodnej z Rankingiem Sezonu).
       const zPanelu =
-        k.warianty.map((w) => karty.poWariancie.get(w)).find(Boolean) || karty.poZestawieniu.get(k.id)
-      // Nazwa z panelu służy tylko do znalezienia grafiki, gdy w bazie zespół
-      // nazywa się inaczej niż w mapie zdjęć (np. „Yacht Klub Polski Gdynia" vs „YKP Gdynia").
-      const m = getKlubMedia(k.nazwa) || (zPanelu?.nazwa ? getKlubMedia(zPanelu.nazwa) : null)
+        przypisany ||
+        k.warianty.map((w) => karty.poWariancie.get(w)).find(Boolean) ||
+        karty.poZestawieniu.get(k.id)
+      const nazwa = przypisany?.nazwa || k.nazwa
+      // Nazwa z panelu pomaga też znaleźć grafikę, gdy w bazie zespół nazywa się inaczej
+      // niż w mapie zdjęć (np. „Yacht Klub Polski Gdynia" vs „YKP Gdynia").
+      const m = getKlubMedia(nazwa) || getKlubMedia(k.nazwa) || (zPanelu?.nazwa ? getKlubMedia(zPanelu.nazwa) : null)
       return {
-        nazwa: k.nazwa,
+        nazwa,
         slug: k.slug,
         miejsce: k.miejsce,
         foto: m?.foto || null,
-        logo: m?.logo || zPanelu?.logoUrl || null,
+        logo: przypisany?.logoUrl || m?.logo || zPanelu?.logoUrl || null,
       }
     }),
   }))

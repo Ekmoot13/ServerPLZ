@@ -13,6 +13,7 @@ export type KlubInitial = {
   instagram: string
   youtube: string
   zaloga: string[]
+  poziomy: string[]
   idZestawienia: number | null
   trybPowiazania: 'zestawienie' | 'warianty'
   wykluczoneWarianty: number[]
@@ -152,19 +153,33 @@ export default function KlubForm({
         <input name="nazwa" defaultValue={initial.nazwa} className={inputCls} />
       </div>
 
-      {/* Poziom ligi + aktywny */}
+      {/* Poziom ligi (wyliczany) + aktywny */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">Poziom ligi</label>
-          <select name="poziomLigi" defaultValue={initial.poziomLigi} className={inputCls}>
-            <option value="">— brak —</option>
-            <option value="Ekstraklasa">Ekstraklasa</option>
-            <option value="1 Liga">1 Liga</option>
-            <option value="2 Liga">2 Liga</option>
-            <option value="Młodzieżowa">Młodzieżowa</option>
-          </select>
+          <div className="flex min-h-[42px] flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+            {initial.poziomy.length > 0 ? (
+              initial.poziomy.map((p) => (
+                <span
+                  key={p}
+                  className="rounded-full bg-white px-2.5 py-0.5 text-sm text-slate-700 ring-1 ring-slate-200"
+                >
+                  {p}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-slate-400">brak — klub nie startuje w tym sezonie</span>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Ustawiane w{' '}
+            <Link href="/redaktor/kluby/sezon" className="text-sky-600 hover:underline">
+              Kluby w sezonie
+            </Link>
+            , nie tutaj.
+          </p>
         </div>
-        <label className="flex items-end gap-2 pb-2 text-sm">
+        <label className="flex items-start gap-2 pt-8 text-sm">
           <input type="checkbox" name="aktywny" defaultChecked={initial.aktywny} />
           Aktywny
         </label>

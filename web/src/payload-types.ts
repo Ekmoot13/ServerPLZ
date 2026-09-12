@@ -846,6 +846,18 @@ export interface Kluby {
     | boolean
     | null;
   /**
+   * Tablica { poziom, wariant } — zespoły sezonu pokazywane jako ten klub.
+   */
+  sezonPrzypisania?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
    * ID wariantów (liga_KlubWariant) składających się na ten zespół.
    */
   warianty?:
@@ -1452,6 +1464,7 @@ export interface KlubySelect<T extends boolean = true> {
   trybPowiazania?: T;
   idZestawienia?: T;
   wykluczoneWarianty?: T;
+  sezonPrzypisania?: T;
   warianty?: T;
   www?: T;
   facebook?: T;

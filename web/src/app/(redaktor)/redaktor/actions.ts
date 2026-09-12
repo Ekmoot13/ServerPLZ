@@ -89,10 +89,10 @@ export async function updateKlub(formData: FormData) {
     }
   }
 
+  // Uwaga: poziomLigi NIE jest tu zapisywane — wynika z przypisań w „Kluby w sezonie".
   const data: any = {
     nazwa: String(formData.get('nazwa') || ''),
     aktywny: formData.get('aktywny') === 'on',
-    poziomLigi: String(formData.get('poziomLigi') || '') || null,
     idZestawienia: idZestawieniaRaw && /^\d+$/.test(idZestawieniaRaw) ? Number(idZestawieniaRaw) : null,
     trybPowiazania: tryb === 'warianty' ? 'warianty' : 'zestawienie',
     wykluczoneWarianty: parseIds('wykluczoneWarianty'),
@@ -109,6 +109,91 @@ export async function updateKlub(formData: FormData) {
   await payload.update({ collection: 'kluby', id, data, overrideAccess: true })
   revalidatePath('/kluby')
   redirect(`/redaktor/kluby/${id}?ok=1`)
+}
+
+// ============================ KLUBY W SEZONIE ============================
+
+// Kolejność „ważności" poziomów — do wyliczenia pola „Poziom ligi".
+const POZIOM_RANGA: Record<string, number> = {
+  Ekstraklasa: 0,
+  '1 Liga': 1,
+  '2 Liga': 2,
+  Youth: 3,
+  Młodzieżowa: 3,
+}
+const POZIOM_ETYKIETA = (p: string): string => (p === 'Youth' ? 'Młodzieżowa' : p)
+
+/**
+ * Zapisuje mapowanie „zespół sezonu (poziom + wariant) → klub panelu".
+ * Dostaje komplet zespołów z edytowanych poziomów, więc przypisania dla tych
+ * poziomów są nadpisywane w całości; przypisania z innych poziomów zostają.
+ */
+export async function zapiszPrzypisaniaSezonu(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+
+  type Wiersz = { poziom: string; wariant: number; klubId: string | null }
+  let wiersze: Wiersz[] = []
+  let poziomy: string[] = []
+  try {
+    wiersze = JSON.parse(String(formData.get('przypisania') || '[]'))
+    poziomy = JSON.parse(String(formData.get('poziomy') || '[]'))
+  } catch {
+    wiersze = []
+  }
+  const edytowane = new Set(poziomy)
+
+  // Docelowy stan: klub → lista { poziom, wariant }
+  const docelowe = new Map<string, { poziom: string; wariant: number }[]>()
+  for (const w of wiersze) {
+    if (!w?.klubId || !w.poziom || !Number.isFinite(Number(w.wariant))) continue
+    if (!docelowe.has(w.klubId)) docelowe.set(w.klubId, [])
+    docelowe.get(w.klubId)!.push({ poziom: w.poziom, wariant: Number(w.wariant) })
+  }
+
+  const res = await payload.find({
+    collection: 'kluby',
+    limit: 0,
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+  })
+
+  for (const d of res.docs as any[]) {
+    const id = String(d.id)
+    const stare: { poziom: string; wariant: number }[] = Array.isArray(d.sezonPrzypisania)
+      ? d.sezonPrzypisania
+          .map((x: any) => ({ poziom: String(x?.poziom || ''), wariant: Number(x?.wariant) }))
+          .filter((x: any) => x.poziom && Number.isFinite(x.wariant))
+      : []
+
+    // Zachowujemy przypisania z poziomów, których ten formularz nie dotyczył.
+    const zachowane = stare.filter((s) => !edytowane.has(s.poziom))
+    const nowe = [...zachowane, ...(docelowe.get(id) || [])]
+
+    const bezZmian =
+      nowe.length === stare.length &&
+      nowe.every((n) => stare.some((s) => s.poziom === n.poziom && s.wariant === n.wariant))
+    if (bezZmian) continue
+
+    const najwyzszy = [...nowe]
+      .map((n) => n.poziom)
+      .sort((a, b) => (POZIOM_RANGA[a] ?? 99) - (POZIOM_RANGA[b] ?? 99))[0]
+
+    await payload.update({
+      collection: 'kluby',
+      id: d.id,
+      data: {
+        sezonPrzypisania: nowe,
+        poziomLigi: najwyzszy ? POZIOM_ETYKIETA(najwyzszy) : null,
+      } as any,
+      overrideAccess: true,
+    })
+  }
+
+  revalidatePath('/kluby')
+  revalidatePath('/redaktor/kluby')
+  redirect('/redaktor/kluby/sezon?ok=1')
 }
 
 // ============================ WPISY (NEWSY) ============================

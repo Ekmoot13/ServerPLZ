@@ -10,6 +10,7 @@ import {
   getStatystykiKlubu,
   getPodsumowanieKlubu,
   getStartyKlubu,
+  getSkladWgPoziomow,
 } from '@/lib/liga'
 import { getKlubPanel, getZawodnicyPhotos } from '@/lib/panel'
 import { getKlubMedia } from '@/lib/klubMedia'
@@ -45,8 +46,25 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
   const nazwa = panel?.nazwa || klub.nazwa
   const media = getKlubMedia(nazwa)
   const logoUrl = panel?.logoUrl || media?.logo || undefined
-  const poziomLigi = panel?.poziomLigi
+  // Klub potrafi startować na kilku poziomach — wypisujemy komplet z przypisań sezonu.
+  const rangaPoziomu: Record<string, number> = {
+    Ekstraklasa: 0,
+    '1 Liga': 1,
+    '2 Liga': 2,
+    Młodzieżowa: 3,
+  }
+  const poziomyZPrzypisan = [
+    ...new Set((panel?.przypisania || []).map((p) => (p.poziom === 'Youth' ? 'Młodzieżowa' : p.poziom))),
+  ].sort((a, b) => (rangaPoziomu[a] ?? 99) - (rangaPoziomu[b] ?? 99))
+  const poziomLigi = poziomyZPrzypisan.length > 0 ? poziomyZPrzypisan.join(' · ') : panel?.poziomLigi
   const links = panel?.links || []
+
+  // Zawodnicy w rozbiciu na poziomy lig — klub może startować na kilku naraz
+  // (np. Ekstraklasa i Młodzieżowa), a każdy poziom ma inny skład.
+  const skladPoziomy = await getSkladWgPoziomow(panel?.przypisania || [])
+  const zdjeciaPoziomow = await getZawodnicyPhotos(
+    skladPoziomy.flatMap((g) => g.players.map((p) => p.id)),
+  )
 
   // Karty "Zawodnicy klubu": jeśli redaktor ustawił załogę — używamy jej; inaczej skład z bazy wyników.
   const zawodnicyCards =
@@ -179,7 +197,21 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
                 />
               </Sekcja>
 
-              <ProfileCards title="Zawodnicy klubu" items={zawodnicyCards} />
+              {skladPoziomy.length > 0 ? (
+                skladPoziomy.map((g) => (
+                  <ProfileCards
+                    key={g.poziom}
+                    title={`Zawodnicy klubu — ${g.poziom}${g.rok ? ` (${g.rok})` : ''}`}
+                    items={g.players.map((p) => ({
+                      nazwa: `${p.imie} ${p.nazwisko}`.trim(),
+                      href: `/zawodnicy/${p.slug}`,
+                      imageUrl: zdjeciaPoziomow.get(p.id),
+                    }))}
+                  />
+                ))
+              ) : (
+                <ProfileCards title="Zawodnicy klubu" items={zawodnicyCards} />
+              )}
 
               <Sekcja tytul={`Skład zespołu${sklad.rok ? ` — ${sklad.rok}` : ''}`}>
                 {skladRows.length === 0 ? (

@@ -52,7 +52,22 @@ export const Kluby: CollectionConfig = {
         { label: '2 Liga', value: '2 Liga' },
         { label: 'Młodzieżowa', value: 'Młodzieżowa' },
       ],
-      admin: { description: 'Poziom, na którym klub startuje w bieżącym sezonie.' },
+      admin: {
+        readOnly: true,
+        description:
+          'Wyliczane z przypisań w „Kluby w sezonie" — nie ustawia się ręcznie. ' +
+          'Gdy klub startuje na kilku poziomach, trzymamy tu ten najwyższy.',
+      },
+    },
+    {
+      name: 'sezonPrzypisania',
+      type: 'json',
+      label: 'Zespoły sezonu przypisane do tego klubu',
+      admin: {
+        description:
+          'Tablica { poziom, wariant } — który zespół z bazy wyników pokazuje się jako ten klub ' +
+          'na danym poziomie ligi. Edytowane w panelu redaktora → Kluby → Kluby w sezonie.',
+      },
     },
     {
       name: 'zaloga',

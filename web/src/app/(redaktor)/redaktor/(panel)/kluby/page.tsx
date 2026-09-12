@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import ListaKlubow, { Item } from './ListaKlubow'
@@ -27,7 +28,15 @@ export default async function KlubyListPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Kluby</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Kluby</h1>
+        <Link
+          href="/redaktor/kluby/sezon"
+          className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-500"
+        >
+          Kluby w sezonie →
+        </Link>
+      </div>
       <ListaKlubow items={items} />
     </div>
   )

@@ -11,6 +11,23 @@ function numbers(v: unknown): number[] {
   return Array.isArray(v) ? v.map(Number).filter((n) => Number.isFinite(n)) : []
 }
 
+// Poziomy ligi wynikają z przypisań sezonu — pokazujemy je tylko do odczytu.
+function poziomyZPrzypisan(v: unknown): string[] {
+  if (!Array.isArray(v)) return []
+  const etykieta = (p: string) => (p === 'Youth' ? 'Młodzieżowa' : p)
+  const kolejnosc: Record<string, number> = {
+    Ekstraklasa: 0,
+    '1 Liga': 1,
+    '2 Liga': 2,
+    Młodzieżowa: 3,
+  }
+  const zbior = new Set<string>()
+  for (const x of v as any[]) {
+    if (x?.poziom) zbior.add(etykieta(String(x.poziom)))
+  }
+  return [...zbior].sort((a, b) => (kolejnosc[a] ?? 99) - (kolejnosc[b] ?? 99))
+}
+
 export default async function EditKlubPage({
   params,
   searchParams,
@@ -57,6 +74,7 @@ export default async function EditKlubPage({
     instagram: doc.instagram || '',
     youtube: doc.youtube || '',
     zaloga,
+    poziomy: poziomyZPrzypisan(doc.sezonPrzypisania),
     idZestawienia: typeof doc.idZestawienia === 'number' ? doc.idZestawienia : null,
     trybPowiazania: doc.trybPowiazania === 'warianty' ? 'warianty' : 'zestawienie',
     wykluczoneWarianty: numbers(doc.wykluczoneWarianty),
