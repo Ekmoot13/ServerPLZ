@@ -33,7 +33,14 @@ function Box({ v, label }: { v: number; label: string }) {
   )
 }
 
-export default function PasekRegat({ dane }: { dane: PasekDane }) {
+export default function PasekRegat({
+  dane,
+  pokazPrzycisk = true,
+}: {
+  dane: PasekDane
+  /** Strony poziomow ligi pokazuja sam licznik - bez przycisku Sledz regaty. */
+  pokazPrzycisk?: boolean
+}) {
   const od = new Date(dane.dataOd)
   const doo = dane.dataDo ? new Date(dane.dataDo) : null
   // cel: 10:30 w dniu rozpoczęcia regat
@@ -91,12 +98,14 @@ export default function PasekRegat({ dane }: { dane: PasekDane }) {
               {dane.poziom}
             </span>
           )}
-          <Link
-            href={link}
-            className="whitespace-nowrap rounded-full bg-brand-red px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-brand-red-dark md:text-sm"
-          >
-            Śledź regaty
-          </Link>
+          {pokazPrzycisk && (
+            <Link
+              href={link}
+              className="whitespace-nowrap rounded-full bg-brand-red px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-brand-red-dark md:text-sm"
+            >
+              Śledź regaty
+            </Link>
+          )}
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { getLataWynikow, getWynikiPelne } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
 import { statusRegat } from '@/lib/kalendarz'
 import WynikiWidok from '@/app/(frontend)/wyniki/WynikiWidok'
+import PasekRegat from '@/components/home/PasekRegat'
 
 const MIES = [
   'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
@@ -86,6 +87,9 @@ export default async function LigaLanding({
     .catch(() => ({ docs: [] as any[] }))
   const terminy = (kalRes.docs as any[]).filter((t) => poziom.test(t.poziom || ''))
 
+  // Najblizsza (lub trwajaca) runda tego poziomu - do licznika odliczania.
+  const najblizsza = terminy.find((t) => statusRegat(t) !== 'odbyly-sie') || null
+
   const postRes = await payload
     .find({ collection: 'posts', where: { _status: { equals: 'published' } }, sort: '-publishedAt', limit: 80, depth: 1 })
     .catch(() => ({ docs: [] as any[] }))
@@ -123,6 +127,20 @@ export default async function LigaLanding({
           )}
         </div>
       </section>
+
+      {/* LICZNIK DO NAJBLIZSZEJ RUNDY TEGO POZIOMU (bez przycisku - jest tylko na stronie glownej) */}
+      {najblizsza && (
+        <PasekRegat
+          pokazPrzycisk={false}
+          dane={{
+            nazwa: najblizsza.nazwa,
+            miejsce: najblizsza.miejsce,
+            poziom: rundaLabel(najblizsza.nazwa, najblizsza.kolejnosc),
+            dataOd: najblizsza.dataOd,
+            dataDo: najblizsza.dataDo,
+          }}
+        />
+      )}
 
       {/* OPIS LIGI (opcjonalny — ligi regionalne) */}
       {opis && opis.length > 0 && (
