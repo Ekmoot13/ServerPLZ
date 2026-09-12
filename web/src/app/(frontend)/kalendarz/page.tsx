@@ -22,7 +22,7 @@ const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {.
 // Kolory lig regionalnych sa te same co na stronie Ligi Regionalne.
 const STYL_POZIOMU: { test: RegExp; logo?: string; kolor: string }[] = [
   { test: /ekstraklasa/i, logo: '/logo.png', kolor: '#17326b' },
-  { test: /^s*(1|i)s*ligas*$/i, logo: '/logo-1-liga.jpg', kolor: '#d82029' },
+  { test: /^(1|i)\s*liga$/i, logo: '/logo-1-liga.jpg', kolor: '#d82029' },
   { test: /m[łl]odzie|youth/i, logo: '/logo-mlodziezowa.jpg', kolor: '#0ea5e9' },
   { test: /tr[oó]jmiejsk/i, logo: `${U}/2025/11/TLZ_LOGO_PION_KOLOR-1.png`, kolor: '#0aa2c0' },
   { test: /wielkopolsk/i, logo: `${U}/2025/11/WLZ_LOGO_PION_KOLOR.png`, kolor: '#de5a0f' },
