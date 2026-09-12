@@ -124,7 +124,7 @@ export default async function KalendarzPage() {
                 <div className="mb-6 flex items-center gap-4">
                   {styl.logo && (
                     <span
-                      className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1 ring-black/10"
+                      className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-300"
                       style={{ backgroundColor: styl.tloLogo }}
                     >
                       <Img
