@@ -20,16 +20,18 @@ const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {.
 
 // Logo i kolor wiodacy poziomu - uzywane w naglowku sekcji i w ramkach kart.
 // Kolory lig regionalnych sa te same co na stronie Ligi Regionalne.
-const STYL_POZIOMU: { test: RegExp; logo?: string; kolor: string }[] = [
-  { test: /ekstraklasa/i, logo: '/logo.png', kolor: '#17326b' },
+// tloLogo: logo glowne ma biale elementy, ktore gina na jasnym tle -
+// takie logotypy sadzamy na granatowym kafelku, jak logo Mlodziezowej.
+const STYL_POZIOMU: { test: RegExp; logo?: string; kolor: string; tloLogo?: string }[] = [
+  { test: /ekstraklasa/i, logo: '/logo.png', kolor: '#17326b', tloLogo: '#17326b' },
   { test: /^(1|i)\s*liga$/i, logo: '/logo-1-liga.jpg', kolor: '#d82029' },
   { test: /m[łl]odzie|youth/i, logo: '/logo-mlodziezowa.jpg', kolor: '#0ea5e9' },
   { test: /tr[oó]jmiejsk/i, logo: `${U}/2025/11/TLZ_LOGO_PION_KOLOR-1.png`, kolor: '#0aa2c0' },
   { test: /wielkopolsk/i, logo: `${U}/2025/11/WLZ_LOGO_PION_KOLOR.png`, kolor: '#de5a0f' },
   { test: /centraln/i, logo: `${U}/2025/11/CLZ_LOGO_PION_KOLOR.png`, kolor: '#6fa300' },
-  { test: /fina[łl].*regionaln/i, logo: '/logo.png', kolor: '#17326b' },
+  { test: /fina[łl].*regionaln/i, logo: '/logo.png', kolor: '#17326b', tloLogo: '#17326b' },
 ]
-function stylPoziomu(poziom: string): { logo?: string; kolor: string } {
+function stylPoziomu(poziom: string): { logo?: string; kolor: string; tloLogo?: string } {
   return STYL_POZIOMU.find((x) => x.test.test(poziom || '')) || { kolor: '#17326b' }
 }
 
@@ -121,11 +123,16 @@ export default async function KalendarzPage() {
               <div key={g.poziom}>
                 <div className="mb-6 flex items-center gap-4">
                   {styl.logo && (
-                    <Img
-                      src={styl.logo}
-                      alt={g.poziom}
-                      className="h-12 w-12 shrink-0 rounded-lg object-contain"
-                    />
+                    <span
+                      className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1 ring-black/10"
+                      style={{ backgroundColor: styl.tloLogo }}
+                    >
+                      <Img
+                        src={styl.logo}
+                        alt={g.poziom}
+                        className={styl.tloLogo ? 'h-9 w-9 object-contain' : 'h-full w-full object-contain'}
+                      />
+                    </span>
                   )}
                   <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: styl.kolor }} />
                   <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{g.poziom}</h2>
