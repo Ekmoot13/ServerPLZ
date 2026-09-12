@@ -14,6 +14,25 @@ const MIES = [
   'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
 ]
 
+const U = 'https://ligazeglarska.pl/wp-content/uploads'
+// eslint-disable-next-line @next/next/no-img-element
+const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...props} />
+
+// Logo i kolor wiodacy poziomu - uzywane w naglowku sekcji i w ramkach kart.
+// Kolory lig regionalnych sa te same co na stronie Ligi Regionalne.
+const STYL_POZIOMU: { test: RegExp; logo?: string; kolor: string }[] = [
+  { test: /ekstraklasa/i, logo: '/logo.png', kolor: '#17326b' },
+  { test: /^s*(1|i)s*ligas*$/i, logo: '/logo-1-liga.jpg', kolor: '#d82029' },
+  { test: /m[łl]odzie|youth/i, logo: '/logo-mlodziezowa.jpg', kolor: '#0ea5e9' },
+  { test: /tr[oó]jmiejsk/i, logo: `${U}/2025/11/TLZ_LOGO_PION_KOLOR-1.png`, kolor: '#0aa2c0' },
+  { test: /wielkopolsk/i, logo: `${U}/2025/11/WLZ_LOGO_PION_KOLOR.png`, kolor: '#de5a0f' },
+  { test: /centraln/i, logo: `${U}/2025/11/CLZ_LOGO_PION_KOLOR.png`, kolor: '#6fa300' },
+  { test: /fina[łl].*regionaln/i, logo: '/logo.png', kolor: '#17326b' },
+]
+function stylPoziomu(poziom: string): { logo?: string; kolor: string } {
+  return STYL_POZIOMU.find((x) => x.test.test(poziom || '')) || { kolor: '#17326b' }
+}
+
 const patternBg: React.CSSProperties = {
   backgroundImage: 'url(/pkr-pattern-soft.png)',
   backgroundRepeat: 'no-repeat',
@@ -96,12 +115,24 @@ export default async function KalendarzPage() {
           <p className="text-slate-500">Kalendarz jest pusty — dodaj terminy w panelu.</p>
         ) : (
           <div className="space-y-14">
-            {groups.map((g) => (
+            {groups.map((g) => {
+              const styl = stylPoziomu(g.poziom)
+              return (
               <div key={g.poziom}>
                 <div className="mb-6 flex items-center gap-4">
-                  <span className="h-8 w-1.5 rounded-full bg-brand-red" />
+                  {styl.logo && (
+                    <Img
+                      src={styl.logo}
+                      alt={g.poziom}
+                      className="h-12 w-12 shrink-0 rounded-lg object-contain"
+                    />
+                  )}
+                  <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: styl.kolor }} />
                   <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{g.poziom}</h2>
-                  <span className="rounded-full bg-navy/10 px-2.5 py-0.5 text-xs font-semibold text-navy">
+                  <span
+                    className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                    style={{ backgroundColor: `${styl.kolor}1a`, color: styl.kolor }}
+                  >
                     {g.items.length}
                   </span>
                 </div>
@@ -111,21 +142,31 @@ export default async function KalendarzPage() {
                     const s = statusRegat(t)
                     const past = s === 'odbyly-sie'
                     const live = s === 'w-trakcie'
-                    const accent = live ? 'bg-brand-red' : past ? 'bg-slate-400' : 'bg-navy'
+                    // Kolor ligi niesie ramka i gorny pasek; odbyte regaty wyszarzamy.
                     const inner = (
                       <div
                         className={`group relative overflow-hidden rounded-2xl border bg-white shadow-sm transition duration-200 ${
-                          past ? 'border-slate-200 opacity-70' : 'border-slate-200 hover:-translate-y-1 hover:shadow-lg'
-                        } ${live ? 'ring-2 ring-brand-red/70' : ''}`}
+                          past ? 'opacity-70' : 'hover:-translate-y-1 hover:shadow-lg'
+                        }`}
+                        style={{
+                          borderColor: past ? '#e2e8f0' : `${styl.kolor}59`,
+                          boxShadow: live ? `0 0 0 2px ${styl.kolor}` : undefined,
+                        }}
                       >
-                        <div className={`h-1.5 w-full ${accent}`} />
+                        <div
+                          className="h-1.5 w-full"
+                          style={{ backgroundColor: past ? '#cbd5e1' : styl.kolor }}
+                        />
                         <div className="p-4">
                           <div className="mb-3 flex items-center justify-between">
                             <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
                               {shortLabel(t.nazwa)}
                             </span>
                             {live && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-brand-red px-2 py-0.5 text-[10px] font-bold text-white">
+                              <span
+                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold text-white"
+                                style={{ backgroundColor: styl.kolor }}
+                              >
                                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
                                 NA ŻYWO
                               </span>
@@ -136,10 +177,13 @@ export default async function KalendarzPage() {
                             {fancyDate(t.dataOd, t.dataDo)}
                           </div>
                           {t.miejsce && (
-                            <div className="mt-1 text-sm font-medium text-slate-500">📍 {t.miejsce}</div>
+                            <div className="mt-1 text-sm font-medium text-slate-500">{t.miejsce}</div>
                           )}
                           {t.link && (
-                            <span className="mt-3 inline-block text-sm font-semibold text-brand-red group-hover:underline">
+                            <span
+                              className="mt-3 inline-block text-sm font-semibold group-hover:underline"
+                              style={{ color: styl.kolor }}
+                            >
                               {live ? 'Śledź na żywo →' : past ? 'Wyniki →' : 'Szczegóły →'}
                             </span>
                           )}
@@ -156,7 +200,8 @@ export default async function KalendarzPage() {
                   })}
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </section>
