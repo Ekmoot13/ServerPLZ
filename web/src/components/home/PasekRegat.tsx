@@ -94,7 +94,9 @@ export default function PasekRegat({
         {/* poziom ligi + przycisk */}
         <div className="flex items-center gap-4">
           {dane.poziom && (
-            <span className="hidden text-sm font-extrabold uppercase tracking-wide text-white sm:block">
+            <span
+              className={`${pokazPrzycisk ? 'hidden sm:block ' : ''}text-sm font-extrabold uppercase tracking-wide text-white`}
+            >
               {dane.poziom}
             </span>
           )}
