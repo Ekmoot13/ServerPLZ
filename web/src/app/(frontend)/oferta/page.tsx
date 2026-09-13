@@ -75,7 +75,7 @@ export default function OfertaPage() {
         <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:py-24">
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-sky-500">Oferta</p>
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Współpraca</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <p className="mt-6 text-white/85 md:text-lg">
             Żeglarstwo stadionowe łączy prestiżowy sport, networking i media — i daje markom
             przestrzeń do realizacji bardzo różnych celów.
@@ -122,7 +122,7 @@ export default function OfertaPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Dołącz do nas!</h2>
-          <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-brand-red" />
           <p className="mx-auto mt-6 max-w-2xl text-white/85 md:text-lg">
             Zapraszamy do kontaktu i rozmów o możliwościach współpracy.
           </p>
