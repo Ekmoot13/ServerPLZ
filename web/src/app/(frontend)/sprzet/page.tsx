@@ -37,7 +37,7 @@ export default function SprzetPage() {
       {/* HERO */}
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
-          <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-brand-red">Zaplecze</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-sky-500">Zaplecze</p>
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Sprzęt</h1>
           <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <p className="mt-6 text-white/85 md:text-lg">
@@ -56,9 +56,9 @@ export default function SprzetPage() {
               className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
               {p.n ? (
-                <span className="shrink-0 text-3xl font-extrabold leading-none text-brand-red">{p.n}</span>
+                <span className="shrink-0 text-3xl font-extrabold leading-none text-sky-500">{p.n}</span>
               ) : (
-                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-brand-red" />
+                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
               )}
               <p className="text-slate-700">{p.t}</p>
             </div>
