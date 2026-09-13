@@ -38,17 +38,17 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
       {/* OSTATNIE REGATY */}
-      <div>
+      <div className="flex flex-col">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ostatnie regaty</h2>
         <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liL} setLi={setLiL} />
         {ostatnia ? (
-          <div className="overflow-x-auto rounded-xl border border-slate-200">
-            <table className="w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">
+          <div className="flex-1 overflow-auto rounded-xl border border-slate-200">
+            <table className="h-full w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">
               <thead>
                 <tr className="bg-navy text-white">
-                  <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
-                  <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
+                  <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
+                  <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
                   <th className="hidden px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
                   {ostatnia.races.map((c) => (
                     <th key={c.key} className="px-1.5 py-1.5 text-center font-bold sm:px-2 sm:py-2">{c.label}</th>
@@ -75,16 +75,16 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
       </div>
 
       {/* RANKING SEZONU */}
-      <div>
+      <div className="flex flex-col">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ranking sezonu</h2>
         <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liR} setLi={setLiR} />
-        <div className="overflow-x-auto rounded-xl border border-slate-200">
-          <table className="w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">
+        <div className="flex-1 overflow-auto rounded-xl border border-slate-200">
+          <table className="h-full w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">
             <thead>
               <tr className="bg-navy text-white">
-                <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
-                <th className="px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
+                <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
+                <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
                 <th className="hidden px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
                 {prawa.rankingRounds.map((r) => (
                   <th key={r.id} className="px-1.5 py-1.5 text-center font-bold sm:px-3 sm:py-2">{r.label}</th>
