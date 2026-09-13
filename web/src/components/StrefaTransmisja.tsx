@@ -40,8 +40,8 @@ export default function StrefaTransmisja({ streams, hlsBase }: { streams: Stream
               onClick={() => setAktywny(i)}
               className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                 i === aktywny
-                  ? 'border-brand-red bg-brand-red text-white'
-                  : 'border-white/25 text-white/70 hover:border-brand-red hover:text-white'
+                  ? 'border-sky-500 bg-sky-500 text-white'
+                  : 'border-white/25 text-white/70 hover:border-sky-500 hover:text-white'
               }`}
             >
               {st.tytul || `Kamera ${i + 1}`}

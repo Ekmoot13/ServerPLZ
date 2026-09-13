@@ -32,7 +32,7 @@ export default function WartosciPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Wartości</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
           <p className="mx-auto mt-6 max-w-2xl text-white/85 md:text-lg">
             To, co nas napędza — od czystej energii wiatru i wody po równość szans, rozwój społeczności i sportowy
             profesjonalizm. Najedź lub dotknij kafelek, aby poznać każdą z wartości.

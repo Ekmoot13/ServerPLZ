@@ -109,7 +109,7 @@ function Kafelek({ w }: { w: Wartosc }) {
           <div className="relative flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white">
             <span className="text-sky-400 drop-shadow">{w.ikona}</span>
             <h3 className="text-xl font-extrabold uppercase tracking-wide drop-shadow-md">{w.tytul}</h3>
-            <div className="h-1 w-10 rounded-full bg-brand-red" />
+            <div className="h-1 w-10 rounded-full bg-sky-500" />
           </div>
         </div>
         {/* TYŁ */}

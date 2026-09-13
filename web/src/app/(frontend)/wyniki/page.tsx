@@ -34,7 +34,7 @@ export default async function WynikiPage({
       >
         <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Wyniki</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
         </div>
       </section>
 
@@ -47,7 +47,7 @@ export default async function WynikiPage({
                 key={y}
                 href={`/wyniki?rok=${y}`}
                 className={`rounded-full px-4 py-1.5 text-sm font-bold transition ${
-                  y === rok ? 'bg-navy text-white' : 'border-2 border-navy/15 text-navy hover:border-brand-red'
+                  y === rok ? 'bg-navy text-white' : 'border-2 border-navy/15 text-navy hover:border-sky-500'
                 }`}
               >
                 {y}

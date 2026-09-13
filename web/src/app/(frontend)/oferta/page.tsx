@@ -12,6 +12,14 @@ const HERO = `${U}/2025/11/EXR3_0021_szymon_sikora_rek_.jpg`
 const PREZENTACJA = `${U}/2026/03/Czym-jest-Polska-Liga-Zeglarska-PLZ2026.pdf`
 const RAPORTY =
   'https://1drv.ms/f/c/66b2b0f68e9f706a/Eh1jJ6-Ni2REuZcY_YBXyAsB6lYVecZbnAtsU7kSlsmnPw?e=owW8yE'
+const patternBg: React.CSSProperties = {
+  backgroundImage: 'url(/pkr-pattern-soft.png)',
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  backgroundAttachment: 'fixed',
+}
+
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 
@@ -63,11 +71,11 @@ export default function OfertaPage() {
       {/* HERO ze zdjęciem z regat */}
       <section className="relative bg-navy text-white">
         <Img src={HERO} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-navy/75" />
+        <div className="absolute inset-0 bg-navy/80" style={patternBg} />
         <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:py-24">
-          <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-brand-red">Oferta</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-sky-500">Oferta</p>
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Współpraca</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
           <p className="mt-6 text-white/85 md:text-lg">
             Żeglarstwo stadionowe łączy prestiżowy sport, networking i media — i daje markom
             przestrzeń do realizacji bardzo różnych celów.
@@ -83,7 +91,7 @@ export default function OfertaPage() {
               key={b.kat}
               className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg md:p-7"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-red">{b.kat}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-sky-500">{b.kat}</p>
               <h2 className="mt-2 text-xl font-extrabold leading-snug text-navy">{b.tyt}</h2>
               <div className="mt-3 h-1 w-12 rounded-full bg-navy/10" />
               <p className="mt-4 flex-1 text-slate-600">{b.txt}</p>
@@ -93,14 +101,14 @@ export default function OfertaPage() {
                     href={b.link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-red hover:underline"
+                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-sky-500 hover:underline"
                   >
                     {b.link.tekst} →
                   </a>
                 ) : (
                   <Link
                     href={b.link.href}
-                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-red hover:underline"
+                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-sky-500 hover:underline"
                   >
                     {b.link.tekst} →
                   </Link>
@@ -111,10 +119,10 @@ export default function OfertaPage() {
       </section>
 
       {/* DOŁĄCZ DO NAS */}
-      <section className="bg-navy text-white">
+      <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Dołącz do nas!</h2>
-          <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-sky-500" />
           <p className="mx-auto mt-6 max-w-2xl text-white/85 md:text-lg">
             Zapraszamy do kontaktu i rozmów o możliwościach współpracy.
           </p>
@@ -123,7 +131,7 @@ export default function OfertaPage() {
               href={PREZENTACJA}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-[10px] bg-brand-red px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-brand-red-dark"
+              className="inline-block rounded-[10px] bg-sky-500 px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-sky-600"
             >
               Pobierz prezentację
             </a>

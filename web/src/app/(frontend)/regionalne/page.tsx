@@ -68,7 +68,7 @@ export default async function RegionalnePage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Ligi Regionalne</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
           <p className="mt-6 text-white/85">
             <strong>Ligi Regionalne to pierwszy szczebel Polskiej Ligi Żeglarskiej.</strong> Aby rozpocząć rywalizację
             w Lidze, należy najpierw wystartować w jednej z Lig Regionalnych. Najlepsze załogi każdej z lig otrzymują
@@ -104,7 +104,7 @@ export default async function RegionalnePage() {
       {/* ZOBACZ NASZE LIGI */}
       <section className="mx-auto max-w-[1440px] px-4 py-14">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Zobacz nasze Ligi Regionalne</h2>
-        <div className="mt-2 mb-10 h-1 w-14 rounded-full bg-brand-red" />
+        <div className="mt-2 mb-10 h-1 w-14 rounded-full bg-sky-500" />
         <div className="grid gap-6 md:grid-cols-3">
           {LIGI.map((l) => (
             <Link
@@ -129,7 +129,7 @@ export default async function RegionalnePage() {
       {/* PARTNERSKIE LIGI REGIONALNE */}
       <section className="mx-auto max-w-[1440px] px-4 pb-14">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Partnerskie Ligi Regionalne</h2>
-        <div className="mt-2 mb-10 h-1 w-14 rounded-full bg-brand-red" />
+        <div className="mt-2 mb-10 h-1 w-14 rounded-full bg-sky-500" />
         <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
           {PARTNERSKIE.map((p) => (
             <a
@@ -151,7 +151,7 @@ export default async function RegionalnePage() {
         <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 lg:grid-cols-2">
           <div>
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Dołącz do ligi</h2>
-            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-sky-500" />
             <div className="space-y-4 text-white/85">
               <p>
                 Polska Liga Żeglarska to wyjątkowy projekt, który od ponad dekady łączy żeglarzy z całej Polski,{' '}
@@ -171,7 +171,7 @@ export default async function RegionalnePage() {
               <p>
                 Jeśli chcesz spróbować swoich sił, dołącz do rozgrywek w swojej okolicy — w Trójmieście, Poznaniu lub na
                 Wiśle w Płocku. Napisz na{' '}
-                <a href="mailto:info@ligazeglarska.pl" className="font-semibold text-brand-red hover:underline">
+                <a href="mailto:info@ligazeglarska.pl" className="font-semibold text-sky-500 hover:underline">
                   info@ligazeglarska.pl
                 </a>{' '}
                 — pomożemy Ci wystartować!
@@ -188,7 +188,7 @@ export default async function RegionalnePage() {
       <section className="bg-white">
         <div className="mx-auto max-w-[1440px] px-4 py-16">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Oficjalna struktura rozgrywek</h2>
-          <div className="mt-2 mb-8 h-1 w-16 rounded-full bg-brand-red" />
+          <div className="mt-2 mb-8 h-1 w-16 rounded-full bg-sky-500" />
           <Img src="/poziomy-lig.png" alt="Struktura rozgrywek Polskiej Ligi Żeglarskiej" className="mx-auto w-full max-w-4xl rounded-xl" />
         </div>
       </section>
@@ -198,7 +198,7 @@ export default async function RegionalnePage() {
         <section className="bg-navy text-white" style={patternBg}>
           <div className="mx-auto max-w-[1440px] px-4 py-14">
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Aktualności</h2>
-            <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-sky-500" />
             <div className="grid gap-6 text-left md:grid-cols-3">
               {newsy.map((p) => (
                 <Link
@@ -234,7 +234,7 @@ export default async function RegionalnePage() {
       <section className="bg-white">
         <div className="mx-auto max-w-[1440px] px-4 py-14">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Partner Lig Regionalnych PLŻ</h2>
-          <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+          <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-sky-500" />
           <div className="text-center">
             <a href={PARTNER.href} target="_blank" rel="noopener noreferrer" title={PARTNER.nazwa} className="inline-block transition hover:opacity-70">
               <Img src={PARTNER.logo} alt={PARTNER.nazwa} className="max-h-28 w-auto object-contain" />

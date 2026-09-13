@@ -155,7 +155,7 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
             {/* NAGŁÓWEK KLUBU */}
             <div className="mb-8">
               <h1 className="text-3xl font-extrabold uppercase tracking-wide text-navy md:text-4xl">{nazwa}</h1>
-              {poziomLigi && <p className="mt-1 text-sm font-bold uppercase tracking-wide text-brand-red">{poziomLigi}</p>}
+              {poziomLigi && <p className="mt-1 text-sm font-bold uppercase tracking-wide text-sky-500">{poziomLigi}</p>}
               {links.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {links.map((l) => (
@@ -164,7 +164,7 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
                       href={l.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-full border-2 border-navy/15 px-4 py-1.5 text-sm font-semibold text-navy transition hover:border-brand-red hover:text-brand-red"
+                      className="rounded-full border-2 border-navy/15 px-4 py-1.5 text-sm font-semibold text-navy transition hover:border-sky-500 hover:text-sky-500"
                     >
                       {l.label}
                     </a>
@@ -240,7 +240,7 @@ function Sekcja({ tytul, children }: { tytul: string; children: React.ReactNode 
   return (
     <div>
       <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{tytul}</h2>
-      <div className="mb-4 mt-2 h-1 w-12 rounded-full bg-brand-red" />
+      <div className="mb-4 mt-2 h-1 w-12 rounded-full bg-sky-500" />
       {children}
     </div>
   )

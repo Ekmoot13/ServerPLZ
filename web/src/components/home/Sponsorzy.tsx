@@ -32,7 +32,7 @@ export default function Sponsorzy({ grupy, tytul }: { grupy?: SponsorGrupa[]; ty
     <section className="bg-white">
       <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-16">
         <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">{tytul || 'Sponsorzy'}</h2>
-        <div className="mx-auto mt-2 mb-10 h-1 w-16 rounded-full bg-brand-red md:mb-12" />
+        <div className="mx-auto mt-2 mb-10 h-1 w-16 rounded-full bg-sky-500 md:mb-12" />
 
         <div className="space-y-10 md:space-y-14">
           {dane.map((g, gi) => (
@@ -40,7 +40,7 @@ export default function Sponsorzy({ grupy, tytul }: { grupy?: SponsorGrupa[]; ty
               {g.kategoria && (
                 <>
                   <h3 className="text-center text-lg font-bold text-navy">{g.kategoria}</h3>
-                  <div className="mx-auto mt-2 mb-8 h-0.5 w-12 rounded-full bg-brand-red" />
+                  <div className="mx-auto mt-2 mb-8 h-0.5 w-12 rounded-full bg-sky-500" />
                 </>
               )}
               <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10">

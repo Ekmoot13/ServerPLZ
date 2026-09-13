@@ -60,7 +60,7 @@ export default function WynikiWidok({ ligi, ukryjPrzelacznik = false }: { ligi: 
           <h2 className="inline-block text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">
             {liga.poziom}
           </h2>
-          <div className="mx-auto mt-2 h-1 w-14 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-2 h-1 w-14 rounded-full bg-sky-500" />
         </div>
       )}
 

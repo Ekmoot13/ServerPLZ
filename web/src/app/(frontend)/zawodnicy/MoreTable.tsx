@@ -49,7 +49,7 @@ export default function MoreTable({
                     >
                       {medal(cell.place)}
                       {cell.href ? (
-                        <Link href={cell.href} className="text-navy hover:text-brand-red">
+                        <Link href={cell.href} className="text-navy hover:text-sky-500">
                           {cell.value}
                         </Link>
                       ) : (

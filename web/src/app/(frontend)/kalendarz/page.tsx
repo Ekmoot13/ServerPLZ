@@ -24,7 +24,7 @@ const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {.
 // takie logotypy sadzamy na granatowym kafelku, jak logo Mlodziezowej.
 const STYL_POZIOMU: { test: RegExp; logo?: string; kolor: string; tloLogo?: string }[] = [
   { test: /ekstraklasa/i, logo: '/logo.png', kolor: '#17326b', tloLogo: '#17326b' },
-  { test: /^(1|i)\s*liga$/i, logo: '/logo-1-liga.jpg', kolor: '#d82029' },
+  { test: /^(1|i)\s*liga$/i, logo: '/logo-1-liga.jpg', kolor: '#0ea5e9' },
   { test: /m[łl]odzie|youth/i, logo: '/logo-mlodziezowa.jpg', kolor: '#0ea5e9' },
   { test: /tr[oó]jmiejsk/i, logo: `${U}/2025/11/TLZ_LOGO_PION_KOLOR-1.png`, kolor: '#0aa2c0' },
   { test: /wielkopolsk/i, logo: `${U}/2025/11/WLZ_LOGO_PION_KOLOR.png`, kolor: '#de5a0f' },
@@ -103,9 +103,9 @@ export default async function KalendarzPage() {
       {/* HERO */}
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-6xl px-4 py-16 text-center md:py-20">
-          <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-brand-red">Sezon 2026</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-sky-500">Sezon 2026</p>
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Kalendarz regat</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
           <p className="mx-auto mt-6 max-w-2xl text-white/85 md:text-lg">
             Terminy i miejsca rozgrywek Polskiej Ligi Żeglarskiej.
           </p>

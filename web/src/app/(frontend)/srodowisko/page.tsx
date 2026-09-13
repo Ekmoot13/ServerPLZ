@@ -91,7 +91,7 @@ export default function SrodowiskoPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Środowisko</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
           <p className="mx-auto mt-6 max-w-2xl text-white/85 md:text-lg">
             Zobacz, jak na naszych regatach minimalizujemy wpływ na środowisko naturalne.
           </p>
@@ -108,7 +108,7 @@ export default function SrodowiskoPage() {
               <h2 className={`mt-1 text-2xl font-extrabold uppercase tracking-wide md:text-3xl ${dark ? 'text-white' : 'text-navy'}`}>
                 {b.tytul}
               </h2>
-              <div className="mt-3 h-1 w-14 rounded-full bg-brand-red" />
+              <div className="mt-3 h-1 w-14 rounded-full bg-sky-500" />
               <p className={`mt-5 max-w-3xl md:text-lg ${dark ? 'text-white/85' : 'text-slate-700'}`}>{b.tekst}</p>
               <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
                 {b.zdjecia.map((src, k) => (
@@ -144,7 +144,7 @@ export default function SrodowiskoPage() {
           </a>
           <div>
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Certyfikat Sailors for the Sea</h2>
-            <div className="mt-3 h-1 w-14 rounded-full bg-brand-red md:mx-0" />
+            <div className="mt-3 h-1 w-14 rounded-full bg-sky-500 md:mx-0" />
             <p className="mt-5 text-white/85 md:text-lg">
               Nasze działania na rzecz środowiska naturalnego zostały zweryfikowane przez amerykańską fundację{' '}
               <a href="https://sailorsforthesea.org/about-us/" target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline">

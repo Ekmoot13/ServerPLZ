@@ -192,7 +192,7 @@ export default async function HomePage() {
                   )}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-5">
                     {glowny?.categories?.[0]?.title && (
-                      <span className="text-[11px] font-bold uppercase tracking-wide text-brand-red">{glowny.categories[0].title}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wide text-sky-500">{glowny.categories[0].title}</span>
                     )}
                     <h2 className="text-xl font-extrabold text-white group-hover:underline md:text-2xl">{glowny.title}</h2>
                     <p className="mt-1 text-xs font-semibold text-white/80">{newsData(glowny.publishedAt)}</p>
@@ -204,13 +204,13 @@ export default async function HomePage() {
                     <Link
                       key={p.id}
                       href={`/posts/${p.slug}`}
-                      className="group flex flex-1 items-center gap-3 rounded-2xl border border-slate-200 p-3 transition hover:border-brand-red hover:shadow-sm"
+                      className="group flex flex-1 items-center gap-3 rounded-2xl border border-slate-200 p-3 transition hover:border-sky-500 hover:shadow-sm"
                     >
                       <div className="min-w-0 flex-1">
                         {p?.categories?.[0]?.title && (
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-brand-red">{p.categories[0].title}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-sky-500">{p.categories[0].title}</span>
                         )}
-                        <h3 className="line-clamp-3 text-sm font-bold leading-snug text-navy group-hover:text-brand-red">{p.title}</h3>
+                        <h3 className="line-clamp-3 text-sm font-bold leading-snug text-navy group-hover:text-sky-500">{p.title}</h3>
                         <p className="mt-1 text-[11px] text-slate-400">{newsData(p.publishedAt)}</p>
                       </div>
                       {p?.heroImage?.url && (
@@ -255,7 +255,7 @@ export default async function HomePage() {
       <section className="bg-white">
         <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
           <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Klubowi Mistrzowie Polski</h2>
-          <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+          <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-sky-500" />
           <MistrzowieKaruzela items={mistrzowie} />
         </div>
       </section>
@@ -284,7 +284,7 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-10 md:py-14 lg:grid-cols-[1.6fr_1fr]">
           <div>
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Czym jest Polska Liga Żeglarska?</h2>
-            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-sky-500" />
             <div className="space-y-4 text-white/85">
               <p><strong>Polska Liga Żeglarska powstała w 2015 roku.</strong> Cykliczne regaty rozgrywane są na głównych poziomach — Ekstraklasa, 1 Liga, Ligi Regionalne. Organizujemy także Żeglarskie Mistrzostwa Polski Kobiet oraz Młodzieżową Ligę Żeglarską dla zawodniczek i zawodników do 25. roku życia.</p>
               <p>System Polskiej Ligi Żeglarskiej to <strong>ponad 120 klubów i 500 zawodników</strong>, co stawia ją na czele wszystkich 24 lig na świecie. Liga jest członkiem ISLA, organizacji nadzorującej Sailing Champions League. Partnerem Strategicznym jest Polski Związek Żeglarski.</p>
@@ -306,7 +306,7 @@ export default async function HomePage() {
         <section className="bg-white">
           <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
             <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">Zobacz nasz magazyn</h2>
-            <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-sky-500" />
             <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-4 shadow-sm md:p-6">
               <div className="grid items-stretch gap-5 lg:grid-cols-[1.6fr_1fr] md:gap-6">
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-md ring-1 ring-black/5">
@@ -316,9 +316,9 @@ export default async function HomePage() {
                 </div>
                 <div className="flex h-full flex-col gap-4">
                   {filmy.slice(1, 4).map((v) => (
-                    <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="group flex flex-1 items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-red/40 hover:shadow-md">
+                    <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="group flex flex-1 items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-500/40 hover:shadow-md">
                       <div className="flex flex-1 items-center">
-                        <p className="line-clamp-3 text-base font-bold leading-snug text-navy transition group-hover:text-brand-red md:text-lg">{v.title}</p>
+                        <p className="line-clamp-3 text-base font-bold leading-snug text-navy transition group-hover:text-sky-500 md:text-lg">{v.title}</p>
                       </div>
                       <div className="relative aspect-video w-36 shrink-0 overflow-hidden rounded-xl border border-slate-200 md:w-48">
                         <Img src={v.thumb} alt={v.title} className="h-full w-full object-cover transition group-hover:scale-105" />
@@ -350,7 +350,7 @@ export default async function HomePage() {
           </div>
           <div>
             <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Współpraca</h2>
-            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+            <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-sky-500" />
             <div className="space-y-4 text-white/85">
               <p>
                 <strong>Autorski koncept regat w formie Żeglarstwa Stadionowego</strong> to doskonałe narzędzie promocyjne
