@@ -9,6 +9,7 @@ import { getKlubMedia } from '@/lib/klubMedia'
 import { statusRegat } from '@/lib/kalendarz'
 import WynikiWidok from '@/app/(frontend)/wyniki/WynikiWidok'
 import PasekRegat from '@/components/home/PasekRegat'
+import ZnakOdbyte from '@/components/site/ZnakOdbyte'
 
 const MIES = [
   'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
@@ -173,14 +174,19 @@ export default async function LigaLanding({
             {terminy.map((t) => {
               const done = statusRegat(t) === 'odbyly-sie'
               return (
-                <div key={t.id} className={`rounded-2xl border-2 p-5 text-center ${done ? 'border-emerald-300 bg-emerald-50/40' : 'border-navy/10 bg-white'}`}>
-                  <div className="flex items-center justify-center gap-2 font-bold text-navy">
-                    {rundaLabel(t.nazwa, t.kolejnosc)}
-                    {done && <span title="Odbyły się">✅</span>}
+                <div
+                  key={t.id}
+                  className={`relative overflow-hidden rounded-2xl border-2 p-5 text-center ${
+                    done ? 'border-emerald-300 bg-emerald-50/40' : 'border-navy/10 bg-white'
+                  }`}
+                >
+                  {done && <ZnakOdbyte />}
+                  <div className="relative">
+                    <div className="font-bold text-navy">{rundaLabel(t.nazwa, t.kolejnosc)}</div>
+                    <div className="mt-2 text-3xl font-extrabold text-navy">{dzienZakres(t.dataOd, t.dataDo)}</div>
+                    <div className="text-sm text-slate-500">{miesiac(t.dataOd, t.dataDo)}</div>
+                    {t.miejsce && <div className="mt-1 font-bold text-navy">{t.miejsce}</div>}
                   </div>
-                  <div className="mt-2 text-3xl font-extrabold text-navy">{dzienZakres(t.dataOd, t.dataDo)}</div>
-                  <div className="text-sm text-slate-500">{miesiac(t.dataOd, t.dataDo)}</div>
-                  {t.miejsce && <div className="mt-1 font-bold text-navy">{t.miejsce}</div>}
                 </div>
               )
             })}

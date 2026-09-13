@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { statusRegat } from '@/lib/kalendarz'
 import PasekRegat from '@/components/home/PasekRegat'
+import ZnakOdbyte from '@/components/site/ZnakOdbyte'
 import { Instagram, Facebook } from 'lucide-react'
 
 const DARK = '#191919'
@@ -175,14 +176,14 @@ export default async function RegionLeague({ cfg }: { cfg: RegionCfg }) {
                 {terminy.map((t) => {
                   const done = statusRegat(t) === 'odbyly-sie'
                   return (
-                    <div key={t.id} className="rounded-2xl border-2 border-neutral-200 p-5 text-center">
-                      <div className="flex items-center justify-center gap-2 font-bold text-neutral-900">
-                        {rundaLabel(t.nazwa, t.kolejnosc)}
-                        {done && <span title="Odbyły się">✅</span>}
+                    <div key={t.id} className="relative overflow-hidden rounded-2xl border-2 border-neutral-200 p-5 text-center">
+                      {done && <ZnakOdbyte />}
+                      <div className="relative">
+                        <div className="font-bold text-neutral-900">{rundaLabel(t.nazwa, t.kolejnosc)}</div>
+                        <div className="mt-2 text-3xl font-extrabold text-neutral-900">{dzien(t.dataOd, t.dataDo)}</div>
+                        <div className="text-sm font-semibold" style={{ color: akcent }}>{miesiac(t.dataOd)}</div>
+                        {t.miejsce && <div className="mt-1 font-bold text-neutral-900">{t.miejsce}</div>}
                       </div>
-                      <div className="mt-2 text-3xl font-extrabold text-neutral-900">{dzien(t.dataOd, t.dataDo)}</div>
-                      <div className="text-sm font-semibold" style={{ color: akcent }}>{miesiac(t.dataOd)}</div>
-                      {t.miejsce && <div className="mt-1 font-bold text-neutral-900">{t.miejsce}</div>}
                     </div>
                   )
                 })}
