@@ -51,7 +51,6 @@ export default function PolskiKlubRegatowyPage() {
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Polski Klub Regatowy</h1>
           <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <Img src={IMG.burgee} className="mx-auto mt-10 h-40 w-auto md:h-52" />
-          <p className="mt-4 font-serif text-xl tracking-wide text-white/90">POLSKI KLUB REGATOWY</p>
         </div>
       </section>
 
