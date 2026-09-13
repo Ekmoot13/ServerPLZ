@@ -14,7 +14,7 @@ const CIEMNE = [
 type Item = { label: string; href: string }
 
 const KOL_LIGA: Item[] = [
-  { label: 'Wyniki 2026', href: '/wyniki' },
+  { label: 'Wyniki', href: '/wyniki' },
   { label: 'Kalendarz', href: '/kalendarz' },
   { label: 'Zespoły', href: '/kluby' },
   { label: 'Ligi Regionalne', href: '/regionalne' },
@@ -26,6 +26,7 @@ const KOL_INFO: Item[] = [
   { label: 'Cennik', href: '/cennik' },
   { label: 'Sailing Champions League', href: '/scl-isla' },
   { label: 'ISLA', href: 'https://www.facebook.com/ISLAorg' },
+  { label: 'Klub Regatowy', href: '/polski-klub-regatowy' },
 ]
 
 function FooterCol({ items }: { items: Item[] }) {
