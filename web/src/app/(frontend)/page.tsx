@@ -369,7 +369,7 @@ export default async function HomePage() {
             {[
               { label: 'Oferta', href: '/oferta' },
               { label: 'Media', href: '/media' },
-              { label: 'Sprzęt', href: 'https://ligazeglarska.pl/#' },
+              { label: 'Sprzęt', href: '/sprzet' },
               { label: 'Bezpieczeństwo', href: 'https://ligazeglarska.pl/safety/' },
             ].map((b) => (
               <a
