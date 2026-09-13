@@ -18,7 +18,7 @@ function TabRow({ ligi, li, setLi }: { ligi: Liga[]; li: number; setLi: (n: numb
           key={l.poziom}
           onClick={() => setLi(i)}
           className={`-mb-px border-b-2 px-3 py-2 text-xs font-bold uppercase tracking-wide transition ${
-            i === li ? 'border-sky-500 text-navy' : 'border-transparent text-slate-500 hover:text-navy'
+            i === li ? 'border-brand-red text-navy' : 'border-transparent text-slate-500 hover:text-navy'
           }`}
         >
           {l.poziom}
@@ -40,7 +40,7 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
       {/* OSTATNIE REGATY */}
       <div className="flex flex-col">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ostatnie regaty</h2>
-        <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-sky-500" />
+        <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liL} setLi={setLiL} />
         {ostatnia ? (
           <div className="flex-1 overflow-auto rounded-xl border border-slate-200">
@@ -77,7 +77,7 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
       {/* RANKING SEZONU */}
       <div className="flex flex-col">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ranking sezonu</h2>
-        <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-sky-500" />
+        <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liR} setLi={setLiR} />
         <div className="flex-1 overflow-auto rounded-xl border border-slate-200">
           <table className="h-full w-full min-w-[340px] border-collapse text-xs sm:min-w-[520px] sm:text-sm">

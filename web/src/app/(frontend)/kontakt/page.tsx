@@ -16,13 +16,13 @@ export default function KontaktPage() {
           <h2 className="mb-4 text-2xl font-extrabold uppercase tracking-wide text-navy">Dane kontaktowe</h2>
           <div className="space-y-5 text-slate-700">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wide text-sky-500">E-mail</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-brand-red">E-mail</div>
               <a href="mailto:info@ligazeglarska.pl" className="text-lg font-semibold text-navy hover:underline">
                 info@ligazeglarska.pl
               </a>
             </div>
             <div>
-              <div className="text-xs font-bold uppercase tracking-wide text-sky-500">Towarzystwo Żeglarstwa Regatowego</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-brand-red">Towarzystwo Żeglarstwa Regatowego</div>
               <p className="text-sm">
                 ul. Parkowa 43, 71-220 Bezrzecze, Poland
                 <br />
@@ -30,7 +30,7 @@ export default function KontaktPage() {
               </p>
             </div>
             <div>
-              <div className="text-xs font-bold uppercase tracking-wide text-sky-500">MT Partners Maciej Cylupa Sp.k.</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-brand-red">MT Partners Maciej Cylupa Sp.k.</div>
               <p className="text-sm">
                 ul. Parkowa 43, 71-220 Bezrzecze, Poland
                 <br />

@@ -60,7 +60,7 @@ export default async function LigaLanding({
   zgloszenieMail?: string
 }) {
   const pattern = motyw?.pattern || '/pkr-pattern-soft.png'
-  const akcent = motyw?.akcent || '#0ea5e9'
+  const akcent = motyw?.akcent || '#d82029'
   const patternBg: React.CSSProperties = {
     backgroundImage: `url(${pattern})`,
     backgroundRepeat: 'no-repeat',

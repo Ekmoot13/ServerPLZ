@@ -50,7 +50,7 @@ export default function KontaktForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-[10px] bg-sky-500 px-8 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-sky-600 disabled:opacity-60"
+        className="rounded-[10px] bg-brand-red px-8 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-brand-red-dark disabled:opacity-60"
       >
         {pending ? 'Wysyłanie…' : 'Wyślij wiadomość'}
       </button>

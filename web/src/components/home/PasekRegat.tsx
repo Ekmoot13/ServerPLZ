@@ -80,8 +80,8 @@ export default function PasekRegat({
           {statusTekst ? (
             <span className="text-sm font-extrabold uppercase tracking-widest text-white/60">{statusTekst}</span>
           ) : trwa ? (
-            <span className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-widest text-sky-500">
-              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-sky-500" /> Trwają regaty
+            <span className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-widest text-brand-red">
+              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand-red" /> Trwają regaty
             </span>
           ) : (
             <>
@@ -108,7 +108,7 @@ export default function PasekRegat({
           {pokazPrzycisk && (
             <Link
               href={link}
-              className="whitespace-nowrap rounded-full bg-sky-500 px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-sky-600 md:text-sm"
+              className="whitespace-nowrap rounded-full bg-brand-red px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-white transition hover:bg-brand-red-dark md:text-sm"
             >
               Śledź regaty
             </Link>

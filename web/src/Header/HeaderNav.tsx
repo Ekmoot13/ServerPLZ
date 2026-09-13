@@ -30,7 +30,7 @@ export const MENU: Item[] = [
   { label: 'Kontakt', href: '/kontakt' },
 ]
 
-const linkCls = 'whitespace-nowrap px-1 py-2 text-[13px] font-bold uppercase tracking-wide text-white/90 transition hover:text-sky-500'
+const linkCls = 'whitespace-nowrap px-1 py-2 text-[13px] font-bold uppercase tracking-wide text-white/90 transition hover:text-brand-red'
 
 function DesktopItem({ item, ciemny }: { item: Item; ciemny?: boolean }) {
   const [open, setOpen] = useState(false)
@@ -61,7 +61,7 @@ function DesktopItem({ item, ciemny }: { item: Item; ciemny?: boolean }) {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block px-4 py-2 text-[13px] font-semibold uppercase tracking-wide text-white/85 transition hover:bg-white/10 hover:text-sky-500"
+                className="block px-4 py-2 text-[13px] font-semibold uppercase tracking-wide text-white/85 transition hover:bg-white/10 hover:text-brand-red"
               >
                 {s.label}
               </a>
@@ -69,7 +69,7 @@ function DesktopItem({ item, ciemny }: { item: Item; ciemny?: boolean }) {
               <Link
                 key={s.href}
                 href={s.href}
-                className="block px-4 py-2 text-[13px] font-semibold uppercase tracking-wide text-white/85 transition hover:bg-white/10 hover:text-sky-500"
+                className="block px-4 py-2 text-[13px] font-semibold uppercase tracking-wide text-white/85 transition hover:bg-white/10 hover:text-brand-red"
               >
                 {s.label}
               </Link>
@@ -85,7 +85,7 @@ function MobileItem({ item, onNav }: { item: Item; onNav: () => void }) {
   const [open, setOpen] = useState(false)
   if (!item.sub) {
     return (
-      <Link href={item.href} onClick={onNav} className="block border-b border-white/10 py-3 text-center text-sm font-bold uppercase tracking-wide text-white hover:text-sky-500">
+      <Link href={item.href} onClick={onNav} className="block border-b border-white/10 py-3 text-center text-sm font-bold uppercase tracking-wide text-white hover:text-brand-red">
         {item.label}
       </Link>
     )
@@ -100,11 +100,11 @@ function MobileItem({ item, onNav }: { item: Item; onNav: () => void }) {
         <div className="pb-2">
           {item.sub.map((s) =>
             s.external ? (
-              <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" className="block py-2 text-center text-sm font-medium text-white/80 hover:text-sky-500">
+              <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" className="block py-2 text-center text-sm font-medium text-white/80 hover:text-brand-red">
                 {s.label}
               </a>
             ) : (
-              <Link key={s.href} href={s.href} onClick={onNav} className="block py-2 text-center text-sm font-medium text-white/80 hover:text-sky-500">
+              <Link key={s.href} href={s.href} onClick={onNav} className="block py-2 text-center text-sm font-medium text-white/80 hover:text-brand-red">
                 {s.label}
               </Link>
             ),
@@ -119,7 +119,7 @@ function CTA({ compact }: { compact?: boolean }) {
   return (
     <Link
       href="/regatowastrefakibica"
-      className={`inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-sky-500 font-bold uppercase tracking-wide text-white transition hover:bg-sky-600 ${
+      className={`inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-red font-bold uppercase tracking-wide text-white transition hover:bg-brand-red-dark ${
         compact ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-[13px]'
       }`}
     >
@@ -180,7 +180,7 @@ export default function HeaderNav({ pokazPrzycisk, ciemny = false }: { pokazPrzy
               <div className="mt-5" onClick={() => setMobile(false)}>
                 <Link
                   href="/regatowastrefakibica"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-sky-500 px-5 py-3 text-sm font-bold uppercase tracking-wide text-white"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-brand-red px-5 py-3 text-sm font-bold uppercase tracking-wide text-white"
                 >
                   <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
                   Śledź Regaty

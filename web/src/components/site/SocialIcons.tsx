@@ -55,7 +55,7 @@ export function SocialRow({
   layout?: 'row' | 'grid'
   className?: string
 }) {
-  const color = tone === 'light' ? 'text-white/85 hover:text-white' : 'text-navy hover:text-sky-500'
+  const color = tone === 'light' ? 'text-white/85 hover:text-white' : 'text-navy hover:text-brand-red'
   const wrap = layout === 'grid' ? 'grid w-max grid-cols-3 gap-3' : 'flex items-center gap-3'
   return (
     <div className={`${wrap} ${className}`}>

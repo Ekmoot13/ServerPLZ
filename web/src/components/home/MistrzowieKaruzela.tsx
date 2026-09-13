@@ -65,7 +65,7 @@ export default function MistrzowieKaruzela({ items }: { items: Mistrz[] }) {
         >
           {items.map((m, i) => {
             const karta = (
-              <div className="flex h-full flex-col items-center rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-sky-500/40 hover:shadow-md">
+              <div className="flex h-full flex-col items-center rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-brand-red/40 hover:shadow-md">
                 <div className="flex h-24 items-center justify-center">
                   {m.logo ? (
                     <Img src={m.logo} alt={m.klub} className="max-h-20 w-auto object-contain" />
@@ -111,7 +111,7 @@ export default function MistrzowieKaruzela({ items }: { items: Mistrz[] }) {
             onClick={() => go(i)}
             aria-label={`Przejdź do ${i + 1}`}
             className={`h-2 rounded-full transition-all ${
-              i === index ? 'w-6 bg-sky-500' : 'w-2 bg-slate-300 hover:bg-slate-400'
+              i === index ? 'w-6 bg-brand-red' : 'w-2 bg-slate-300 hover:bg-slate-400'
             }`}
           />
         ))}

@@ -74,7 +74,7 @@ export default function HistoriaPage() {
       {/* HERO */}
       <section className="mx-auto max-w-[1440px] px-4 pt-16 text-center md:pt-20">
         <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Historia</h1>
-        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
         <p className="mx-auto mt-6 max-w-2xl text-white/85 md:text-lg">
           Od Szczecińskiej Ligi Regatowej po ogólnopolski system rozgrywek — zobacz, jak przez lata rozwijała się Polska
           Liga Żeglarska.

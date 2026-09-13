@@ -136,7 +136,7 @@ export default async function RegatowaStrefaKibicaPage() {
         <section className="bg-white">
           <div className="mx-auto max-w-5xl px-4 py-14">
             <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">{programTytul}</h2>
-            <div className="mx-auto mt-2 mb-6 h-1 w-14 rounded-full bg-sky-500" />
+            <div className="mx-auto mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
             {programWstep && <p className="mx-auto mb-8 max-w-3xl whitespace-pre-line text-center text-slate-700 md:text-lg">{programWstep}</p>}
 
             {/* szybkie linki */}
@@ -165,12 +165,12 @@ export default async function RegatowaStrefaKibicaPage() {
                 {program.map((d: any, di: number) => (
                   <div key={di} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
                     <h3 className="font-extrabold uppercase tracking-wide text-navy">{d?.tytul}</h3>
-                    <div className="mt-2 mb-4 h-0.5 w-10 rounded-full bg-sky-500" />
+                    <div className="mt-2 mb-4 h-0.5 w-10 rounded-full bg-brand-red" />
                     <ul className="space-y-2.5">
                       {(Array.isArray(d?.pozycje) ? d.pozycje : []).map((p: any, pi: number) => (
                         <li key={pi} className="flex items-center gap-3 text-sm text-slate-700">
                           <span className="flex h-6 w-6 shrink-0 items-center justify-center text-navy">
-                            {p?.ikona ? <Ikona name={p.ikona} className="text-navy" /> : <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />}
+                            {p?.ikona ? <Ikona name={p.ikona} className="text-navy" /> : <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />}
                           </span>
                           <span className="w-24 shrink-0 font-bold text-navy">{p?.czas || ''}</span>
                           {p?.link ? (
@@ -192,7 +192,7 @@ export default async function RegatowaStrefaKibicaPage() {
             {mapaEmbed && (
               <div className="mt-12">
                 <h3 className="text-xl font-extrabold uppercase tracking-wide text-navy">Lokalizacja</h3>
-                <div className="mt-2 mb-5 h-1 w-12 rounded-full bg-sky-500" />
+                <div className="mt-2 mb-5 h-1 w-12 rounded-full bg-brand-red" />
                 <div className="overflow-hidden rounded-2xl border border-slate-200">
                   <iframe
                     src={mapaEmbed}

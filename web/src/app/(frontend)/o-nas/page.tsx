@@ -47,7 +47,7 @@ export default function ONasPage() {
           <h2 className="mb-8 text-center text-2xl font-extrabold uppercase tracking-wide text-navy">Nasze wartości</h2>
           <div className="grid gap-6 md:grid-cols-3">
             {WARTOSCI.map((w) => (
-              <div key={w.tytul} className="rounded-xl border-2 border-navy/10 p-6 transition hover:border-sky-500">
+              <div key={w.tytul} className="rounded-xl border-2 border-navy/10 p-6 transition hover:border-brand-red">
                 <h3 className="mb-2 text-lg font-bold text-navy">{w.tytul}</h3>
                 <p className="text-sm text-slate-600">{w.opis}</p>
               </div>

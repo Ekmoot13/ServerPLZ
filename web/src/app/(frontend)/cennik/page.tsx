@@ -15,7 +15,7 @@ function Naglowek({ children, light = false }: { children: React.ReactNode; ligh
   return (
     <div className="mb-6">
       <h2 className={`text-2xl font-extrabold uppercase tracking-wide md:text-3xl ${light ? 'text-white' : 'text-navy'}`}>{children}</h2>
-      <div className="mt-3 h-1 w-14 rounded-full bg-sky-500" />
+      <div className="mt-3 h-1 w-14 rounded-full bg-brand-red" />
     </div>
   )
 }
@@ -24,7 +24,7 @@ const ulCls = 'space-y-2.5 md:text-lg'
 const liDark = 'flex gap-3 text-white/85'
 const liLight = 'flex gap-3 text-slate-700'
 const dot = (light: boolean) => (
-  <span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${light ? 'bg-white/70' : 'bg-sky-500'}`} />
+  <span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${light ? 'bg-white/70' : 'bg-brand-red'}`} />
 )
 
 export default function CennikPage() {
@@ -34,7 +34,7 @@ export default function CennikPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Cennik</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
         </div>
       </section>
 
@@ -85,7 +85,7 @@ export default function CennikPage() {
           <Naglowek light>Szkolenia</Naglowek>
           <p className="text-white/85 md:text-lg">
             Akademia Regatowa na Wodzie – 3 500 zł netto / załoga, więcej szczegółów na{' '}
-            <a href="https://ligazeglarska.pl/clinics/" target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline hover:text-sky-500">
+            <a href="https://ligazeglarska.pl/clinics/" target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline hover:text-brand-red">
               ligazeglarska.pl/clinics
             </a>
             .
@@ -114,7 +114,7 @@ export default function CennikPage() {
           </ul>
           <p className="mt-6 text-slate-700 md:text-lg">
             Wycena indywidualna. Zapraszamy do kontaktu mailowego na{' '}
-            <a href="mailto:info@ligazeglarska.pl" className="font-semibold text-sky-500 hover:underline">
+            <a href="mailto:info@ligazeglarska.pl" className="font-semibold text-brand-red hover:underline">
               info@ligazeglarska.pl
             </a>
             .

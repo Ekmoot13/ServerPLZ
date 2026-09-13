@@ -18,7 +18,7 @@ export const PostHero: React.FC<{
     <div className="relative -mt-[10.4rem] flex items-end">
       <div className="container z-10 relative lg:grid lg:grid-cols-[1fr_48rem_1fr] text-navy pb-12">
         <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
-          <div className="mb-4 text-sm font-bold uppercase tracking-wide text-sky-500">
+          <div className="mb-4 text-sm font-bold uppercase tracking-wide text-brand-red">
             {categories?.map((category, index) => {
               if (typeof category === 'object' && category !== null) {
                 const { title: categoryTitle } = category

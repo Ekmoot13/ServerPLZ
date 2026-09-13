@@ -21,7 +21,7 @@ function Heading({ children, tone = 'dark', center = false }: { children: React.
       <h2 className={`text-3xl font-extrabold uppercase tracking-wide md:text-4xl ${tone === 'light' ? 'text-white' : 'text-navy'}`}>
         {children}
       </h2>
-      <div className={`mt-3 h-1 w-16 rounded-full bg-sky-500 ${center ? 'mx-auto' : ''}`} />
+      <div className={`mt-3 h-1 w-16 rounded-full bg-brand-red ${center ? 'mx-auto' : ''}`} />
     </div>
   )
 }
@@ -49,7 +49,7 @@ export default function PolskiKlubRegatowyPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 pt-6 pb-14 text-center md:pt-8 md:pb-16">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Polski Klub Regatowy</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <Img src={IMG.burgee} className="mx-auto mt-10 h-40 w-auto md:h-52" />
           <p className="mt-4 font-serif text-xl tracking-wide text-white/90">POLSKI KLUB REGATOWY</p>
         </div>
@@ -133,7 +133,7 @@ export default function PolskiKlubRegatowyPage() {
             </li>
             <li>
               <strong>Wyślij podpisaną deklarację i potwierdzenie przelewu</strong> na adres{' '}
-              <a href="mailto:biuro@polskiklubregatowy.pl" className="font-semibold text-sky-500 hover:underline">biuro@polskiklubregatowy.pl</a>.
+              <a href="mailto:biuro@polskiklubregatowy.pl" className="font-semibold text-brand-red hover:underline">biuro@polskiklubregatowy.pl</a>.
             </li>
           </ol>
           <div className="max-w-4xl">
@@ -153,7 +153,7 @@ export default function PolskiKlubRegatowyPage() {
           <div className="mt-10 grid items-center gap-10 lg:grid-cols-2">
             <div>
               <h3 className="text-2xl font-extrabold uppercase tracking-wide">Dominik Buksak</h3>
-              <p className="mt-1 text-sm font-bold uppercase tracking-wide text-sky-500">Klasa olimpijska 49er</p>
+              <p className="mt-1 text-sm font-bold uppercase tracking-wide text-brand-red">Klasa olimpijska 49er</p>
               <div className="mt-5 space-y-4 text-white/85">
                 <p>
                   Dominik Buksak — wychowany na wodzie, żegluje od siódmego roku życia i od zawsze <strong>łączy pasję

@@ -64,7 +64,7 @@ export default function PlzTeamPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Zespół</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <p className="mt-6 text-white/85 md:text-lg">
             Zobacz, kto stoi za organizacją Polskiej Ligi Żeglarskiej.
           </p>

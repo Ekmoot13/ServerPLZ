@@ -78,7 +78,7 @@ function Kategoria({ tytul, rzedy }: { tytul: string; rzedy: Logo[][] }) {
   return (
     <div className="py-8">
       <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{tytul}</h2>
-      <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-sky-500" />
+      <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
       <div className="mx-auto max-w-4xl space-y-10">
         {rzedy.map((rzad, i) => (
           <div key={i} className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8 md:gap-x-16">
@@ -120,7 +120,7 @@ export default async function MediaPage() {
       <section className="mx-auto max-w-[1440px] px-4 pt-14 pb-12 md:pt-16">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Media</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
         </div>
         <div className="mx-auto mt-10 max-w-5xl space-y-4 text-center text-white/85">
           <p>
@@ -169,7 +169,7 @@ export default async function MediaPage() {
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-white md:text-3xl">
           Zobacz nasz magazyn w TVP Sport
         </h2>
-        <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-sky-500" />
+        <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
 
         {glowny ? (
           <div className="grid items-stretch gap-6 lg:grid-cols-[1.6fr_1fr]">

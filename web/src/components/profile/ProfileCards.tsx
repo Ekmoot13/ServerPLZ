@@ -20,7 +20,7 @@ export default function ProfileCards({ title, items }: { title: string; items: C
           <Link
             key={i}
             href={it.href}
-            className="group overflow-hidden rounded-xl border border-slate-200 transition hover:border-sky-500 hover:shadow-md"
+            className="group overflow-hidden rounded-xl border border-slate-200 transition hover:border-brand-red hover:shadow-md"
           >
             {it.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -31,7 +31,7 @@ export default function ProfileCards({ title, items }: { title: string; items: C
                 {initials(it.nazwa)}
               </div>
             )}
-            <div className="p-2 text-center text-sm font-semibold text-navy group-hover:text-sky-500">
+            <div className="p-2 text-center text-sm font-semibold text-navy group-hover:text-brand-red">
               {it.nazwa}
             </div>
           </Link>

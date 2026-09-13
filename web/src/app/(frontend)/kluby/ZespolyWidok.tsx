@@ -115,7 +115,7 @@ function Szukajka({
             <Link
               key={i}
               href={r.href}
-              className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-sky-500"
+              className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-red"
               onClick={() => setQ('')}
             >
               {r.label}
@@ -163,14 +163,14 @@ export default function ZespolyWidok({
       <div className="mb-12 grid gap-8 md:grid-cols-2">
         <div className="text-center">
           <h2 className="text-xl font-extrabold uppercase tracking-wide text-navy">Wyszukaj zawodnika</h2>
-          <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-brand-red" />
           <div className="mt-4 flex justify-center">
             <Szukajka placeholder="Wpisz imię lub nazwisko zawodnika…" wyniki={szukajZawodnika} />
           </div>
         </div>
         <div className="text-center">
           <h2 className="text-xl font-extrabold uppercase tracking-wide text-navy">Wyszukaj klub</h2>
-          <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-brand-red" />
           <div className="mt-4 flex justify-center">
             <Szukajka placeholder="Wpisz nazwę klubu…" wyniki={szukajKlubu} />
           </div>
@@ -190,7 +190,7 @@ export default function ZespolyWidok({
                 <h2 className="inline-block text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">
                   {g.poziom}
                 </h2>
-                <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-sky-500" />
+                <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-brand-red" />
               </div>
 
               <div className="space-y-6">

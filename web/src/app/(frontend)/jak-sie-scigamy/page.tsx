@@ -26,7 +26,7 @@ function Naglowek({ children, light = false }: { children: React.ReactNode; ligh
   return (
     <div className="mb-6">
       <h2 className={`text-2xl font-extrabold uppercase tracking-wide md:text-3xl ${light ? 'text-white' : 'text-navy'}`}>{children}</h2>
-      <div className="mt-3 h-1 w-16 rounded-full bg-sky-500" />
+      <div className="mt-3 h-1 w-16 rounded-full bg-brand-red" />
     </div>
   )
 }
@@ -38,7 +38,7 @@ export default function JakSieScigamyPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:py-20">
           <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Jak się ścigamy?</h1>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <p className="mx-auto mt-6 max-w-3xl text-white/85 md:text-lg">
             Poznaj zasady żeglarstwa stadionowego — krótkie, dynamiczne wyścigi na identycznych jachtach, rozgrywane tuż
             przy brzegu, na oczach kibiców.
@@ -153,7 +153,7 @@ export default function JakSieScigamyPage() {
                   ['Dziobowy', 'manewruje żaglami i sprzętem na dziobie'],
                 ].map(([rola, opis]) => (
                   <li key={rola} className="flex gap-2">
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-red" />
                     <span>
                       <strong className="text-white">{rola}</strong> — {opis}
                     </span>

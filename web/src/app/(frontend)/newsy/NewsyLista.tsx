@@ -98,7 +98,7 @@ export default function NewsyLista({ items }: { items: NewsItem[] }) {
             <Link
               key={p.id}
               href={`/posts/${p.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border-2 border-navy/10 bg-white transition hover:border-sky-500 hover:shadow-lg"
+              className="group flex flex-col overflow-hidden rounded-2xl border-2 border-navy/10 bg-white transition hover:border-brand-red hover:shadow-lg"
             >
               {p.image ? (
                 <Img src={p.image} alt={p.title} className="h-48 w-full object-cover" />
@@ -107,9 +107,9 @@ export default function NewsyLista({ items }: { items: NewsItem[] }) {
               )}
               <div className="flex flex-1 flex-col p-4">
                 {p.category && (
-                  <span className="text-xs font-semibold uppercase tracking-wide text-sky-500">{p.category}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-brand-red">{p.category}</span>
                 )}
-                <h2 className="mt-1 font-bold leading-snug text-navy group-hover:text-sky-500">{p.title}</h2>
+                <h2 className="mt-1 font-bold leading-snug text-navy group-hover:text-brand-red">{p.title}</h2>
                 <p className="mt-auto pt-3 text-sm text-slate-500">{p.dateLabel}</p>
               </div>
             </Link>

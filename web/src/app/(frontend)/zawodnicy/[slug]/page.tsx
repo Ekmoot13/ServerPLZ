@@ -199,7 +199,7 @@ function Sekcja({ tytul, children }: { tytul: string; children: React.ReactNode 
   return (
     <div>
       <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{tytul}</h2>
-      <div className="mb-4 mt-2 h-1 w-12 rounded-full bg-sky-500" />
+      <div className="mb-4 mt-2 h-1 w-12 rounded-full bg-brand-red" />
       {children}
     </div>
   )

@@ -40,8 +40,8 @@ function Blok({ tytul, podtytul, akapity, osiagniecia, przycisk, obraz, tone }: 
           <h2 className={`text-3xl font-extrabold uppercase tracking-wide md:text-4xl ${light ? 'text-white' : 'text-navy'}`}>
             {tytul}
           </h2>
-          <div className="mt-3 h-1 w-16 rounded-full bg-sky-500" />
-          {podtytul && <p className="mt-3 text-sm font-bold uppercase tracking-wide text-sky-500">{podtytul}</p>}
+          <div className="mt-3 h-1 w-16 rounded-full bg-brand-red" />
+          {podtytul && <p className="mt-3 text-sm font-bold uppercase tracking-wide text-brand-red">{podtytul}</p>}
           <div className={`mt-5 space-y-4 ${light ? 'text-white/85' : 'text-slate-700'}`}>
             {akapity.map((a, i) => (
               <p key={i} dangerouslySetInnerHTML={{ __html: a }} />
@@ -95,7 +95,7 @@ export default function WspieramyPage() {
       {/* HERO */}
       <section className="mx-auto max-w-[1440px] px-4 pt-14 pb-4 text-center md:pt-16">
         <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Wspieramy</h1>
-        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-sky-500" />
+        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
       </section>
 
       <Blok
@@ -153,7 +153,7 @@ export default function WspieramyPage() {
       {/* NASI AMBASADORZY */}
       <section className="mx-auto max-w-[1440px] px-4 pt-14 pb-2 text-center">
         <h2 className="text-3xl font-extrabold uppercase tracking-wide text-white md:text-4xl">Nasi Ambasadorzy</h2>
-        <div className="mx-auto mt-3 h-1 w-20 rounded-full bg-sky-500" />
+        <div className="mx-auto mt-3 h-1 w-20 rounded-full bg-brand-red" />
       </section>
 
       <Blok

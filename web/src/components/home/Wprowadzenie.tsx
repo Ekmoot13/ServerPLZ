@@ -63,7 +63,7 @@ export default function Wprowadzenie(props: WprowadzenieProps) {
       <div className="grid items-center gap-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
           <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">{props.tytul}</h2>
-          <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-sky-500" />
+          <div className="mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
           <div className="space-y-4 text-white/85">
             {props.akapity.map((a, i) => (
               <p key={i} dangerouslySetInnerHTML={{ __html: a }} />
