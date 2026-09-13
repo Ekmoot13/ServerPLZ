@@ -49,9 +49,9 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
                 <tr className="bg-navy text-white">
                   <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
                   <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
-                  <th className="hidden px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
+                  <th className="hidden whitespace-nowrap px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
                   {ostatnia.races.map((c) => (
-                    <th key={c.key} className="px-1.5 py-1.5 text-center font-bold sm:px-2 sm:py-2">{c.label}</th>
+                    <th key={c.key} className="whitespace-nowrap px-1.5 py-1.5 text-center font-bold sm:px-2 sm:py-2">{c.label}</th>
                   ))}
                 </tr>
               </thead>
@@ -85,11 +85,11 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
               <tr className="bg-navy text-white">
                 <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">M-sce</th>
                 <th className="whitespace-nowrap px-2 py-1.5 text-left font-bold sm:px-3 sm:py-2">Skrót</th>
-                <th className="hidden px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
+                <th className="hidden whitespace-nowrap px-3 py-2 text-left font-bold sm:table-cell">Zespół</th>
                 {prawa.rankingRounds.map((r) => (
-                  <th key={r.id} className="px-1.5 py-1.5 text-center font-bold sm:px-3 sm:py-2">{r.label}</th>
+                  <th key={r.id} className="whitespace-nowrap px-1.5 py-1.5 text-center font-bold sm:px-3 sm:py-2">{r.label}</th>
                 ))}
-                <th className="px-2 py-1.5 text-center font-bold sm:px-3 sm:py-2">Σ</th>
+                <th className="whitespace-nowrap px-2 py-1.5 text-center font-bold sm:px-3 sm:py-2">Σ</th>
               </tr>
             </thead>
             <tbody>
