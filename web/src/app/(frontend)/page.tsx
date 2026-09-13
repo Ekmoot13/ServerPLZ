@@ -367,7 +367,7 @@ export default async function HomePage() {
           </div>
           <div className="flex flex-col gap-3 lg:w-56 lg:pt-2">
             {[
-              { label: 'Oferta', href: 'https://ligazeglarska.pl/oferta/' },
+              { label: 'Oferta', href: '/oferta' },
               { label: 'Media', href: '/media' },
               { label: 'Sprzęt', href: 'https://ligazeglarska.pl/#' },
               { label: 'Bezpieczeństwo', href: 'https://ligazeglarska.pl/safety/' },
