@@ -256,6 +256,16 @@ html[data-theme='light'] {
   main .text-right p {
     text-align: inherit;
   }
+  /* Treść newsa — justowana z dzieleniem wyrazów, tak jak na ligazeglarska.pl.
+     Reguła stoi po `.prose p { text-align: left }`, więc wygrywa przy równej wadze. */
+  .tresc-newsa p,
+  .tresc-newsa li,
+  main .tresc-newsa p,
+  main .tresc-newsa li {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+  }
 }
 
 /* Marquee — poziomy, ciągły przewijany pas (mistrzowie, sponsorzy) */

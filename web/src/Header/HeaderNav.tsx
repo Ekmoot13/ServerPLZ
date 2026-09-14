@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { SocialRow } from '@/components/site/SocialIcons'
 
 type Sub = { label: string; href: string; external?: boolean }
-type Item = { label: string; href: string; sub?: Sub[] }
+type Item = { label: string; href: string; external?: boolean; sub?: Sub[] }
 
 // Menu 1:1 wg ligazeglarska.pl — tylko „Regaty” ma rozwijaną listę.
 export const MENU: Item[] = [
@@ -24,7 +24,7 @@ export const MENU: Item[] = [
   { label: 'Wyniki', href: '/wyniki' },
   { label: 'Newsy', href: '/newsy' },
   { label: 'O nas', href: '/#o-nas' },
-  { label: 'Media', href: '/media' },
+  { label: 'Zdjęcia', href: 'https://ligazeglarska.smugmug.com/', external: true },
   { label: 'Wspieramy', href: '/wspieramy' },
   { label: 'Klub', href: '/polski-klub-regatowy' },
   { label: 'Kontakt', href: '/kontakt' },
@@ -35,7 +35,11 @@ const linkCls = 'whitespace-nowrap px-1 py-2 text-[13px] font-bold uppercase tra
 function DesktopItem({ item, ciemny }: { item: Item; ciemny?: boolean }) {
   const [open, setOpen] = useState(false)
   if (!item.sub) {
-    return (
+    return item.external ? (
+      <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkCls}>
+        {item.label}
+      </a>
+    ) : (
       <Link href={item.href} className={linkCls}>
         {item.label}
       </Link>
@@ -83,9 +87,15 @@ function DesktopItem({ item, ciemny }: { item: Item; ciemny?: boolean }) {
 
 function MobileItem({ item, onNav }: { item: Item; onNav: () => void }) {
   const [open, setOpen] = useState(false)
+  const cls =
+    'block border-b border-white/10 py-3 text-center text-sm font-bold uppercase tracking-wide text-white hover:text-brand-red'
   if (!item.sub) {
-    return (
-      <Link href={item.href} onClick={onNav} className="block border-b border-white/10 py-3 text-center text-sm font-bold uppercase tracking-wide text-white hover:text-brand-red">
+    return item.external ? (
+      <a href={item.href} target="_blank" rel="noopener noreferrer" onClick={onNav} className={cls}>
+        {item.label}
+      </a>
+    ) : (
+      <Link href={item.href} onClick={onNav} className={cls}>
         {item.label}
       </Link>
     )

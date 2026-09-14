@@ -1,20 +1,31 @@
 // Domyślne dane sekcji sponsorów (lokalne, jednolite logotypy 800×600).
 // Używane jako fallback na stronie głównej oraz przez seed globala strona-glowna.
+//
+// Kolejność grup i logotypów odwzorowuje stronę główną ligazeglarska.pl.
+// Grupa „Sponsor tytularny” świadomie nie istnieje — jest wycofana.
 export type SponsorLogo = { logoUrl: string; link?: string; nazwa?: string; skala?: number }
 export type SponsorGrupa = { kategoria: string; loga: SponsorLogo[] }
 
 const B = '/sponsorzy'
-const L = (slug: string, link: string, nazwa: string): SponsorLogo => ({ logoUrl: `${B}/${slug}.jpg`, link, nazwa, skala: 100 })
+const L = (slug: string, link: string, nazwa: string, skala = 100): SponsorLogo => ({
+  logoUrl: `${B}/${slug}.jpg`,
+  link,
+  nazwa,
+  skala,
+})
+
+// Sponsorzy Główni są największym kafelkiem — żadna inna grupa nie może go przebić.
+const GLOWNI = 125
 
 export const DEFAULT_GRUPY: SponsorGrupa[] = [
   {
     kategoria: 'Sponsorzy Główni',
     loga: [
-      L('pge', 'https://www.gkpge.pl/', 'PGE'),
-      L('nissan', 'https://www.nissan.pl/', 'Nissan'),
-      L('bank-pekao', 'https://www.pekao.com.pl/', 'Bank Pekao'),
-      L('mag', 'https://www.mag.pl/pl', 'MAG'),
-      L('stbu', 'https://www.stbu.pl/', 'STBU'),
+      L('pge', 'https://www.gkpge.pl/', 'PGE', GLOWNI),
+      L('nissan', 'https://www.nissan.pl/', 'Nissan', GLOWNI),
+      L('bank-pekao', 'https://www.pekao.com.pl/', 'Bank Pekao', GLOWNI),
+      L('mag', 'https://www.mag.pl/pl', 'MAG', GLOWNI),
+      L('stbu', 'https://www.stbu.pl/', 'STBU', GLOWNI),
     ],
   },
   {
@@ -23,12 +34,16 @@ export const DEFAULT_GRUPY: SponsorGrupa[] = [
   },
   {
     kategoria: 'Sponsorzy i Partnerzy Regat',
-    loga: [L('dr-irena-eris', 'https://www.drirenaeris.com/', 'Dr Irena Eris'), L('sportofino', 'https://sportofino.com/', "S'portofino")],
+    loga: [
+      L('dr-irena-eris', 'https://www.drirenaeris.com/', 'Dr Irena Eris'),
+      L('sportofino', 'https://sportofino.com/', "S'portofino"),
+    ],
   },
   {
     kategoria: 'Gospodarze Regat',
     loga: [
       L('sopot', 'https://www.sopot.pl/', 'Sopot'),
+      L('puck', 'https://miastopuck.pl/', 'Puck'),
       L('gdynia', 'https://www.gdynia.pl/', 'Gdynia'),
       L('szczecin', 'https://szczecin.eu/pl', 'Szczecin'),
       L('pomorze-zachodnie', 'https://pomorzezachodnie.travel/', 'Pomorze Zachodnie'),
@@ -56,6 +71,7 @@ export const DEFAULT_GRUPY: SponsorGrupa[] = [
     loga: [
       L('bryt-sails', 'https://brytsails.com/', 'Bryt Sails'),
       L('harken', 'https://www.harken.pl/pl/home/', 'Harken'),
+      L('pro-protection', 'https://pro-protection.com/', 'Pro Protection'),
       L('rs-sailing', 'https://rs21class.pl/', 'RS Sailing'),
     ],
   },
@@ -87,13 +103,14 @@ export const DEFAULT_GRUPY: SponsorGrupa[] = [
       L('morze', 'https://www.morze.org/', 'Morze'),
       L('charter-navigator', 'https://www.charternavigator.pl/', 'Charter Navigator'),
       L('gospodarka-morska', 'https://www.gospodarkamorska.pl/', 'Gospodarka Morska'),
+      L('zeglarski-info', 'https://zeglarski.info/index.html', 'Żeglarski.info'),
     ],
   },
   {
     kategoria: 'Współpraca',
     loga: [
-      L('scl', 'https://sailing-championsleague.com/', 'Sailing Champions League'),
       L('isla', 'https://isla-org.com/', 'ISLA'),
+      L('scl', 'https://sailing-championsleague.com/', 'Sailing Champions League'),
       L('zozz', 'https://www.zozz.org/', 'Zachodniopomorski OZŻ'),
       L('sfts', 'https://sailorsforthesea.org/about-us/', 'Sailors for the Sea'),
     ],

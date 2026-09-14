@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
-import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
+import WiecejNewsow, { type NewsKafel } from '@/components/site/WiecejNewsow'
+import GaleriaRegat from '@/components/site/GaleriaRegat'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -35,6 +36,44 @@ export async function generateStaticParams() {
   return params
 }
 
+// Treść newsa: szeroka kolumna (bez wąskiego pasa po bokach) i justowanie z dzieleniem
+// wyrazów — `tresc-newsa` dokłada wyrównanie w globals.css.
+const TRESC = 'prose prose-lg tresc-newsa mx-auto max-w-[72rem]'
+
+// „Kolejne do przeczytania”: najpierw powiązane wpisy ustawione przez redaktora,
+// a gdy ich nie ma — najnowsze newsy poza aktualnie czytanym.
+async function kolejneDoPrzeczytania(post: any): Promise<NewsKafel[]> {
+  const kafel = (p: any): NewsKafel => ({
+    slug: p?.slug,
+    title: p?.title,
+    data: p?.publishedAt || null,
+    kategoria: p?.categories?.[0]?.title || null,
+    obraz: p?.heroImage?.url || p?.meta?.image?.url || null,
+  })
+
+  const powiazane = (post?.relatedPosts || []).filter((p: any) => p && typeof p === 'object' && p.slug)
+  if (powiazane.length >= 4) return powiazane.slice(0, 4).map(kafel)
+
+  const payload = await getPayload({ config: configPromise })
+  const res = await payload
+    .find({
+      collection: 'posts',
+      where: { _status: { equals: 'published' }, slug: { not_equals: post?.slug } },
+      sort: '-publishedAt',
+      limit: 8,
+      depth: 1,
+    })
+    .catch(() => ({ docs: [] as any[] }))
+
+  const wynik = powiazane.map(kafel)
+  for (const p of res.docs as any[]) {
+    if (wynik.length >= 4) break
+    if (wynik.some((w) => w.slug === p.slug)) continue
+    wynik.push(kafel(p))
+  }
+  return wynik
+}
+
 type Args = {
   params: Promise<{
     slug?: string
@@ -51,6 +90,8 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   if (!post) return <PayloadRedirects url={url} />
 
+  const wiecej = await kolejneDoPrzeczytania(post)
+
   return (
     <article className="pt-16 pb-16">
       <PageClient />
@@ -66,18 +107,16 @@ export default async function Post({ params: paramsPromise }: Args) {
         <div className="container">
           {(post as any).trescHtml ? (
             <div
-              className="prose mx-auto max-w-[48rem]"
+              className={TRESC}
               dangerouslySetInnerHTML={{ __html: (post as any).trescHtml }}
             />
           ) : post.content ? (
-            <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
+            <RichText className={TRESC} data={post.content} enableGutter={false} />
           ) : null}
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
+
+          <GaleriaRegat />
+
+          <WiecejNewsow items={wiecej} />
         </div>
       </div>
     </article>

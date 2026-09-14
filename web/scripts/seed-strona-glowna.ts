@@ -9,6 +9,7 @@
  *   npm run payload -- run scripts/seed-strona-glowna.ts
  */
 import { getPayload } from 'payload'
+import { REGATY_TEKST, REGATY_TYTUL } from '../src/lib/wprowadzenie'
 import config from '@payload-config'
 
 const L = 'https://ligazeglarska.pl/wp-content/uploads'
@@ -194,11 +195,8 @@ const data: any = {
   },
   nastepneRegaty: { pokaz: true, tytul: 'Regaty' },
   wprowadzenie: {
-    tytul: 'REGATY JAK NA STADIONIE',
-    tekst:
-      'Od ponad 10 lat organizujemy regularne rozgrywki składające się z serii regat w Sopocie, Pucku, Gdyni i Szczecinie, w których kluby żeglarskie rywalizują o tytuł Klubowego Mistrza Polski, awans do wyższej ligi lub uniknięcie spadku.\n\n' +
-      'Zapewniamy jednakowe, nowoczesne jachty RS21, dynamiczne wyścigi rozgrywane w atrakcyjnym dla zawodników i widzów formacie, nowoczesne sędziowanie na światowym poziomie i medialność. W regatach Polskiej Ligi Żeglarskiej udział biorą najlepsi polscy żeglarze wielu pokoleń: Mistrzowie Polski, Europy i Świata, medaliści Olimpijscy oraz aktualni zawodnicy Kadry Narodowej i Kadry Juniorskiej, ale także początkujący amatorzy.\n\n' +
-      'Ponad 500 zawodniczek i zawodników w 120 klubach ściga się w Ekstraklasie i 1 Lidze (po 20 załóg), 6 amatorskich Ligach Regionalnych w całej Polsce oraz w Lidze Młodzieżowej do 25. roku życia.',
+    tytul: REGATY_TYTUL,
+    tekst: REGATY_TEKST,
     obrazTla: '',
     jakSieScigamyHtml,
     poziomyObraz: '/poziomy-lig.png',

@@ -13,6 +13,8 @@ import PasekRegat from '@/components/home/PasekRegat'
 import { getLataWynikow, getWynikiPelne, getKluby, klubSlug } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
 import { getPlaylistVideos } from '@/lib/youtube'
+import { REGATY_INTRO, REGATY_TYTUL } from '@/lib/wprowadzenie'
+import { PRESS_KIT_URL } from '@/lib/media-kit'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,12 +62,6 @@ const JAK_SLEDZIC_KANALY = [
   { logo: `${U}/2025/03/3-1.png`, nazwa: 'Facebook', opis: 'Transmisje live, relacje na bieżąco prosto z wody.', url: 'https://www.facebook.com/LigaZeglarska' },
   { logo: `${U}/2025/03/4.png`, nazwa: 'Instagram', opis: 'Wydarzenia z pierwszej ręki i krótkie podsumowania.', url: 'https://www.instagram.com/polskaligazeglarska/' },
   { logo: `${U}/2025/05/Projekt-bez-nazwy.jpg`, nazwa: 'WhatsApp', opis: 'Najważniejsze ogłoszenia w naszej społeczności.', url: 'https://chat.whatsapp.com/JQRZWPIGH7x7OAHW8QaKRH' },
-]
-
-const REGATY_INTRO = [
-  'Od ponad 10 lat organizujemy regularne rozgrywki składające się z serii regat w Sopocie, Pucku, Gdyni i Szczecinie, w których kluby żeglarskie rywalizują o tytuł <strong>Klubowego Mistrza Polski</strong>, awans do wyższej ligi lub uniknięcie spadku.',
-  'Zapewniamy <strong>jednakowe, nowoczesne jachty RS21</strong>, <strong>dynamiczne wyścigi</strong> rozgrywane w atrakcyjnym dla zawodników i widzów formacie, nowoczesne <strong>sędziowanie na światowym poziomie i medialność.</strong> W regatach Polskiej Ligi Żeglarskiej udział biorą <strong>najlepsi polscy żeglarze</strong>, przedstawiciele wielu pokoleń <strong>Mistrzów Polski, Europy i Świata, medaliści Olimpijscy</strong> oraz <strong>aktualni zawodnicy Kadry Narodowej, Kadry Juniorskiej</strong>, ale także początkujący i żeglarze amatorzy.',
-  'Ponad <strong>500 zawodniczek i zawodników w 120 klubach</strong> ściga się w <strong>Ekstraklasie</strong> i <strong>1 Lidze</strong> (po 20 załóg), 6 amatorskich <strong>Ligach Regionalnych</strong> w całej Polsce dla rozpoczynających przygodę oraz w <strong>Lidze Młodzieżowej</strong> do 25. roku życia.',
 ]
 
 const ZGLOSZENIA_LIGI = [
@@ -236,7 +232,7 @@ export default async function HomePage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
           <Wprowadzenie
-            tytul={W.tytul || 'REGATY JAK NA STADIONIE'}
+            tytul={W.tytul || REGATY_TYTUL}
             akapity={(() => {
               const a = String(W.tekst || '').split(/\n\s*\n/).map((s: string) => s.trim()).filter(Boolean)
               return a.length ? a : REGATY_INTRO
@@ -386,6 +382,27 @@ export default async function HomePage() {
 
       {/* SPONSORZY */}
       <Sponsorzy grupy={grupySponsorow} tytul={SP.tytul || 'Sponsorzy'} />
+
+      {/* DLA MEDIÓW — informacje prasowe i press kit (jak na ligazeglarska.pl) */}
+      <section className="bg-navy text-white" style={patternBg}>
+        <div className="mx-auto max-w-[1440px] px-4 py-10 text-center md:py-14">
+          <h2 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Dla mediów</h2>
+          <div className="mx-auto mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
+          <p className="mx-auto max-w-2xl text-white/85">
+            Media i partnerów zapraszamy do pobrania najnowszych informacji prasowych oraz press kitu.
+          </p>
+          <div className="mt-8">
+            <a
+              href={PRESS_KIT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-[10px] border-2 border-white px-7 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white hover:text-navy"
+            >
+              Pobierz press kit
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
   )
 }
