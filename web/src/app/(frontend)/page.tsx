@@ -316,7 +316,7 @@ export default async function HomePage() {
                       <div className="flex flex-1 items-center">
                         <p className="line-clamp-3 text-base font-bold leading-snug text-navy transition group-hover:text-brand-red md:text-lg">{v.title}</p>
                       </div>
-                      <div className="relative aspect-video w-36 shrink-0 overflow-hidden rounded-xl border border-slate-200 md:w-48">
+                      <div className="relative aspect-video w-28 shrink-0 overflow-hidden rounded-xl border border-slate-200 sm:w-36 md:w-48">
                         <Img src={v.thumb} alt={v.title} className="h-full w-full object-cover transition group-hover:scale-105" />
                         <span className="absolute inset-0 flex items-center justify-center">
                           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 pl-0.5 text-white shadow-lg transition group-hover:scale-110">

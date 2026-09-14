@@ -135,7 +135,9 @@ export default async function KalendarzPage() {
                     </span>
                   )}
                   <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: styl.kolor }} />
-                  <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{g.poziom}</h2>
+                  {/* Na wąskim telefonie „Wielkopolska Liga Żeglarska" obok kafelka z logo
+                      nie mieści się w text-2xl i rozpycha stronę w bok. */}
+                  <h2 className="text-xl font-extrabold uppercase tracking-wide text-navy sm:text-2xl">{g.poziom}</h2>
                   <span
                     className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
                     style={{ backgroundColor: `${styl.kolor}1a`, color: styl.kolor }}
