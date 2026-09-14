@@ -39,7 +39,9 @@ export default function SafetyPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-sky-500">Safety</p>
-          <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">Bezpieczeństwo</h1>
+          {/* Na wąskim ekranie „Bezpieczeństwo" to jeden nierozdzielny wyraz — w text-4xl
+              wychodził 14 px poza szerokość telefonu i rozjeżdżał całą stronę w bok. */}
+          <h1 className="text-3xl font-extrabold uppercase tracking-wide sm:text-4xl md:text-5xl">Bezpieczeństwo</h1>
           <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-brand-red" />
           <p className="mt-6 text-white/85 md:text-lg">
             Bezpieczeństwo to fundament Polskiej Ligi Żeglarskiej — zarówno podczas regat, jak i treningów.

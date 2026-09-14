@@ -78,7 +78,9 @@ const RADIO: Logo[][] = [
 // samo ograniczenie wysokości robiło z szerokich logotypów pasy po 300 px, a kwadratowe
 // zostawiało na 50 px. Każdy dostaje więc identyczny kafelek i wpisuje się w niego
 // przez object-contain — bounding box jest ten sam, proporcje logotypu nienaruszone.
-const KAFEL = 'h-[68px] w-[168px] shrink-0'
+// Na telefonie kafelek musi zejść poniżej połowy szerokości ekranu, inaczej logotypy
+// ustawiają się po jednym w rzędzie i sekcja rozciąga się na kilka ekranów.
+const KAFEL = 'h-[60px] w-[150px] shrink-0 sm:h-[68px] sm:w-[168px]'
 
 function Kategoria({ tytul, rzedy }: { tytul: string; rzedy: Logo[][] }) {
   return (

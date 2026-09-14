@@ -38,7 +38,7 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
       {/* OSTATNIE REGATY */}
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-col">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ostatnie regaty</h2>
         <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liL} setLi={setLiL} />
@@ -75,7 +75,7 @@ export default function WynikiHome({ ligi }: { ligi: Liga[] }) {
       </div>
 
       {/* RANKING SEZONU */}
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-col">
         <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">Ranking sezonu</h2>
         <div className="mt-2 mb-5 h-1 w-14 rounded-full bg-brand-red" />
         <TabRow ligi={ligi} li={liR} setLi={setLiR} />

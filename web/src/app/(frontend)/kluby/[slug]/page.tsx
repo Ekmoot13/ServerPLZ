@@ -136,7 +136,7 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
       <section className="relative z-10 mx-auto -mt-20 max-w-[1440px] px-4 pb-16">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* SIDEBAR */}
-          <aside className="order-first lg:order-last lg:col-span-1">
+          <aside className="order-first min-w-0 lg:order-last lg:col-span-1">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
               <div className="mx-auto -mt-16 mb-4 flex aspect-square w-40 items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 shadow-md">
                 {logoUrl ? (
@@ -151,7 +151,7 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
           </aside>
 
           {/* MAIN */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2 lg:p-8">
+          <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2 lg:p-8">
             {/* NAGŁÓWEK KLUBU */}
             <div className="mb-8">
               <h1 className="text-3xl font-extrabold uppercase tracking-wide text-navy md:text-4xl">{nazwa}</h1>

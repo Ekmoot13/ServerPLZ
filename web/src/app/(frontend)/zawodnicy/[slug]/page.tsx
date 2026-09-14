@@ -92,7 +92,7 @@ export default async function ZawodnikPage({ params }: { params: Promise<{ slug:
       <section className="relative z-10 mx-auto -mt-20 max-w-[1440px] px-4 pb-16">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* SIDEBAR */}
-          <aside className="order-first lg:order-last lg:col-span-1">
+          <aside className="order-first min-w-0 lg:order-last lg:col-span-1">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
               {panel?.zdjecieUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -122,7 +122,7 @@ export default async function ZawodnikPage({ params }: { params: Promise<{ slug:
           </aside>
 
           {/* MAIN */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2 lg:p-8">
+          <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2 lg:p-8">
             <h1 className="mb-8 text-3xl font-extrabold uppercase tracking-wide text-navy md:text-4xl">
               {imie} {nazwisko}
             </h1>
