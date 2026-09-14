@@ -74,14 +74,20 @@ const RADIO: Logo[][] = [
   ],
 ]
 
+// Logotypy mediów mają bardzo różne proporcje (od 6:1 po kwadrat). Bez wspólnej ramki
+// samo ograniczenie wysokości robiło z szerokich logotypów pasy po 300 px, a kwadratowe
+// zostawiało na 50 px. Każdy dostaje więc identyczny kafelek i wpisuje się w niego
+// przez object-contain — bounding box jest ten sam, proporcje logotypu nienaruszone.
+const KAFEL = 'h-[68px] w-[168px] shrink-0'
+
 function Kategoria({ tytul, rzedy }: { tytul: string; rzedy: Logo[][] }) {
   return (
     <div className="py-8">
       <h2 className="text-2xl font-extrabold uppercase tracking-wide text-navy">{tytul}</h2>
       <div className="mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
-      <div className="mx-auto max-w-4xl space-y-10">
+      <div className="mx-auto max-w-5xl space-y-8">
         {rzedy.map((rzad, i) => (
-          <div key={i} className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8 md:gap-x-16">
+          <div key={i} className="flex flex-wrap items-center justify-center gap-x-6 gap-y-6 md:gap-x-8">
             {rzad.map((lo, k) => (
               <a
                 key={k}
@@ -89,9 +95,9 @@ function Kategoria({ tytul, rzedy }: { tytul: string; rzedy: Logo[][] }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={lo.alt}
-                className="flex items-center justify-center transition hover:opacity-70"
+                className={`flex items-center justify-center transition hover:opacity-70 ${KAFEL}`}
               >
-                <Img src={lo.url} alt={lo.alt} className="max-h-12 w-auto object-contain" />
+                <Img src={lo.url} alt={lo.alt} className="max-h-full max-w-full object-contain" />
               </a>
             ))}
           </div>
