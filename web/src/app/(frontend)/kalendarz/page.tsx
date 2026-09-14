@@ -121,7 +121,7 @@ export default async function KalendarzPage() {
               const styl = stylPoziomu(g.poziom)
               return (
               <div key={g.poziom}>
-                <div className="mb-6 flex items-center gap-4">
+                <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
                   {styl.logo && (
                     <span
                       className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-300"
@@ -137,7 +137,7 @@ export default async function KalendarzPage() {
                   <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: styl.kolor }} />
                   {/* Na wąskim telefonie „Wielkopolska Liga Żeglarska" obok kafelka z logo
                       nie mieści się w text-2xl i rozpycha stronę w bok. */}
-                  <h2 className="text-xl font-extrabold uppercase tracking-wide text-navy sm:text-2xl">{g.poziom}</h2>
+                  <h2 className="min-w-0 text-xl font-extrabold uppercase tracking-wide text-navy sm:text-2xl">{g.poziom}</h2>
                   <span
                     className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
                     style={{ backgroundColor: `${styl.kolor}1a`, color: styl.kolor }}

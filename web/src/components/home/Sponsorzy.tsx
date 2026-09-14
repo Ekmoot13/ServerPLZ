@@ -22,12 +22,14 @@ function LogoEl({ lo }: { lo: SponsorLogo }) {
       <Img src={lo.logoUrl} alt={lo.nazwa || ''} className="max-h-full max-w-full object-contain" />
     </span>
   )
+  // max-w-full musi stać także na opakowaniu — bez tego link dopasowuje się do
+  // stałej szerokości kafelka i sam kafelek nie ma do czego się skurczyć.
   return lo.link ? (
-    <a href={lo.link} target="_blank" rel="noopener noreferrer" className="block transition hover:opacity-70">
+    <a href={lo.link} target="_blank" rel="noopener noreferrer" className="block max-w-full transition hover:opacity-70">
       {img}
     </a>
   ) : (
-    <span className="block">{img}</span>
+    <span className="block max-w-full">{img}</span>
   )
 }
 
