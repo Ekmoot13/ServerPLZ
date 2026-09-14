@@ -37,8 +37,9 @@ export async function generateStaticParams() {
 }
 
 // Treść newsa: szeroka kolumna (bez wąskiego pasa po bokach) i justowanie z dzieleniem
-// wyrazów — `tresc-newsa` dokłada wyrównanie w globals.css.
-const TRESC = 'prose prose-lg tresc-newsa mx-auto max-w-[72rem]'
+// wyrazów — `tresc-newsa` dokłada wyrównanie w globals.css. Powiększony krój dopiero
+// od tabletu: na telefonie prose-lg rozdymał lead (w WordPressie to <h2>) na cały ekran.
+const TRESC = 'prose tresc-newsa mx-auto max-w-[72rem] sm:prose-lg'
 
 // „Kolejne do przeczytania”: najpierw powiązane wpisy ustawione przez redaktora,
 // a gdy ich nie ma — najnowsze newsy poza aktualnie czytanym.

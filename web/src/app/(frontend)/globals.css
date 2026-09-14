@@ -239,9 +239,13 @@ html[data-theme='light'] {
 /* Justowanie tekstu opisowego w treści (w warstwie base, aby klasy Tailwind
    jak text-center/text-left nadal wygrywały). Wyłączone: newsy/wpisy (.prose/article). */
 @layer base {
-  main p {
-    text-align: justify;
-    text-justify: inter-word;
+  /* Tylko od tabletu w górę. W kolumnie szerokiej na ~340 px justowanie rozpycha
+     odstępy między słowami i robi z akapitu (oraz z tytułów w kafelkach) sito. */
+  @media (min-width: 640px) {
+    main p {
+      text-align: justify;
+      text-justify: inter-word;
+    }
   }
   main .prose p,
   main .prose li,
@@ -258,13 +262,15 @@ html[data-theme='light'] {
   }
   /* Treść newsa — justowana z dzieleniem wyrazów, tak jak na ligazeglarska.pl.
      Reguła stoi po `.prose p { text-align: left }`, więc wygrywa przy równej wadze. */
-  .tresc-newsa p,
-  .tresc-newsa li,
-  main .tresc-newsa p,
-  main .tresc-newsa li {
-    text-align: justify;
-    text-justify: inter-word;
-    hyphens: auto;
+  @media (min-width: 640px) {
+    .tresc-newsa p,
+    .tresc-newsa li,
+    main .tresc-newsa p,
+    main .tresc-newsa li {
+      text-align: justify;
+      text-justify: inter-word;
+      hyphens: auto;
+    }
   }
 }
 
