@@ -51,7 +51,7 @@ async function kolejneDoPrzeczytania(post: any): Promise<NewsKafel[]> {
     obraz: p?.heroImage?.url || p?.meta?.image?.url || null,
   })
 
-  const powiazane = (post?.relatedPosts || []).filter((p: any) => p && typeof p === 'object' && p.slug)
+  const powiazane: any[] = (post?.relatedPosts || []).filter((p: any) => p && typeof p === 'object' && p.slug)
   if (powiazane.length >= 4) return powiazane.slice(0, 4).map(kafel)
 
   const payload = await getPayload({ config: configPromise })
@@ -65,7 +65,7 @@ async function kolejneDoPrzeczytania(post: any): Promise<NewsKafel[]> {
     })
     .catch(() => ({ docs: [] as any[] }))
 
-  const wynik = powiazane.map(kafel)
+  const wynik: NewsKafel[] = powiazane.map(kafel)
   for (const p of res.docs as any[]) {
     if (wynik.length >= 4) break
     if (wynik.some((w) => w.slug === p.slug)) continue
