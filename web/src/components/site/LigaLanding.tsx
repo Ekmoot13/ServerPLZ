@@ -104,7 +104,9 @@ export default async function LigaLanding({
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto max-w-[1440px] px-4 py-14 md:py-16">
           <div className="mb-10 text-center">
-            <h1 className="text-4xl font-extrabold uppercase tracking-wide md:text-5xl">{tytul}</h1>
+            {/* Nazwy w rodzaju „Młodzieżowa Liga Żeglarska” nie mieszczą się na
+                najwęższych telefonach w text-4xl — stąd mniejszy stopień bazowy. */}
+            <h1 className="text-3xl font-extrabold uppercase tracking-wide sm:text-4xl md:text-5xl">{tytul}</h1>
             <div className="mx-auto mt-4 h-1 w-20 rounded-full" style={kreska} />
           </div>
 
