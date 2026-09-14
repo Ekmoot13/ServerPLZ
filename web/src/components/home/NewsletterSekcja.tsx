@@ -8,8 +8,12 @@ const SENDER_SCRIPT = 'https://cdn.sender.net/accounts_resources/universal.js'
 // Formularz hostowany przez Sender.net — używany, gdy skrypt osadzenia nie zdąży wstrzyknąć pola.
 const SENDER_FALLBACK = `https://stats.sender.net/forms/${SENDER_FORM_ID}/view`
 
-const PROBA_MS = 700
-const MAX_PROB = 9 // ~6 s zanim przejdziemy na iframe
+const PROBA_MS = 400
+// Przy pierwszym wejściu skrypt wstrzykuje formularz od ręki. Po nawigacji klienckiej
+// universal.js jest już zainicjalizowany i nie skanuje strony ponownie — wtedy nie ma
+// na co czekać, od razu pokazujemy formularz hostowany.
+const MAX_PROB_PIERWSZY = 9 // ~3,6 s
+const MAX_PROB_KOLEJNY = 3 // ~1,2 s
 
 type Stan = 'ladowanie' | 'gotowe' | 'zapasowy'
 
@@ -29,7 +33,8 @@ export default function NewsletterSekcja({ bg }: { bg?: string }) {
       w.Sender = 'sender'
     }
     // Skrypt wstawiamy raz na całą sesję (po nawigacji klienckiej już tu jest).
-    if (!document.getElementById('sender-universal')) {
+    const jużZaladowany = !!document.getElementById('sender-universal')
+    if (!jużZaladowany) {
       const a = document.createElement('script')
       a.id = 'sender-universal'
       a.async = true
@@ -40,6 +45,7 @@ export default function NewsletterSekcja({ bg }: { bg?: string }) {
     // Inicjalizację wołamy przy każdym montowaniu — to ona każe skryptowi
     // przeskanować stronę w poszukiwaniu pustych pól formularza. Bez tego
     // powrót na stronę główną (nawigacja kliencka) zostawiał pusty box.
+    const maxProb = jużZaladowany ? MAX_PROB_KOLEJNY : MAX_PROB_PIERWSZY
     let proby = 0
     let timer: ReturnType<typeof setTimeout>
 
@@ -48,7 +54,7 @@ export default function NewsletterSekcja({ bg }: { bg?: string }) {
         setStan('gotowe')
         return
       }
-      if (proby >= MAX_PROB) {
+      if (proby >= maxProb) {
         setStan('zapasowy')
         return
       }
