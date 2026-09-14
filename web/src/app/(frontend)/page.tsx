@@ -196,11 +196,16 @@ export default async function HomePage() {
                 </Link>
                 {/* 4 MNIEJSZE */}
                 <div className="flex h-full flex-col justify-between gap-3">
-                  {poboczne.map((p) => (
+                  {/* Na telefonie pokazujemy tylko trzy najnowsze (duży + dwa małe) —
+                       dwa ostatnie kafelki chowamy dopiero od tabletu w górę.
+                       `flex` trzymamy w wariancie, żeby nie kolidowało z `hidden`. */}
+                  {poboczne.map((p, i) => (
                     <Link
                       key={p.id}
                       href={`/posts/${p.slug}`}
-                      className="group flex flex-1 items-center gap-3 rounded-2xl border border-slate-200 p-3 transition hover:border-brand-red hover:shadow-sm"
+                      className={`group flex-1 items-center gap-3 rounded-2xl border border-slate-200 p-3 transition hover:border-brand-red hover:shadow-sm ${
+                        i >= 2 ? 'hidden sm:flex' : 'flex'
+                      }`}
                     >
                       <div className="min-w-0 flex-1">
                         {p?.categories?.[0]?.title && (
