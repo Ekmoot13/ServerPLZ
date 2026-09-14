@@ -57,26 +57,12 @@ async function uploadFromUrl(url: string, alt: string): Promise<any> {
 }
 
 async function htmlToLexical(html: string): Promise<any> {
+  // Lexical dostaje treść bez obrazków i osadzeń — węzły upload nie przechodzą
+  // walidacji relacji, a pełny HTML (z grafikami) i tak trafia do `trescHtml`,
+  // które renderuje strona artykułu. Tak samo robi import z plików XML.
   const dom = new JSDOM(html)
-  const imgs = dom.window.document.querySelectorAll('img')
-  for (const img of Array.from(imgs)) {
-    const src = img.getAttribute('src')
-    if (!src) { img.remove(); continue }
-    try {
-      const id = await uploadFromUrl(src, img.getAttribute('alt') || '')
-      if (id) {
-        img.setAttribute('data-lexical-upload-id', String(id))
-        img.setAttribute('data-lexical-upload-relation-to', 'media')
-        img.setAttribute('src', src)
-      } else {
-        img.remove()
-      }
-    } catch {
-      img.remove()
-    }
-  }
-  const updated = dom.window.document.body.innerHTML
-  return convertHTMLToLexical({ editorConfig, html: updated, JSDOM })
+  dom.window.document.querySelectorAll('img, iframe, script, style').forEach((el) => el.remove())
+  return convertHTMLToLexical({ editorConfig, html: dom.window.document.body.innerHTML, JSDOM })
 }
 
 const catCache = new Map<string, any>()
@@ -109,8 +95,29 @@ outer: while (true) {
     const title = decodeEntities(p?.title?.rendered || '')
     if (!title) continue
 
+    const rawHtml: string = p?.content?.rendered || ''
+
     const existing = await payload.find({ collection: 'posts', where: { title: { equals: title } }, limit: 1 })
-    if (existing.docs.length) { skipped++; continue }
+    if (existing.docs.length) {
+      // Wpis już jest, ale mógł powstać bez treści HTML — uzupełniamy, bo to jej
+      // używa strona artykułu (obrazki w treści).
+      const doc: any = existing.docs[0]
+      if (!doc.trescHtml && rawHtml) {
+        try {
+          await payload.update({
+            collection: 'posts',
+            id: doc.id,
+            context: { disableRevalidate: true },
+            data: { trescHtml: rawHtml },
+          })
+          console.log(`~ uzupełniono treść HTML: ${title}`)
+        } catch {
+          /* pomiń */
+        }
+      }
+      skipped++
+      continue
+    }
 
     const feat = p?._embedded?.['wp:featuredmedia']?.[0]?.source_url
     const heroId = feat ? await uploadFromUrl(feat, title).catch(() => null) : null
@@ -123,7 +130,7 @@ outer: while (true) {
     for (const cn of catNames) catIds.push(await getCategory(cn))
 
     // treść z fallbackiem na zajawkę/tytuł, gdy pusta
-    let contentHtml = p?.content?.rendered || ''
+    let contentHtml = rawHtml
     const textOnly = contentHtml.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').trim()
     if (!textOnly) {
       const exc = (p?.excerpt?.rendered || '').replace(/<[^>]+>/g, '').trim()
@@ -146,6 +153,7 @@ outer: while (true) {
           title,
           slug: p?.slug || undefined,
           content,
+          trescHtml: contentHtml || undefined,
           heroImage: heroId || undefined,
           categories: catIds.length ? catIds : undefined,
           publishedAt: p?.date || undefined,
