@@ -65,7 +65,7 @@ export default async function KalendarzListPage({
         </Link>
       </div>
 
-      <PoziomyManager initial={doEdytora} ok={sp?.ok === '1'} />
+      <PoziomyManager initial={doEdytora} ok={!!sp?.ok} />
 
       {groups.length === 0 ? (
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-4 text-sm text-slate-500">

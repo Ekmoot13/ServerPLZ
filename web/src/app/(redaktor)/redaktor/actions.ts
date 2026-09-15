@@ -60,7 +60,7 @@ export async function updateZawodnik(formData: FormData) {
 
   await payload.update({ collection: 'zawodnicy', id, data, overrideAccess: true })
   revalidatePath('/zawodnicy')
-  redirect(`/redaktor/zawodnicy/${id}?ok=1`)
+  redirect(`/redaktor/zawodnicy/${id}?ok=${Date.now()}`)
 }
 
 export async function updateKlub(formData: FormData) {
@@ -108,7 +108,7 @@ export async function updateKlub(formData: FormData) {
 
   await payload.update({ collection: 'kluby', id, data, overrideAccess: true })
   revalidatePath('/kluby')
-  redirect(`/redaktor/kluby/${id}?ok=1`)
+  redirect(`/redaktor/kluby/${id}?ok=${Date.now()}`)
 }
 
 // ============================ KLUBY W SEZONIE ============================
@@ -248,7 +248,7 @@ export async function createWpis(formData: FormData) {
   })
   revalidatePath('/newsy')
   revalidatePath('/')
-  redirect(`/redaktor/wpisy/${(doc as any).id}?ok=1`)
+  redirect(`/redaktor/wpisy/${(doc as any).id}?ok=${Date.now()}`)
 }
 
 export async function updateWpis(formData: FormData) {
@@ -267,7 +267,7 @@ export async function updateWpis(formData: FormData) {
   })
   revalidatePath('/newsy')
   revalidatePath('/')
-  redirect(`/redaktor/wpisy/${id}?ok=1`)
+  redirect(`/redaktor/wpisy/${id}?ok=${Date.now()}`)
 }
 
 export async function updateStrefaKibica(formData: FormData) {
@@ -276,6 +276,8 @@ export async function updateStrefaKibica(formData: FormData) {
   const data: any = {
     pokazPrzycisk: formData.get('pokazPrzycisk') === 'on',
     pokazMape: formData.get('pokazMape') === 'on',
+    pokazTransmisje: formData.get('pokazTransmisje') === 'on',
+    pokazWyniki: formData.get('pokazWyniki') === 'on',
     mapaUrl: String(formData.get('mapaUrl') || ''),
     sapBase: String(formData.get('sapBase') || ''),
     leaderboardName: String(formData.get('leaderboardName') || ''),
@@ -289,7 +291,60 @@ export async function updateStrefaKibica(formData: FormData) {
   await payload.updateGlobal({ slug: 'strefa-kibica', data, overrideAccess: true })
   revalidatePath('/')
   revalidatePath('/regatowastrefakibica')
-  redirect('/redaktor/strefa-kibica?ok=1')
+  redirect(`/redaktor/strefa-kibica?ok=${Date.now()}`)
+}
+
+// ============================ TRANSMISJE ============================
+
+// Transmisje pokazywane w Strefie Kibica (kolekcja `transmisje`).
+// Na stronie wyświetlane są tylko te z zaznaczonym „aktywny".
+function transmisjaData(formData: FormData): any {
+  const typ = String(formData.get('typ') || 'kamera')
+  return {
+    tytul: String(formData.get('tytul') || '').trim() || 'Transmisja',
+    typ,
+    youtubeUrl: typ === 'youtube' ? String(formData.get('youtubeUrl') || '').trim() : '',
+    rtmpKey: typ === 'kamera' ? String(formData.get('rtmpKey') || '').trim() : '',
+    opis: String(formData.get('opis') || ''),
+    aktywny: formData.get('aktywny') === 'on',
+  }
+}
+
+function poTransmisji() {
+  revalidatePath('/')
+  revalidatePath('/regatowastrefakibica')
+  redirect(`/redaktor/strefa-kibica?ok=${Date.now()}#transmisje`)
+}
+
+export async function createTransmisja(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const data = transmisjaData(formData)
+  // kamera bez podanego klucza dostaje losowy (jak w domyślce kolekcji)
+  if (data.typ === 'kamera' && !data.rtmpKey) data.rtmpKey = Math.random().toString(36).slice(2, 12)
+  await payload.create({ collection: 'transmisje' as any, data, overrideAccess: true })
+  poTransmisji()
+}
+
+export async function updateTransmisja(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const id = toId(String(formData.get('id') || ''))
+  await payload.update({
+    collection: 'transmisje' as any,
+    id: id as any,
+    data: transmisjaData(formData),
+    overrideAccess: true,
+  })
+  poTransmisji()
+}
+
+export async function deleteTransmisja(formData: FormData) {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const id = toId(String(formData.get('id') || ''))
+  await payload.delete({ collection: 'transmisje' as any, id: id as any, overrideAccess: true })
+  poTransmisji()
 }
 
 // ============================ KALENDARZ ============================
@@ -321,7 +376,7 @@ export async function createTermin(formData: FormData) {
     overrideAccess: true,
   })
   revalidatePath('/kalendarz')
-  redirect(`/redaktor/kalendarz/${(doc as any).id}?ok=1`)
+  redirect(`/redaktor/kalendarz/${(doc as any).id}?ok=${Date.now()}`)
 }
 
 export async function updateTermin(formData: FormData) {
@@ -335,7 +390,7 @@ export async function updateTermin(formData: FormData) {
     overrideAccess: true,
   })
   revalidatePath('/kalendarz')
-  redirect(`/redaktor/kalendarz/${id}?ok=1`)
+  redirect(`/redaktor/kalendarz/${id}?ok=${Date.now()}`)
 }
 
 export async function deleteTermin(formData: FormData) {
@@ -370,7 +425,7 @@ export async function updatePoziomyKalendarza(formData: FormData) {
     overrideAccess: true,
   })
   revalidatePath('/kalendarz')
-  redirect('/redaktor/kalendarz?ok=1')
+  redirect(`/redaktor/kalendarz?ok=${Date.now()}`)
 }
 
 // ============================ STRONA GŁÓWNA ============================
@@ -391,6 +446,9 @@ export async function updateStronaGlowna(formData: FormData) {
 
   // Zapisujemy tylko żywe sekcje (reszta strony bierze dane automatycznie).
   const data: any = {
+    pasekRegat: {
+      pokazPrzycisk: formData.get('pasekPokazPrzycisk') === 'on',
+    },
     wprowadzenie: {
       tytul: g('wTytul'),
       tekst: g('wTekst'),
@@ -404,7 +462,7 @@ export async function updateStronaGlowna(formData: FormData) {
 
   await payload.updateGlobal({ slug: 'strona-glowna' as any, data, overrideAccess: true })
   revalidatePath('/')
-  redirect('/redaktor/strona-glowna?ok=1')
+  redirect(`/redaktor/strona-glowna?ok=${Date.now()}`)
 }
 
 // Upload obrazka z edytora treści — zwraca URL do wstawienia.

@@ -100,7 +100,7 @@ export default async function EditKlubPage({
         zawodnicy={zawodnicy}
         ligaKluby={ligaKluby}
         ligaWarianty={ligaWarianty}
-        ok={sp?.ok === '1'}
+        ok={!!sp?.ok}
       />
     </div>
   )

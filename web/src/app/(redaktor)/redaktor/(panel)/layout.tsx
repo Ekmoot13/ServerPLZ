@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { requireUser } from '@/lib/redaktorAuth'
 import LogoutButton from './LogoutButton'
+import NiezapisaneZmiany from './NiezapisaneZmiany'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +45,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           </div>
         </div>
       </header>
+      <NiezapisaneZmiany />
       <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
     </div>
   )

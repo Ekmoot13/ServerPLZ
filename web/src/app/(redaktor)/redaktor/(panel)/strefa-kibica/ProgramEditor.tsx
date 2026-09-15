@@ -13,18 +13,16 @@ const btnDel = 'rounded-lg border border-red-200 px-2.5 py-1.5 text-sm text-red-
 
 export default function ProgramEditor({
   initialLinki,
-  initialProgram,
-}: {
+  initialProgram, formId }: {
   initialLinki: Link[]
-  initialProgram: Dzien[]
-}) {
+  initialProgram: Dzien[]; formId?: string }) {
   const [linki, setLinki] = useState<Link[]>(initialLinki.length ? initialLinki : [])
   const [program, setProgram] = useState<Dzien[]>(initialProgram.length ? initialProgram : [])
 
   return (
     <div className="space-y-8">
-      <input type="hidden" name="linki" value={JSON.stringify(linki)} />
-      <input type="hidden" name="program" value={JSON.stringify(program)} />
+      <input type="hidden" form={formId} name="linki" value={JSON.stringify(linki)} />
+      <input type="hidden" form={formId} name="program" value={JSON.stringify(program)} />
 
       {/* SZYBKIE LINKI */}
       <div>

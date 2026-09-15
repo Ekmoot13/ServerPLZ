@@ -50,7 +50,7 @@ export default async function EditWpisPage({
           categories: selCats,
         }}
         categories={categories}
-        ok={sp?.ok === '1'}
+        ok={!!sp?.ok}
       />
     </div>
   )

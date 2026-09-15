@@ -59,6 +59,25 @@ export const StronaGlowna: GlobalConfig = {
       ],
     },
 
+    // ============ PASEK NAJBLIŻSZYCH REGAT ============
+    {
+      name: 'pasekRegat',
+      type: 'group',
+      label: 'Pasek najbliższych regat',
+      fields: [
+        {
+          name: 'pokazPrzycisk',
+          type: 'checkbox',
+          label: 'Pokaż przycisk „Śledź regaty" w pasku',
+          defaultValue: true,
+          admin: {
+            description:
+              'Nagłówek strony ma własny przycisk „Śledź regaty" (ustawienie w Strefie Kibica). Odznacz, aby nie dublować go w pasku odliczania.',
+          },
+        },
+      ],
+    },
+
     // ============ SEKCJA NASTĘPNE REGATY ============
     {
       name: 'nastepneRegaty',

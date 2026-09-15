@@ -818,9 +818,21 @@ export interface Kluby {
   logo?: (number | null) | Media;
   gdzieStartuje?: string | null;
   /**
-   * Poziom, na którym klub startuje w bieżącym sezonie.
+   * Wyliczane z przypisań w „Kluby w sezonie" — nie ustawia się ręcznie. Gdy klub startuje na kilku poziomach, trzymamy tu ten najwyższy.
    */
   poziomLigi?: ('Ekstraklasa' | '1 Liga' | '2 Liga' | 'Młodzieżowa') | null;
+  /**
+   * Tablica { poziom, wariant } — który zespół z bazy wyników pokazuje się jako ten klub na danym poziomie ligi. Edytowane w panelu redaktora → Kluby → Kluby w sezonie.
+   */
+  sezonPrzypisania?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   /**
    * Aktualny skład — pokazywany w sekcji „Zawodnicy klubu".
    */
@@ -834,7 +846,7 @@ export interface Kluby {
    */
   idZestawienia?: number | null;
   /**
-   * ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu.
+   * Tablica ID wariantów (liga_KlubWariant), których wyniki NIE mają się liczyć do tego klubu — np. sekcja młodzieżowa mająca własny wpis. Działa w trybie „Cały klub".
    */
   wykluczoneWarianty?:
     | {
@@ -846,19 +858,7 @@ export interface Kluby {
     | boolean
     | null;
   /**
-   * Tablica { poziom, wariant } — zespoły sezonu pokazywane jako ten klub.
-   */
-  sezonPrzypisania?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  /**
-   * ID wariantów (liga_KlubWariant) składających się na ten zespół.
+   * Tablica ID wariantów (liga_KlubWariant) składających się na ten zespół. Działa w trybie „Wybrane warianty".
    */
   warianty?:
     | {
@@ -1460,11 +1460,11 @@ export interface KlubySelect<T extends boolean = true> {
   logo?: T;
   gdzieStartuje?: T;
   poziomLigi?: T;
+  sezonPrzypisania?: T;
   zaloga?: T;
   trybPowiazania?: T;
   idZestawienia?: T;
   wykluczoneWarianty?: T;
-  sezonPrzypisania?: T;
   warianty?: T;
   www?: T;
   facebook?: T;
@@ -2034,6 +2034,8 @@ export interface StrefaKibica {
   id: number;
   pokazPrzycisk?: boolean | null;
   pokazMape?: boolean | null;
+  pokazTransmisje?: boolean | null;
+  pokazWyniki?: boolean | null;
   /**
    * Wklej pełny adres RaceBoard.html z SAP dla bieżącej rundy (…/gwt/RaceBoard.html?…&mode=PLAYER).
    */
@@ -2122,6 +2124,12 @@ export interface StronaGlowna {
     banerLink?: string | null;
     banerObraz?: string | null;
   };
+  pasekRegat?: {
+    /**
+     * Nagłówek strony ma własny przycisk „Śledź regaty" (ustawienie w Strefie Kibica). Odznacz, aby nie dublować go w pasku odliczania.
+     */
+    pokazPrzycisk?: boolean | null;
+  };
   nastepneRegaty?: {
     pokaz?: boolean | null;
     tytul?: string | null;
@@ -2174,6 +2182,7 @@ export interface StronaGlowna {
                 logoUrl?: string | null;
                 link?: string | null;
                 nazwa?: string | null;
+                skala?: number | null;
                 id?: string | null;
               }[]
             | null;
@@ -2237,6 +2246,8 @@ export interface FooterSelect<T extends boolean = true> {
 export interface StrefaKibicaSelect<T extends boolean = true> {
   pokazPrzycisk?: T;
   pokazMape?: T;
+  pokazTransmisje?: T;
+  pokazWyniki?: T;
   mapaUrl?: T;
   sapBase?: T;
   leaderboardName?: T;
@@ -2286,6 +2297,11 @@ export interface StronaGlownaSelect<T extends boolean = true> {
         banerTekst?: T;
         banerLink?: T;
         banerObraz?: T;
+      };
+  pasekRegat?:
+    | T
+    | {
+        pokazPrzycisk?: T;
       };
   nastepneRegaty?:
     | T
@@ -2347,6 +2363,7 @@ export interface StronaGlownaSelect<T extends boolean = true> {
                     logoUrl?: T;
                     link?: T;
                     nazwa?: T;
+                    skala?: T;
                     id?: T;
                   };
               id?: T;

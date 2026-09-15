@@ -168,6 +168,7 @@ export default async function HomePage() {
             dataDo: nastRegata.dataDo,
             link: nastRegata.link,
           }}
+          pokazPrzycisk={sg?.pasekRegat?.pokazPrzycisk !== false}
         />
       )}
 

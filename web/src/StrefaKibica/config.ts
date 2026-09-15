@@ -14,13 +14,26 @@ export const StrefaKibica: GlobalConfig = {
     {
       name: 'pokazPrzycisk',
       type: 'checkbox',
-      label: 'Pokaż przycisk „Śledź Regaty" (nagłówek + strona główna)',
+      label: 'Pokaż przycisk „Śledź Regaty" w nagłówku strony',
       defaultValue: true,
     },
+    // ---- Sekcje dashboardu (każdą można wyłączyć osobno) ----
     {
       name: 'pokazMape',
       type: 'checkbox',
-      label: 'Pokaż mapę',
+      label: 'Pokaż sekcję „Mapa wyścigu"',
+      defaultValue: true,
+    },
+    {
+      name: 'pokazTransmisje',
+      type: 'checkbox',
+      label: 'Pokaż sekcję „Transmisja na żywo"',
+      defaultValue: true,
+    },
+    {
+      name: 'pokazWyniki',
+      type: 'checkbox',
+      label: 'Pokaż sekcję „Wyniki na żywo"',
       defaultValue: true,
     },
     {

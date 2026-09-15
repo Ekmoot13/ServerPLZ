@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { updateStrefaKibica } from '../../actions'
 import ProgramEditor from './ProgramEditor'
+import TransmisjeEditor from './TransmisjeEditor'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,10 @@ export default async function StrefaKibicaSettingsPage({
   const sp = await searchParams
   const payload = await getPayload({ config })
   const s: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => ({}))
+  const transRes = await payload
+    .find({ collection: 'transmisje' as any, limit: 100, depth: 0, sort: '-aktywny' })
+    .catch(() => ({ docs: [] as any[] }))
+  const transmisje = (transRes.docs as any[]) || []
 
   return (
     <div className="max-w-3xl">
@@ -26,8 +31,8 @@ export default async function StrefaKibicaSettingsPage({
         (…/gwt/RaceBoard.html?…&amp;mode=PLAYER) i wklej poniżej.
       </p>
 
-      <form action={updateStrefaKibica} className="space-y-5">
-        {sp?.ok === '1' && (
+      <form id="ustawienia-strefy" data-glowny data-nazwa="ustawienia Strefy Kibica" action={updateStrefaKibica} className="space-y-5">
+        {!!sp?.ok && (
           <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700">
             Zapisano.
           </div>
@@ -35,13 +40,34 @@ export default async function StrefaKibicaSettingsPage({
 
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="pokazPrzycisk" defaultChecked={s?.pokazPrzycisk !== false} />
-          Pokaż przycisk „Śledź Regaty" (nagłówek + strona główna)
+          Pokaż przycisk „Śledź Regaty" w nagłówku strony
+          <span className="text-xs text-slate-500">
+            (przycisk w pasku regat ustawiasz w zakładce Strona główna)
+          </span>
         </label>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="pokazMape" defaultChecked={s?.pokazMape !== false} />
-          Pokaż mapę na podstronie Strefy Kibica
-        </label>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <h2 className="mb-1 text-sm font-bold text-slate-700">Sekcje dashboardu</h2>
+          <p className="mb-3 text-xs text-slate-500">
+            Odznacz, by ukryć sekcję na stronie. Pozostałe automatycznie rozłożą się na wolnym
+            miejscu. Po wyłączeniu wszystkich trzech cały ciemny dashboard znika.
+          </p>
+
+          <label className="flex items-center gap-2 py-1 text-sm">
+            <input type="checkbox" name="pokazMape" defaultChecked={s?.pokazMape !== false} />
+            Mapa wyścigu — pozycje łódek na żywo (SAP)
+          </label>
+
+          <label className="flex items-center gap-2 py-1 text-sm">
+            <input type="checkbox" name="pokazTransmisje" defaultChecked={s?.pokazTransmisje !== false} />
+            Transmisja na żywo
+          </label>
+
+          <label className="flex items-center gap-2 py-1 text-sm">
+            <input type="checkbox" name="pokazWyniki" defaultChecked={s?.pokazWyniki !== false} />
+            Wyniki na żywo (tabela z SAP)
+          </label>
+        </div>
 
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">Mapa — URL RaceBoard (SAP)</label>
@@ -72,26 +98,36 @@ export default async function StrefaKibicaSettingsPage({
           />
         </div>
 
-        {/* ---- SEKCJA INFORMACYJNA (PROGRAM WEEKENDU) ---- */}
+      </form>
+
+      {/* Transmisje mają własne formularze (zapis per pozycja), więc nie mogą
+          leżeć wewnątrz głównego — stąd przerwa i atrybut form= w polach niżej. */}
+      <div className="mt-6">
+        <TransmisjeEditor initial={transmisje} />
+      </div>
+
+      {/* ---- SEKCJA INFORMACYJNA (PROGRAM WEEKENDU) ---- */}
+      <div className="mt-6 space-y-5">
         <div className="border-t border-slate-200 pt-6">
           <h2 className="mb-4 text-lg font-bold">Sekcja informacyjna (pod dashboardem)</h2>
 
           <label className="mb-4 flex items-center gap-2 text-sm">
-            <input type="checkbox" name="pokazProgram" defaultChecked={s?.pokazProgram !== false} />
+            <input type="checkbox" form="ustawienia-strefy" name="pokazProgram" defaultChecked={s?.pokazProgram !== false} />
             Pokaż sekcję informacyjną (program weekendu)
           </label>
 
           <div className="mb-4">
             <label className="mb-1 block text-sm font-medium text-slate-700">Nagłówek</label>
-            <input name="programTytul" defaultValue={s?.programTytul || 'Śledź z nami regaty dzień po dniu'} className={inputCls} />
+            <input form="ustawienia-strefy" name="programTytul" defaultValue={s?.programTytul || 'Śledź z nami regaty dzień po dniu'} className={inputCls} />
           </div>
 
           <div className="mb-4">
             <label className="mb-1 block text-sm font-medium text-slate-700">Wstęp</label>
-            <textarea name="programWstep" defaultValue={s?.programWstep || ''} rows={2} className={inputCls} />
+            <textarea form="ustawienia-strefy" name="programWstep" defaultValue={s?.programWstep || ''} rows={2} className={inputCls} />
           </div>
 
           <ProgramEditor
+            formId="ustawienia-strefy"
             initialLinki={Array.isArray(s?.linki) ? s.linki : []}
             initialProgram={Array.isArray(s?.program) ? s.program : []}
           />
@@ -99,6 +135,7 @@ export default async function StrefaKibicaSettingsPage({
           <div className="mt-4">
             <label className="mb-1 block text-sm font-medium text-slate-700">Lokalizacja — adres osadzenia mapy Google (opcjonalnie)</label>
             <input
+              form="ustawienia-strefy"
               name="mapaEmbed"
               defaultValue={s?.mapaEmbed || ''}
               placeholder="https://www.google.com/maps/embed?pb=..."
@@ -108,11 +145,11 @@ export default async function StrefaKibicaSettingsPage({
         </div>
 
         <div className="border-t border-slate-200 pt-5">
-          <button type="submit" className="rounded-lg bg-sky-600 px-5 py-2 font-medium text-white hover:bg-sky-500">
+          <button type="submit" form="ustawienia-strefy" className="rounded-lg bg-sky-600 px-5 py-2 font-medium text-white hover:bg-sky-500">
             Zapisz
           </button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

@@ -25,6 +25,7 @@ export default async function StronaGlownaPanel({ searchParams }: { searchParams
   const sp = await searchParams
   const payload = await getPayload({ config })
   const sg: any = await payload.findGlobal({ slug: 'strona-glowna' as any }).catch(() => ({}))
+  const PR = sg?.pasekRegat || {}
   const W = sg?.wprowadzenie || {}
   const SP = sg?.sponsorzy || {}
 
@@ -32,15 +33,37 @@ export default async function StronaGlownaPanel({ searchParams }: { searchParams
     <div className="max-w-4xl">
       <h1 className="mb-1 text-2xl font-bold">Strona główna</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Edytowalne sekcje strony głównej. Pozostałe elementy (aktualności, pasek najbliższych regat, karuzela mistrzów,
-        wyniki) pobierają się automatycznie z danych.
+        Edytowalne sekcje strony głównej. Pozostałe elementy (aktualności, karuzela mistrzów, wyniki) pobierają się
+        automatycznie z danych.
       </p>
 
-      {sp?.ok === '1' && (
+      {!!sp?.ok && (
         <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700">Zapisano.</div>
       )}
 
-      <form action={updateStronaGlowna} className="space-y-6">
+      <form data-glowny data-nazwa="strona główna" action={updateStronaGlowna} className="space-y-6">
+        {/* PASEK NAJBLIŻSZYCH REGAT */}
+        <Sekcja
+          tytul="Pasek najbliższych regat"
+          opis="Ciemny pasek nad stroną z miejscem, datą i odliczaniem. Treść pobiera się z kalendarza."
+        >
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="pasekPokazPrzycisk"
+              defaultChecked={PR?.pokazPrzycisk !== false}
+              className="mt-0.5"
+            />
+            <span>
+              Pokaż przycisk „Śledź regaty" w pasku
+              <span className="mt-0.5 block text-xs text-slate-500">
+                Nagłówek strony ma już własny przycisk „Śledź regaty" (włączasz go w zakładce Strefa Kibica).
+                Odznacz, aby nie dublować go w pasku odliczania.
+              </span>
+            </span>
+          </label>
+        </Sekcja>
+
         {/* WPROWADZENIE — „Regaty jak na stadionie” */}
         <Sekcja tytul="Regaty jak na stadionie" opis="Baner z tekstem i przyciskami otwierającymi pop-upy.">
           <div>

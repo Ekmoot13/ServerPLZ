@@ -41,6 +41,8 @@ export default async function RegatowaStrefaKibicaPage() {
   const settings: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
   const mapaUrl: string = settings?.mapaUrl || ''
   const pokazMape: boolean = settings?.pokazMape !== false
+  const pokazTransmisje: boolean = settings?.pokazTransmisje !== false
+  const pokazWyniki: boolean = settings?.pokazWyniki !== false
   const sapBase: string = settings?.sapBase || 'https://plz2026.sapsailing.com'
   const leaderboardName: string = settings?.leaderboardName || ''
   const pokazProgram: boolean = settings?.pokazProgram !== false
@@ -55,9 +57,29 @@ export default async function RegatowaStrefaKibicaPage() {
 
   // stan „na żywo" — pokazuj czerwone plakietki tylko gdy coś faktycznie leci
   const mapaLive = pokazMape && !!mapaUrl
-  const streamLive = streams.length > 0
-  const wynikiLive = !!leaderboardName
+  const streamLive = pokazTransmisje && streams.length > 0
+  const wynikiLive = pokazWyniki && !!leaderboardName
   const anyLive = mapaLive || streamLive || wynikiLive
+
+  // układ dashboardu dopasowuje się do włączonych sekcji:
+  // wyłączona mapa oddaje szerokość prawej kolumnie i odwrotnie,
+  // a przy jednej sekcji w prawej kolumnie zajmuje ona całą wysokość.
+  const prawaIle = (pokazTransmisje ? 1 : 0) + (pokazWyniki ? 1 : 0)
+  const pokazDashboard = pokazMape || prawaIle > 0
+  const gridCols = pokazMape && prawaIle > 0 ? 'lg:grid-cols-[1.8fr_1fr]' : 'lg:grid-cols-1'
+  const prawaRows = prawaIle === 2 ? 'lg:grid-rows-2' : 'lg:grid-rows-1'
+
+  // Odtwarzacz ma aspect-video (wysokość liczona z szerokości), więc na pełnej
+  // szerokości rozpycha wiersz o stałej wysokości. Gdy mapa jest wyłączona,
+  // ograniczamy jego szerokość do tego, co zmieści się w dostępnej wysokości.
+  // Wartości odpowiadają wierszom siatki lg:h-[80vh] pomniejszonym o nagłówki,
+  // przeliczonym przez 16/9 (36vh -> 64vh, 74vh -> 131vh). Bez calc(...) z ukośnikiem,
+  // bo Tailwind bierze go za modyfikator przezroczystości i nie generuje klasy.
+  const transmisjaCap = pokazMape
+    ? ''
+    : prawaIle === 2
+      ? 'lg:max-w-[64vh]'
+      : 'lg:max-w-[131vh]'
 
   return (
     <main>
@@ -73,63 +95,75 @@ export default async function RegatowaStrefaKibicaPage() {
       </section>
 
       {/* DASHBOARD: MAPA | TRANSMISJA + WYNIKI (ciemne tło) */}
-      <section className="bg-navy-900" style={patternBg}>
-        <div className="mx-auto max-w-[1600px] px-4 py-6">
-          <div className="grid gap-4 lg:h-[80vh] lg:grid-cols-[1.8fr_1fr]">
-            {/* LEWA — MAPA SAP */}
-            <div className="flex min-h-[360px] flex-col lg:h-full">
-              <div className="mb-2 flex items-center gap-2">
-                <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Mapa wyścigu — pozycje łódek na żywo</h2>
-                {mapaLive && <LiveBadge />}
-              </div>
-              <div className="min-h-0 flex-1">
-                {pokazMape && mapaUrl ? (
-                  <SapViewer src={mapaUrl} fill />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 p-10 text-center text-white/60">
-                    <div className="mb-2 text-4xl">🗺️</div>
-                    <p className="font-medium">Mapa z pozycjami łódek (SAP) pojawi się w trakcie regat.</p>
+      {pokazDashboard && (
+        <section className="bg-navy-900" style={patternBg}>
+          <div className="mx-auto max-w-[1600px] px-4 py-6">
+            <div className={`grid gap-4 lg:h-[80vh] ${gridCols}`}>
+              {/* LEWA — MAPA SAP */}
+              {pokazMape && (
+                <div className="flex min-h-[360px] flex-col lg:h-full">
+                  <div className="mb-2 flex items-center gap-2">
+                    <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Mapa wyścigu — pozycje łódek na żywo</h2>
+                    {mapaLive && <LiveBadge />}
                   </div>
-                )}
-              </div>
-            </div>
+                  <div className="min-h-0 flex-1">
+                    {mapaUrl ? (
+                      <SapViewer src={mapaUrl} fill />
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 p-10 text-center text-white/60">
+                        <div className="mb-2 text-4xl">🗺️</div>
+                        <p className="font-medium">Mapa z pozycjami łódek (SAP) pojawi się w trakcie regat.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-            {/* PRAWA — TRANSMISJA (góra) + WYNIKI (dół) */}
-            <div className="grid gap-4 lg:h-full lg:grid-rows-2">
-              {/* TRANSMISJA */}
-              <div className="flex min-h-[240px] flex-col overflow-hidden">
-                <div className="mb-2 flex items-center gap-2">
-                  <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Transmisja na żywo</h2>
-                  {streamLive && <LiveBadge />}
-                </div>
-                <div className="min-h-0 flex-1">
-                  <StrefaTransmisja streams={streams} hlsBase={HLS_BASE} />
-                </div>
-              </div>
-
-              {/* WYNIKI */}
-              <div className="flex min-h-[240px] flex-col overflow-hidden">
-                <div className="mb-2 flex items-center gap-2">
-                  <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Wyniki na żywo</h2>
-                  {wynikiLive && <LiveBadge />}
-                </div>
-                <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-white/10 bg-white/5">
-                  {leaderboardName ? (
-                    <div className="bg-white">
-                      <SapLeaderboard name={leaderboardName} base={sapBase} />
+              {/* PRAWA — TRANSMISJA (góra) + WYNIKI (dół) */}
+              {prawaIle > 0 && (
+                <div className={`grid gap-4 lg:h-full ${prawaRows}`}>
+                  {/* TRANSMISJA */}
+                  {pokazTransmisje && (
+                    <div className="flex min-h-[240px] flex-col overflow-hidden">
+                      <div className="mb-2 flex items-center gap-2">
+                        <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Transmisja na żywo</h2>
+                        {streamLive && <LiveBadge />}
+                      </div>
+                      <div className="flex min-h-0 flex-1 items-center justify-center">
+                        <div className={`w-full ${transmisjaCap}`}>
+                          <StrefaTransmisja streams={streams} hlsBase={HLS_BASE} />
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="flex h-full flex-col items-center justify-center p-8 text-center text-white/60">
-                      <div className="mb-2 text-3xl">🏁</div>
-                      Wyniki na żywo z danych regat pojawią się w trakcie rundy.
+                  )}
+
+                  {/* WYNIKI */}
+                  {pokazWyniki && (
+                    <div className="flex min-h-[240px] flex-col overflow-hidden">
+                      <div className="mb-2 flex items-center gap-2">
+                        <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Wyniki na żywo</h2>
+                        {wynikiLive && <LiveBadge />}
+                      </div>
+                      <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-white/10 bg-white/5">
+                        {leaderboardName ? (
+                          <div className="bg-white">
+                            <SapLeaderboard name={leaderboardName} base={sapBase} />
+                          </div>
+                        ) : (
+                          <div className="flex h-full flex-col items-center justify-center p-8 text-center text-white/60">
+                            <div className="mb-2 text-3xl">🏁</div>
+                            Wyniki na żywo z danych regat pojawią się w trakcie rundy.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* SEKCJA INFORMACYJNA — PROGRAM WEEKENDU (edytowalna w panelu redaktora) */}
       {pokazProgram && (

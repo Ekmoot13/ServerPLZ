@@ -43,7 +43,7 @@ export default async function EditTerminPage({
           statusReczny: doc.statusReczny || 'zaplanowane',
           kolejnosc: doc.kolejnosc != null ? String(doc.kolejnosc) : '',
         }}
-        ok={sp?.ok === '1'}
+        ok={!!sp?.ok}
       />
     </div>
   )
