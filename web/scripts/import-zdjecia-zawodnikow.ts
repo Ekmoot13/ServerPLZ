@@ -38,7 +38,9 @@ function norm(s: string): string {
 }
 
 async function main() {
+  console.log(`== Start: katalog ${KATALOG}, limit ${LIMIT} ==`)
   const payload = await getPayload({ config })
+  console.log('Payload zainicjalizowany.')
 
   const manifest = path.join(KATALOG, 'manifest.tsv')
   if (!fs.existsSync(manifest)) {
@@ -127,4 +129,7 @@ async function main() {
   process.exit(0)
 }
 
-main()
+main().catch((e) => {
+  console.error('BŁĄD KRYTYCZNY:', e?.stack || e?.message || e)
+  process.exit(1)
+})
