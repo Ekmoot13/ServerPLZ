@@ -206,7 +206,16 @@ export default function ZespolyWidok({
                       )}
                       <div className="flex flex-wrap justify-center gap-5">
                         {row.map((k) => (
-                          <Karta key={k.slug} k={k} total={total} awans={conf.awans} relegacja={conf.relegacja} />
+                          // Warianty jednego klubu (Junior, Youth, Cadetti...) dziela ten sam
+                          // slug, bo prowadza do strony klubu-matki — sam slug nie jest wiec
+                          // unikalny. Miejsce w tabeli rozroznia je jednoznacznie.
+                          <Karta
+                            key={`${k.miejsce}-${k.slug}`}
+                            k={k}
+                            total={total}
+                            awans={conf.awans}
+                            relegacja={conf.relegacja}
+                          />
                         ))}
                       </div>
                     </div>
