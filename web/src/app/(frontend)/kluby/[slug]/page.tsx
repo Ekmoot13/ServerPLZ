@@ -40,7 +40,15 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
     getStartyKlubu(klub.id, zakres),
   ])
 
-  const photos = await getZawodnicyPhotos(sklad.players.map((p) => p.id))
+  // Zdjecia sciagamy raz, dla skladu ORAZ dla zalogi z panelu — zaloga bywa
+  // uzupelniona recznie i wtedy nie pokrywa sie ze skladem z wynikow.
+  const idDoZdjec = Array.from(
+    new Set<number>([
+      ...sklad.players.map((p) => p.id),
+      ...((panel?.zaloga || []).map((z) => z.id).filter((x): x is number => typeof x === 'number')),
+    ]),
+  )
+  const photos = await getZawodnicyPhotos(idDoZdjec)
 
   // Nadpisania z panelu redaktora
   const nazwa = panel?.nazwa || klub.nazwa
@@ -72,7 +80,9 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
       ? panel.zaloga.map((z) => ({
           nazwa: `${z.imie} ${z.nazwisko}`.trim(),
           href: `/zawodnicy/${z.slug}`,
-          imageUrl: z.zdjecieUrl,
+          // Wlasne zdjecie z panelu ma pierwszenstwo; gdy go nie ma, bierzemy
+          // zdjecie zawodnika z kolekcji Zawodnicy (jedno zrodlo prawdy).
+          imageUrl: z.zdjecieUrl || (z.id != null ? photos.get(z.id) : undefined),
         }))
       : sklad.players.map((p) => ({
           nazwa: `${p.imie} ${p.nazwisko}`,
