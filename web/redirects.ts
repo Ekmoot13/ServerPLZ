@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next'
 import { przekierowaniaNewsow } from './redirects-newsy'
+import { klubyNaKlub, klubyNaListe, regatyNaListe, zawodnicyNaListe } from './redirects-stare'
 
 export const redirects: NextConfig['redirects'] = async () => {
   const internetExplorerRedirect = {
@@ -23,5 +24,21 @@ export const redirects: NextConfig['redirects'] = async () => {
     permanent: true,
   }))
 
-  return [...newsy, internetExplorerRedirect]
+  // Stare profile z WordPressa: warianty klubow do klubu-matki, reszta na listy.
+  const profile = [
+    ...Object.entries(klubyNaKlub).map(([stary, nowy]) => ({
+      source: `/kluby/${stary}`,
+      destination: `/kluby/${nowy}`,
+      permanent: true,
+    })),
+    ...klubyNaListe.map((s) => ({ source: `/kluby/${s}`, destination: '/kluby', permanent: true })),
+    ...regatyNaListe.map((s) => ({ source: `/regaty/${s}`, destination: '/regaty', permanent: true })),
+    ...zawodnicyNaListe.map((s) => ({
+      source: `/zawodnicy/${s}`,
+      destination: '/zawodnicy',
+      permanent: true,
+    })),
+  ]
+
+  return [...newsy, ...profile, internetExplorerRedirect]
 }
