@@ -68,7 +68,24 @@ export default function KafelekEditor({ initial, aktualnosci }: { initial: any; 
   const wygasloJuz = Boolean(wygasa) && new Date(wygasa).getTime() <= Date.now()
   // dane Mety pokazujemy tylko wtedy, gdy sa faktycznie potrzebne
   const pokazDaneMety = podmiana && metowa && efektywneZrodlo === 'auto'
-  const komplet = platforma === 'instagram' ? Boolean(igUserId && igToken) : Boolean(fbPageId && fbToken)
+  // ID konta to liczba (np. 17841408218686197), a token to dlugi ciag zaczynajacy
+  // sie od IGQ/EAA. Latwo je pomylic, bo panel wtyczki WP pokazuje tylko ID.
+  const idKonta = platforma === 'instagram' ? igUserId.trim() : fbPageId.trim()
+  const tokenKonta = platforma === 'instagram' ? igToken.trim() : fbToken.trim()
+  const idWyglada = /^\d{5,}$/.test(idKonta)
+  const tokenWyglada = tokenKonta.length >= 50
+  const komplet = Boolean(idKonta && tokenKonta) && idWyglada && tokenWyglada
+
+  const bladDanych: string | null =
+    !idKonta || !tokenKonta
+      ? null
+      : !idWyglada && /^\d{5,}$/.test(tokenKonta)
+        ? 'Pola wyglądają na zamienione — w tokenie jest numer konta.'
+        : !idWyglada
+          ? 'ID konta to numer (np. 17841408218686197), nie nazwa użytkownika.'
+          : !tokenWyglada
+            ? `Token ma ${tokenKonta.length} zn., a prawdziwy ma ponad 150 i zaczyna się od ${platforma === 'instagram' ? 'IGQ' : 'EAA'}.`
+            : null
 
   // Dlaczego kafelek moze sie nie pokazac — liczone tak samo jak na stronie.
   // Obrazek NIE jest juz wymagany recznie: z wklejonego linku bierzemy zdjecie,
@@ -77,8 +94,10 @@ export default function KafelekEditor({ initial, aktualnosci }: { initial: any; 
     ? null
     : efektywneZrodlo === 'link' && !postUrl.trim()
       ? 'Brakuje linku do posta.'
-      : pokazDaneMety && !komplet
-        ? 'Brakuje danych dostępowych — bez nich nic się nie pobierze.'
+      : pokazDaneMety && bladDanych
+        ? bladDanych
+        : pokazDaneMety && !komplet
+          ? 'Brakuje danych dostępowych — bez nich nic się nie pobierze.'
         : efektywneZrodlo === 'auto' && platforma === 'youtube' && !kanalId.trim()
           ? 'Brakuje ID kanału lub playlisty YouTube.'
           : wygasloJuz

@@ -205,7 +205,11 @@ export async function zLinkuOembed(url: string, platforma: Platforma): Promise<K
 /** Najnowszy post z Instagrama (Graph API, konto Business/Creator). */
 export async function instagramNajnowszy(userId: string, token: string): Promise<KafelekPost | null> {
   if (!token?.trim()) return null
-  const id = userId?.trim() || 'me'
+  // ID konta jest numeryczne. Gdy ktos wpisze nazwe uzytkownika (latwa pomylka,
+  // bo panel wtyczki WP pokazuje obok siebie i nazwe, i numer), uzywamy `me` —
+  // token i tak wskazuje wlasciwe konto.
+  const podany = userId?.trim() || ''
+  const id = /^\d{5,}$/.test(podany) ? podany : 'me'
   const t = encodeURIComponent(token.trim())
   const pola = 'caption,media_type,media_url,thumbnail_url,permalink,username'
 

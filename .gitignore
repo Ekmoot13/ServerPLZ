@@ -39,3 +39,6 @@ plz_dump.sql
 
 # artefakt inkrementalnej kompilacji TypeScript
 *.tsbuildinfo
+
+# katalog roboczy importu zdjec zawodnikow
+web/tmp-zdjecia/
