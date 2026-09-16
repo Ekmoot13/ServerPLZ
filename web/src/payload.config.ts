@@ -55,8 +55,10 @@ export default buildConfig({
   db: postgresAdapter({
     // Tabele Payloada w osobnym schemacie, żeby nie kolidowały z liga_* i users (backend)
     schemaName: 'payload',
-    // Automatyczne tworzenie/synchronizacja schematu (bez osobnych migracji na tym etapie)
-    push: true,
+    // Automatyczne tworzenie/synchronizacja schematu (bez osobnych migracji na tym etapie).
+    // Skrypty uruchamiane przez `payload run` omijają Next i wtedy push NAPRAWDĘ
+    // startuje na produkcji — dlatego da się go wyłączyć: PAYLOAD_DB_PUSH=false.
+    push: process.env.PAYLOAD_DB_PUSH !== 'false',
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
