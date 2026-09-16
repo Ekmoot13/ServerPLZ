@@ -51,21 +51,36 @@ async function pobierzIWgraj(url: string): Promise<string | null> {
       return null
     }
     const oryginal = Buffer.from(await r.arrayBuffer())
+    const bazowa = decodeURIComponent(url.split('/').pop() || 'plik').split('?')[0]
 
-    // PNG zostawiamy PNG (bywają to grafiki z przezroczystością), resztę na JPEG
-    const czyPng = /\.png(?:$|\?)/i.test(url)
-    const obrazek = sharp(oryginal).rotate().resize(MAX, MAX, { fit: 'inside', withoutEnlargement: true })
-    const dane = czyPng ? await obrazek.png({ compressionLevel: 9 }).toBuffer() : await obrazek.jpeg({ quality: 85, mozjpeg: true }).toBuffer()
+    // W treści newsów trafiają się też dokumenty (regulaminy PDF) — te
+    // przepuszczamy bez zmian, bo sharp obsługuje wyłącznie obrazki.
+    const czyObrazek = /\.(jpe?g|png|webp|gif)$/i.test(bazowa)
+    let dane: Buffer
+    let typ: string
+    let nazwa: string
 
-    const bazowa = decodeURIComponent(url.split('/').pop() || 'obrazek.jpg').split('?')[0]
-    const nazwa = czyPng ? bazowa.replace(/\.[^.]+$/, '.png') : bazowa.replace(/\.[^.]+$/, '.jpg')
+    if (!czyObrazek) {
+      dane = oryginal
+      typ = r.headers.get('content-type')?.split(';')[0] || 'application/octet-stream'
+      nazwa = bazowa
+    } else {
+      // PNG zostawiamy PNG (bywają to grafiki z przezroczystością), resztę na JPEG
+      const czyPng = /\.png$/i.test(bazowa)
+      const obrazek = sharp(oryginal).rotate().resize(MAX, MAX, { fit: 'inside', withoutEnlargement: true })
+      dane = czyPng
+        ? await obrazek.png({ compressionLevel: 9 }).toBuffer()
+        : await obrazek.jpeg({ quality: 85, mozjpeg: true }).toBuffer()
+      typ = czyPng ? 'image/png' : 'image/jpeg'
+      nazwa = bazowa.replace(/\.[^.]+$/, czyPng ? '.png' : '.jpg')
+    }
 
     const media = await payload.create({
       collection: 'media',
       data: { alt: nazwa.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') },
       file: {
         data: dane,
-        mimetype: czyPng ? 'image/png' : 'image/jpeg',
+        mimetype: typ,
         name: nazwa,
         size: dane.length,
       },
