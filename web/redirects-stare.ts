@@ -8,6 +8,8 @@
 
 /** Stary adres klubu -> nowy, gdy dalo sie ustalic odpowiednik. */
 export const klubyNaKlub: Record<string, string> = {
+  'garland-yacht-club': 'kw-garland-gliwice',
+  'wiking-wolin': 'uks-albatros-wolin',
   'azs-politechnika-gdanska-youth': 'azs-politechnika-gdanska',
   'energa-gizycka-grupa-regatowa': 'gizycka-grupa-regatowa-nowy-sztynort-osada-wolnosci',
   'gizycka-grupa-regatowa-2': 'gizycka-grupa-regatowa-nowy-sztynort-osada-wolnosci',
@@ -43,7 +45,6 @@ export const klubyNaListe = [
   '4ateam',
   'auto-podlasie',
   'azs-uw-warszawa',
-  'garland-yacht-club',
   'inplag-sailing-sisters',
   'mag-mechelinki',
   'mowi-women-sailing-team',
@@ -54,7 +55,6 @@ export const klubyNaListe = [
   'sen-yachts-olsztyn',
   'sunloox-sailing-team-usa',
   'vega-cleo-sailing-team',
-  'wiking-wolin',
 ]
 
 /** Stare strony regat — kierujemy na kalendarz regat. */
