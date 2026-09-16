@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { updateStronaGlowna } from '../../actions'
 import { GrupyEditor } from './Editors'
+import KafelekEditor from './KafelekEditor'
 import { DEFAULT_GRUPY } from '@/lib/sponsorzy'
 
 export const dynamic = 'force-dynamic'
@@ -26,6 +27,7 @@ export default async function StronaGlownaPanel({ searchParams }: { searchParams
   const payload = await getPayload({ config })
   const sg: any = await payload.findGlobal({ slug: 'strona-glowna' as any }).catch(() => ({}))
   const PR = sg?.pasekRegat || {}
+  const KG = sg?.kafelekGlowny || {}
   const W = sg?.wprowadzenie || {}
   const SP = sg?.sponsorzy || {}
 
@@ -42,6 +44,14 @@ export default async function StronaGlownaPanel({ searchParams }: { searchParams
       )}
 
       <form data-glowny data-nazwa="strona główna" action={updateStronaGlowna} className="space-y-6">
+        {/* DUŻY KAFELEK AKTUALNOŚCI */}
+        <Sekcja
+          tytul="Duży kafelek aktualności"
+          opis="Największy kafelek na górze strony. Domyślnie to najnowszy news; można go czasowo podmienić na post z social mediów, a po wskazanej godzinie wróci sam."
+        >
+          <KafelekEditor initial={KG} aktualnosci={sg?.aktualnosci || {}} />
+        </Sekcja>
+
         {/* PASEK NAJBLIŻSZYCH REGAT */}
         <Sekcja
           tytul="Pasek najbliższych regat"

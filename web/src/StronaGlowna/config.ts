@@ -59,6 +59,67 @@ export const StronaGlowna: GlobalConfig = {
       ],
     },
 
+    // ============ DUŻY KAFELEK AKTUALNOŚCI ============
+    // Domyślnie największy kafelek to najnowszy news. Można go czasowo podmienić
+    // na najnowszy post z social mediów — po upływie `wygasa` wraca sam.
+    {
+      name: 'kafelekGlowny',
+      type: 'group',
+      label: 'Duży kafelek aktualności',
+      fields: [
+        {
+          name: 'tryb',
+          type: 'select',
+          label: 'Co pokazuje duży kafelek',
+          defaultValue: 'newsy',
+          options: [
+            { label: 'Najnowsza aktualność (domyślnie)', value: 'newsy' },
+            { label: 'Post z social mediów', value: 'platforma' },
+          ],
+        },
+        {
+          name: 'platforma',
+          type: 'select',
+          label: 'Platforma',
+          defaultValue: 'youtube',
+          options: [
+            { label: 'YouTube', value: 'youtube' },
+            { label: 'Instagram', value: 'instagram' },
+            { label: 'Facebook', value: 'facebook' },
+            { label: 'TikTok', value: 'tiktok' },
+          ],
+        },
+        {
+          name: 'zrodlo',
+          type: 'select',
+          label: 'Skąd brać post',
+          defaultValue: 'auto',
+          options: [
+            { label: 'Automatycznie — najnowszy z kanału/konta', value: 'auto' },
+            { label: 'Konkretny post — wklejony link', value: 'link' },
+          ],
+        },
+        {
+          name: 'kanalId',
+          type: 'text',
+          label: 'YouTube — ID kanału (UC…) lub playlisty (PL…)',
+          admin: { description: 'Tylko dla trybu automatycznego na YouTube. Instagram i Facebook biorą konto z pól niżej w sekcji Aktualności.' },
+        },
+        { name: 'postUrl', type: 'text', label: 'Link do posta / filmu' },
+        {
+          name: 'wygasa',
+          type: 'date',
+          label: 'Podmiana obowiązuje do',
+          admin: { description: 'Po tej dacie duży kafelek sam wraca do najnowszej aktualności.' },
+        },
+        // Uzupełniane ręcznie, gdy platforma nie odda danych (Instagram/Facebook
+        // bez tokenu nie udostępniają oEmbed).
+        { name: 'recznaNazwa', type: 'text', label: 'Nazwa kanału (gdy nie pobierze się sama)' },
+        { name: 'recznyObraz', type: 'text', label: 'URL obrazka (gdy nie pobierze się sam)' },
+        { name: 'recznyOpis', type: 'textarea', label: 'Opis (gdy nie pobierze się sam)' },
+      ],
+    },
+
     // ============ PASEK NAJBLIŻSZYCH REGAT ============
     {
       name: 'pasekRegat',

@@ -445,7 +445,35 @@ export async function updateStronaGlowna(formData: FormData) {
   const g = (k: string) => String(formData.get(k) || '')
 
   // Zapisujemy tylko żywe sekcje (reszta strony bierze dane automatycznie).
+  const wygasaRaw = g('kgWygasa')
+
+  // Grupa `aktualnosci` ma wiecej pol niz te cztery (baner, tryb rotacji...),
+  // a panel edytuje tylko dane dostepowe. Doczytujemy istniejacy global
+  // i scalamy, zeby zapis nie wyczyscil reszty sekcji.
+  const obecny: any = await payload.findGlobal({ slug: 'strona-glowna' as any }).catch(() => ({}))
+  const obecneAktualnosci = obecny?.aktualnosci || {}
+
   const data: any = {
+    aktualnosci: {
+      ...obecneAktualnosci,
+      igUserId: g('kgIgUserId'),
+      igToken: g('kgIgToken'),
+      fbPageId: g('kgFbPageId'),
+      fbToken: g('kgFbToken'),
+    },
+    kafelekGlowny: {
+      tryb: g('kgTryb') || 'newsy',
+      platforma: g('kgPlatforma') || 'youtube',
+      // TikTok nie ma automatu - zawsze konkretny link
+      zrodlo: g('kgPlatforma') === 'tiktok' ? 'link' : g('kgZrodlo') || 'auto',
+      kanalId: g('kgKanalId'),
+      postUrl: g('kgPostUrl'),
+      // datetime-local przychodzi bez strefy - traktujemy jako czas lokalny serwera
+      wygasa: wygasaRaw ? new Date(wygasaRaw).toISOString() : null,
+      recznaNazwa: g('kgRecznaNazwa'),
+      recznyObraz: g('kgRecznyObraz'),
+      recznyOpis: g('kgRecznyOpis'),
+    },
     pasekRegat: {
       pokazPrzycisk: formData.get('pasekPokazPrzycisk') === 'on',
     },

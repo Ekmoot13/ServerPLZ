@@ -2124,6 +2124,23 @@ export interface StronaGlowna {
     banerLink?: string | null;
     banerObraz?: string | null;
   };
+  kafelekGlowny?: {
+    tryb?: ('newsy' | 'platforma') | null;
+    platforma?: ('youtube' | 'instagram' | 'facebook' | 'tiktok') | null;
+    zrodlo?: ('auto' | 'link') | null;
+    /**
+     * Tylko dla trybu automatycznego na YouTube. Instagram i Facebook biorą konto z pól niżej w sekcji Aktualności.
+     */
+    kanalId?: string | null;
+    postUrl?: string | null;
+    /**
+     * Po tej dacie duży kafelek sam wraca do najnowszej aktualności.
+     */
+    wygasa?: string | null;
+    recznaNazwa?: string | null;
+    recznyObraz?: string | null;
+    recznyOpis?: string | null;
+  };
   pasekRegat?: {
     /**
      * Nagłówek strony ma własny przycisk „Śledź regaty" (ustawienie w Strefie Kibica). Odznacz, aby nie dublować go w pasku odliczania.
@@ -2297,6 +2314,19 @@ export interface StronaGlownaSelect<T extends boolean = true> {
         banerTekst?: T;
         banerLink?: T;
         banerObraz?: T;
+      };
+  kafelekGlowny?:
+    | T
+    | {
+        tryb?: T;
+        platforma?: T;
+        zrodlo?: T;
+        kanalId?: T;
+        postUrl?: T;
+        wygasa?: T;
+        recznaNazwa?: T;
+        recznyObraz?: T;
+        recznyOpis?: T;
       };
   pasekRegat?:
     | T

@@ -10,6 +10,8 @@ import WynikiHome from '@/components/home/WynikiHome'
 import NewsletterSekcja from '@/components/home/NewsletterSekcja'
 import Sponsorzy from '@/components/home/Sponsorzy'
 import PasekRegat from '@/components/home/PasekRegat'
+import KafelekSpolecznosciowy from '@/components/home/KafelekSpolecznosciowy'
+import { pobierzKafelek } from '@/lib/kafelekSpolecznosciowy'
 import { getLataWynikow, getWynikiPelne, getKluby, klubSlug } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
 import { getPlaylistVideos } from '@/lib/youtube'
@@ -120,8 +122,12 @@ export default async function HomePage() {
     .find({ collection: 'posts', where: { _status: { equals: 'published' } }, sort: '-publishedAt', limit: 5, depth: 1 })
     .catch(() => ({ docs: [] as any[] }))
   const news = (newsRes.docs as any[]) || []
+
+  // Duzy kafelek moze byc czasowo podmieniony na post z social mediow.
+  // Gdy podmiana jest aktywna, z boku ida 4 najnowsze newsy zamiast 2.-5.
+  const kafelekPost = await pobierzKafelek(sg).catch(() => null)
   const glowny = news[0] || null
-  const poboczne = news.slice(1, 5)
+  const poboczne = kafelekPost ? news.slice(0, 4) : news.slice(1, 5)
 
   const lata = await getLataWynikow()
   const rok = lata[0]
@@ -178,9 +184,12 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-navy/20" />
         <div className="relative mx-auto max-w-[1440px] px-4 py-10 md:py-14">
           <div className="rounded-2xl bg-white p-5 shadow-2xl md:p-6">
-            {glowny ? (
+            {kafelekPost || glowny ? (
               <div className="grid items-stretch gap-5 lg:grid-cols-[1.5fr_1fr]">
-                {/* DUŻY */}
+                {/* DUŻY — post z social mediów albo najnowszy news */}
+                {kafelekPost ? (
+                  <KafelekSpolecznosciowy post={kafelekPost} />
+                ) : (
                 <Link href={`/posts/${glowny.slug}`} className="group relative block h-full min-h-[300px] overflow-hidden rounded-2xl border border-slate-200 md:min-h-[440px]">
                   {glowny?.heroImage?.url ? (
                     <Img src={glowny.heroImage.url} alt={glowny.title} className="absolute inset-0 h-full w-full object-cover" />
@@ -195,6 +204,7 @@ export default async function HomePage() {
                     <p className="mt-1 text-xs font-semibold text-white/80">{newsData(glowny.publishedAt)}</p>
                   </div>
                 </Link>
+                )}
                 {/* 4 MNIEJSZE */}
                 <div className="flex h-full flex-col justify-between gap-3">
                   {/* Na telefonie pokazujemy tylko trzy najnowsze (duży + dwa małe) —
