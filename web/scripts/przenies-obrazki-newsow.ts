@@ -109,6 +109,9 @@ for (const post of posty.slice(0, LIMIT)) {
       id: post.id,
       data: { trescHtml: nowyHtml },
       overrideAccess: true,
+      // Hook revalidatePost wola revalidatePath Nexta, co dziala tylko
+      // w kontekscie zadania — ze skryptu wywala caly proces.
+      context: { disableRevalidate: true },
     })
     zmienionePosty++
     podmienioneAdresy += zmian
