@@ -36,3 +36,6 @@ Thumbs.db
 
 # Lokalny zrzut bazy (dev)
 plz_dump.sql
+
+# artefakt inkrementalnej kompilacji TypeScript
+*.tsbuildinfo

@@ -45,6 +45,14 @@ const nextConfig: NextConfig = {
     return webpackConfig
   },
   reactStrictMode: true,
+  experimental: {
+    serverActions: {
+      // Wgrywanie zdjęć w panelu redaktora idzie przez akcję serwera
+      // (uploadMedia), a domyślny limit ciała żądania to 1 MB — zdjęcie
+      // z telefonu ma 2-8 MB i odbijało się z „Nie udało się wgrać zdjęcia".
+      bodySizeLimit: '25mb',
+    },
+  },
   redirects,
   turbopack: {
     root: path.resolve(dirname),

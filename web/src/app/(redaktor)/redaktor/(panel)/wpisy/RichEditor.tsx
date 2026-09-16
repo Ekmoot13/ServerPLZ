@@ -24,16 +24,36 @@ export default function RichEditor({ name, initialHtml }: { name: string; initia
     const url = prompt('Adres URL linku:')
     if (url) cmd('createLink', url)
   }
+  // Limit musi byc zgodny z experimental.serverActions.bodySizeLimit
+  // w next.config.ts — inaczej blad wraca dopiero z serwera, bez powodu.
+  const MAX_MB = 25
+
   const onImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    const mb = file.size / 1024 / 1024
+    if (mb > MAX_MB) {
+      alert(
+        `Zdjęcie ma ${mb.toFixed(1)} MB, a maksimum to ${MAX_MB} MB.
+` +
+          'Zmniejsz je albo zapisz w mniejszej rozdzielczości.',
+      )
+      e.target.value = ''
+      return
+    }
+
     const fd = new FormData()
     fd.append('file', file)
     try {
       const { url } = await uploadMedia(fd)
       if (url) cmd('insertImage', url)
-    } catch {
-      alert('Nie udało się wgrać zdjęcia.')
+      else alert('Serwer nie zwrócił adresu zdjęcia. Spróbuj ponownie.')
+    } catch (err) {
+      const powod = err instanceof Error ? err.message : String(err)
+      alert(`Nie udało się wgrać zdjęcia (${mb.toFixed(1)} MB).
+
+${powod}`)
     }
     e.target.value = ''
   }
