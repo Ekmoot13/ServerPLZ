@@ -37,99 +37,95 @@ function norm(s: string): string {
     .trim()
 }
 
-async function main() {
-  console.log(`== Start: katalog ${KATALOG}, limit ${LIMIT} ==`)
-  const payload = await getPayload({ config })
-  console.log('Payload zainicjalizowany.')
+// Kod na najwyzszym poziomie z await — tak jak pozostale skrypty w tym katalogu.
+// Opakowanie w funkcje wywolana bez await konczylo proces, zanim getPayload
+// zdazyl sie rozwiazac (pusta petla zdarzen, kod wyjscia 0, zero komunikatow).
+console.log(`== Start: katalog ${KATALOG}, limit ${LIMIT} ==`)
+const payload = await getPayload({ config })
+console.log('Payload zainicjalizowany.')
 
-  const manifest = path.join(KATALOG, 'manifest.tsv')
-  if (!fs.existsSync(manifest)) {
-    console.error(`Brak pliku ${manifest}`)
-    process.exit(1)
-  }
-
-  const wiersze = fs
-    .readFileSync(manifest, 'utf8')
-    .split('\n')
-    .map((l) => l.replace(/\r$/, ''))
-    .filter(Boolean)
-    .slice(1)
-    .map((l) => l.split('\t'))
-    .filter((c) => c.length >= 3)
-
-  console.log(`== Import zdjęć zawodników: ${wiersze.length} pozycji w manifeście ==`)
-
-  // Cała kolekcja na raz — 553 rekordy, taniej niż zapytanie na każdego.
-  const wszyscy = await payload.find({ collection: 'zawodnicy' as any, limit: 2000, depth: 0 })
-  const indeks = new Map<string, any>()
-  for (const z of wszyscy.docs as any[]) {
-    indeks.set(`${norm(z.imie)}|${norm(z.nazwisko)}`, z)
-  }
-
-  let wgrane = 0
-  let pominiete = 0
-  let brakPliku = 0
-  let brakZawodnika = 0
-  let bledy = 0
-
-  for (const [plik, imie, nazwisko] of wiersze.slice(0, LIMIT)) {
-    const zawodnik = indeks.get(`${norm(imie)}|${norm(nazwisko)}`)
-    if (!zawodnik) {
-      brakZawodnika++
-      console.log(`  – brak w bazie: ${imie} ${nazwisko}`)
-      continue
-    }
-    if (zawodnik.zdjecie) {
-      pominiete++
-      continue
-    }
-
-    const sciezka = path.join(KATALOG, plik)
-    if (!fs.existsSync(sciezka)) {
-      brakPliku++
-      console.log(`  – brak pliku: ${plik}`)
-      continue
-    }
-
-    try {
-      const dane = fs.readFileSync(sciezka)
-      const media = await payload.create({
-        collection: 'media',
-        data: { alt: `${imie} ${nazwisko}` },
-        file: {
-          data: dane,
-          mimetype: 'image/jpeg',
-          name: plik,
-          size: dane.length,
-        },
-        overrideAccess: true,
-      })
-
-      await payload.update({
-        collection: 'zawodnicy' as any,
-        id: zawodnik.id,
-        data: { zdjecie: (media as any).id },
-        overrideAccess: true,
-      })
-
-      wgrane++
-      if (wgrane % 25 === 0) console.log(`  … wgrano ${wgrane}`)
-    } catch (e: any) {
-      bledy++
-      console.log(`  ! błąd przy ${imie} ${nazwisko} (${plik}): ${e?.message || e}`)
-    }
-  }
-
-  console.log('== Podsumowanie ==')
-  console.log(`  wgrane i przypisane:      ${wgrane}`)
-  console.log(`  pominięte (miały zdjęcie): ${pominiete}`)
-  console.log(`  brak zawodnika w bazie:    ${brakZawodnika}`)
-  console.log(`  brak pliku na dysku:       ${brakPliku}`)
-  console.log(`  błędy:                     ${bledy}`)
-  process.exit(0)
+const manifest = path.join(KATALOG, 'manifest.tsv')
+if (!fs.existsSync(manifest)) {
+  console.error(`Brak pliku ${manifest}`)
+  process.exit(1)
 }
 
-main().catch((e) => {
-  console.error('BŁĄD KRYTYCZNY:', e?.stack || e?.message || e)
-  process.exit(1)
-})
+const wiersze = fs
+  .readFileSync(manifest, 'utf8')
+  .split('\n')
+  .map((l) => l.replace(/\r$/, ''))
+  .filter(Boolean)
+  .slice(1)
+  .map((l) => l.split('\t'))
+  .filter((c) => c.length >= 3)
+
+console.log(`== Import zdjęć zawodników: ${wiersze.length} pozycji w manifeście ==`)
+
+// Cała kolekcja na raz — 553 rekordy, taniej niż zapytanie na każdego.
+const wszyscy = await payload.find({ collection: 'zawodnicy' as any, limit: 2000, depth: 0 })
+const indeks = new Map<string, any>()
+for (const z of wszyscy.docs as any[]) {
+  indeks.set(`${norm(z.imie)}|${norm(z.nazwisko)}`, z)
+}
+
+let wgrane = 0
+let pominiete = 0
+let brakPliku = 0
+let brakZawodnika = 0
+let bledy = 0
+
+for (const [plik, imie, nazwisko] of wiersze.slice(0, LIMIT)) {
+  const zawodnik = indeks.get(`${norm(imie)}|${norm(nazwisko)}`)
+  if (!zawodnik) {
+    brakZawodnika++
+    console.log(`  – brak w bazie: ${imie} ${nazwisko}`)
+    continue
+  }
+  if (zawodnik.zdjecie) {
+    pominiete++
+    continue
+  }
+
+  const sciezka = path.join(KATALOG, plik)
+  if (!fs.existsSync(sciezka)) {
+    brakPliku++
+    console.log(`  – brak pliku: ${plik}`)
+    continue
+  }
+
+  try {
+    const dane = fs.readFileSync(sciezka)
+    const media = await payload.create({
+      collection: 'media',
+      data: { alt: `${imie} ${nazwisko}` },
+      file: {
+        data: dane,
+        mimetype: 'image/jpeg',
+        name: plik,
+        size: dane.length,
+      },
+      overrideAccess: true,
+    })
+
+    await payload.update({
+      collection: 'zawodnicy' as any,
+      id: zawodnik.id,
+      data: { zdjecie: (media as any).id },
+      overrideAccess: true,
+    })
+
+    wgrane++
+    if (wgrane % 25 === 0) console.log(`  … wgrano ${wgrane}`)
+  } catch (e: any) {
+    bledy++
+    console.log(`  ! błąd przy ${imie} ${nazwisko} (${plik}): ${e?.message || e}`)
+  }
+}
+
+console.log('== Podsumowanie ==')
+console.log(`  wgrane i przypisane:      ${wgrane}`)
+console.log(`  pominięte (miały zdjęcie): ${pominiete}`)
+console.log(`  brak zawodnika w bazie:    ${brakZawodnika}`)
+console.log(`  brak pliku na dysku:       ${brakPliku}`)
+console.log(`  błędy:                     ${bledy}`)
+process.exit(0)
