@@ -234,6 +234,17 @@ function wpisData(formData: FormData): any {
   return data
 }
 
+/**
+ * Strona artykułu jest w pełni statyczna (brak `revalidate`, patrz
+ * posts/[slug]/page.tsx), więc bez tego wywołania zapis w panelu zmienia bazę,
+ * a czytelnik do końca życia kontenera widzi wersję z ostatniego builda.
+ * Hook revalidatePost robi to samo, ale panel woła Payload z
+ * `disableRevalidate`, żeby akcje serwerowe nie zależały od hooków kolekcji.
+ */
+function odswiezWpis(slug?: string | null) {
+  if (slug) revalidatePath(`/posts/${slug}`)
+}
+
 export async function createWpis(formData: FormData) {
   await requireUser()
   const payload = await getPayload({ config })
@@ -248,6 +259,7 @@ export async function createWpis(formData: FormData) {
   })
   revalidatePath('/newsy')
   revalidatePath('/')
+  odswiezWpis((doc as any)?.slug)
   redirect(`/redaktor/wpisy/${(doc as any).id}?ok=${Date.now()}`)
 }
 
@@ -258,7 +270,11 @@ export async function updateWpis(formData: FormData) {
   const data = wpisData(formData)
   const hero = await uploadIfPresent(payload, formData, 'heroImage')
   if (hero !== undefined) data.heroImage = hero
-  await payload.update({
+  // Slug sprzed zapisu — gdy redaktor go zmieni, stary adres też trzeba odświeżyć.
+  const poprzedni = await payload
+    .findByID({ collection: 'posts', id, depth: 0, overrideAccess: true })
+    .catch(() => null)
+  const doc = await payload.update({
     collection: 'posts',
     id,
     data,
@@ -267,6 +283,8 @@ export async function updateWpis(formData: FormData) {
   })
   revalidatePath('/newsy')
   revalidatePath('/')
+  odswiezWpis((doc as any)?.slug)
+  odswiezWpis((poprzedni as any)?.slug)
   redirect(`/redaktor/wpisy/${id}?ok=${Date.now()}`)
 }
 
