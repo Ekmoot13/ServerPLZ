@@ -306,6 +306,17 @@ export async function updateStrefaKibica(formData: FormData) {
     linki: parseJson<any[]>(String(formData.get('linki') || ''), []),
     program: parseJson<any[]>(String(formData.get('program') || ''), []),
     mapaEmbed: String(formData.get('mapaEmbed') || ''),
+    pokazGalerie: formData.get('pokazGalerie') === 'on',
+    galeriaTytul: String(formData.get('galeriaTytul') || ''),
+    galeriaUrl: String(formData.get('galeriaUrl') || '').trim(),
+    // Tylko dwie znane wartości — cokolwiek innego traktujemy jak „auto".
+    galeriaTryb: String(formData.get('galeriaTryb') || '') === 'reczny' ? 'reczny' : 'auto',
+    galeriaKolejnosc:
+      String(formData.get('galeriaKolejnosc') || '') === 'pierwsze' ? 'pierwsze' : 'najnowsze',
+    galeriaZdjecia: parseJson<any[]>(String(formData.get('galeriaZdjecia') || ''), []),
+    pokazAktualnosci: formData.get('pokazAktualnosci') === 'on',
+    aktualnosciTytul: String(formData.get('aktualnosciTytul') || ''),
+    aktualnosciKategoria: String(formData.get('aktualnosciKategoria') || ''),
   }
   await payload.updateGlobal({ slug: 'strefa-kibica', data, overrideAccess: true })
   revalidatePath('/')

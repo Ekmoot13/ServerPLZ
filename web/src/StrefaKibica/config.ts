@@ -100,6 +100,73 @@ export const StrefaKibica: GlobalConfig = {
       label: 'Program weekendu (dni i punkty programu)',
       admin: { description: 'Edytowany w panelu redaktora. Format: lista dni { tytul, pozycje:[{czas,opis,link}] }.' },
     },
+    // ---- Galeria zdjec (SmugMug) ----
+    {
+      name: 'pokazGalerie',
+      type: 'checkbox',
+      label: 'Pokaż sekcję „Galeria zdjęć"',
+      defaultValue: true,
+    },
+    {
+      name: 'galeriaTytul',
+      type: 'text',
+      label: 'Nagłówek sekcji galerii',
+      defaultValue: 'Galeria zdjęć',
+    },
+    {
+      name: 'galeriaUrl',
+      type: 'text',
+      label: 'Adres galerii (SmugMug)',
+      admin: {
+        description:
+          'Pełny adres galerii, np. https://ligazeglarska.smugmug.com/2026-Polska-Liga-zeglarska/Najlepsze-zdjecia-2026',
+      },
+    },
+    {
+      name: 'galeriaTryb',
+      type: 'text',
+      label: 'Skąd brać zdjęcia: „auto" albo „reczny"',
+      defaultValue: 'auto',
+      admin: {
+        description:
+          'Wybierane przełącznikiem w panelu redaktora. „auto" pobiera najnowsze zdjęcia z galerii, „reczny" pokazuje adresy podane niżej.',
+      },
+    },
+    {
+      name: 'galeriaKolejnosc',
+      type: 'text',
+      label: 'Które zdjęcia z galerii: „najnowsze" albo „pierwsze"',
+      defaultValue: 'najnowsze',
+      admin: {
+        description:
+          'SmugMug układa zdjęcia zwykle od najstarszych, więc „najnowsze" sięga na koniec albumu.',
+      },
+    },
+    {
+      name: 'galeriaZdjecia',
+      type: 'json',
+      label: 'Zdjęcia podane ręcznie',
+      admin: { description: 'Edytowane w panelu redaktora. Format: lista { url, link }.' },
+    },
+    // ---- Najnowsze aktualnosci ----
+    {
+      name: 'pokazAktualnosci',
+      type: 'checkbox',
+      label: 'Pokaż sekcję „Aktualności"',
+      defaultValue: true,
+    },
+    {
+      name: 'aktualnosciTytul',
+      type: 'text',
+      label: 'Nagłówek sekcji aktualności',
+      defaultValue: 'Aktualności',
+    },
+    {
+      name: 'aktualnosciKategoria',
+      type: 'text',
+      label: 'Kategoria newsów (puste = wszystkie najnowsze)',
+      admin: { description: 'Wybierana listą w panelu redaktora. Przechowujemy identyfikator kategorii.' },
+    },
     {
       name: 'mapaEmbed',
       type: 'text',

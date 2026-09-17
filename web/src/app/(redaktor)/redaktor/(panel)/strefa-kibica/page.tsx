@@ -2,6 +2,7 @@ import React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { updateStrefaKibica } from '../../actions'
+import GaleriaEditor from './GaleriaEditor'
 import ProgramEditor from './ProgramEditor'
 import TransmisjeEditor from './TransmisjeEditor'
 import WyborTla from './WyborTla'
@@ -23,6 +24,10 @@ export default async function StrefaKibicaSettingsPage({
     .find({ collection: 'transmisje' as any, limit: 100, depth: 0, sort: '-aktywny' })
     .catch(() => ({ docs: [] as any[] }))
   const transmisje = (transRes.docs as any[]) || []
+  const katRes = await payload
+    .find({ collection: 'categories', limit: 200, depth: 0, sort: 'title' })
+    .catch(() => ({ docs: [] as any[] }))
+  const kategorie = (katRes.docs as any[]) || []
 
   return (
     <div className="max-w-3xl">
@@ -146,6 +151,77 @@ export default async function StrefaKibicaSettingsPage({
               placeholder="https://www.google.com/maps/embed?pb=..."
               className={inputCls}
             />
+          </div>
+        </div>
+
+        {/* ---- GALERIA ZDJEC ---- */}
+        <div className="border-t border-slate-200 pt-6">
+          <h2 className="mb-4 text-lg font-bold">Galeria zdjęć (na dole strony)</h2>
+
+          <label className="mb-4 flex items-center gap-2 text-sm">
+            <input type="checkbox" form="ustawienia-strefy" name="pokazGalerie" defaultChecked={s?.pokazGalerie !== false} />
+            Pokaż sekcję galerii
+          </label>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-sm font-medium text-slate-700">Nagłówek</label>
+            <input form="ustawienia-strefy" name="galeriaTytul" defaultValue={s?.galeriaTytul || 'Galeria zdjęć'} className={inputCls} />
+          </div>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-sm font-medium text-slate-700">Adres galerii (SmugMug)</label>
+            <input
+              form="ustawienia-strefy"
+              name="galeriaUrl"
+              defaultValue={s?.galeriaUrl || ''}
+              placeholder="https://ligazeglarska.smugmug.com/2026-Polska-Liga-zeglarska/..."
+              className={inputCls}
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Nagłówek sekcji i przycisk pod zdjęciami prowadzą pod ten adres.
+            </p>
+          </div>
+
+          <GaleriaEditor
+            formId="ustawienia-strefy"
+            initialTryb={s?.galeriaTryb || 'auto'}
+            initialKolejnosc={s?.galeriaKolejnosc || 'najnowsze'}
+            initialZdjecia={Array.isArray(s?.galeriaZdjecia) ? s.galeriaZdjecia : []}
+          />
+        </div>
+
+        {/* ---- AKTUALNOSCI ---- */}
+        <div className="border-t border-slate-200 pt-6">
+          <h2 className="mb-4 text-lg font-bold">Aktualności (na samym dole)</h2>
+
+          <label className="mb-4 flex items-center gap-2 text-sm">
+            <input type="checkbox" form="ustawienia-strefy" name="pokazAktualnosci" defaultChecked={s?.pokazAktualnosci !== false} />
+            Pokaż sekcję aktualności
+          </label>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-sm font-medium text-slate-700">Nagłówek</label>
+            <input form="ustawienia-strefy" name="aktualnosciTytul" defaultValue={s?.aktualnosciTytul || 'Aktualności'} className={inputCls} />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Kategoria</label>
+            <select
+              form="ustawienia-strefy"
+              name="aktualnosciKategoria"
+              defaultValue={s?.aktualnosciKategoria || ''}
+              className={inputCls}
+            >
+              <option value="">Wszystkie najnowsze</option>
+              {kategorie.map((k) => (
+                <option key={k.id} value={String(k.id)}>
+                  {k.title}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-slate-500">
+              Pokazujemy cztery najnowsze wpisy — na telefonie trzy.
+            </p>
           </div>
         </div>
 

@@ -5,6 +5,8 @@ import SapLeaderboard from '@/components/SapLeaderboard'
 import SapViewer from '@/components/SapViewer'
 import StrefaTransmisja from '@/components/StrefaTransmisja'
 import { Ikona } from '@/components/strefa/ikony'
+import { pobierzZdjeciaSmugMug, type ZdjecieGalerii } from '@/lib/smugmug'
+import Link from 'next/link'
 import React from 'react'
 
 export const dynamic = 'force-dynamic'
@@ -18,6 +20,17 @@ const patternBg: React.CSSProperties = {
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center',
   backgroundSize: 'cover',
+}
+
+function newsData(d?: string | null): string {
+  if (!d) return ''
+  try {
+    return new Date(d)
+      .toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+      .toUpperCase()
+  } catch {
+    return ''
+  }
 }
 
 function LiveBadge() {
@@ -55,6 +68,49 @@ export default async function RegatowaStrefaKibicaPage() {
   const linki: any[] = [...linkiRaw].sort((a, b) => (jestSap(b) ? 1 : 0) - (jestSap(a) ? 1 : 0))
   const program: any[] = Array.isArray(settings?.program) ? settings.program : []
   const mapaEmbed: string = settings?.mapaEmbed || ''
+
+  // ---- Galeria ----
+  const pokazGalerie: boolean = settings?.pokazGalerie !== false
+  const galeriaTytul: string = settings?.galeriaTytul || 'Galeria zdjęć'
+  const galeriaUrl: string = settings?.galeriaUrl || ''
+  const galeriaTryb: string = settings?.galeriaTryb === 'reczny' ? 'reczny' : 'auto'
+  const galeriaOdKonca: boolean = settings?.galeriaKolejnosc !== 'pierwsze'
+  const galeriaReczne: ZdjecieGalerii[] = (
+    Array.isArray(settings?.galeriaZdjecia) ? settings.galeriaZdjecia : []
+  )
+    .filter((z: any) => z?.url)
+    .map((z: any) => ({ obraz: String(z.url), link: String(z.link || galeriaUrl), opis: '' }))
+  // W trybie automatycznym lista ręczna jest zapasem na wypadek, gdyby SmugMug
+  // nie odpowiedział — sekcja nie może zostać pustą ramką.
+  const zdjeciaZGalerii =
+    pokazGalerie && galeriaTryb === 'auto' && galeriaUrl
+      ? await pobierzZdjeciaSmugMug(galeriaUrl, 4, galeriaOdKonca)
+      : []
+  const galeria = (zdjeciaZGalerii.length ? zdjeciaZGalerii : galeriaReczne).slice(0, 4)
+
+  // ---- Aktualności ----
+  const pokazAktualnosci: boolean = settings?.pokazAktualnosci !== false
+  const aktualnosciTytul: string = settings?.aktualnosciTytul || 'Aktualności'
+  const aktualnosciKategoria: string = String(settings?.aktualnosciKategoria || '')
+  const newsRes = pokazAktualnosci
+    ? await payload
+        .find({
+          collection: 'posts',
+          where: aktualnosciKategoria
+            ? {
+                and: [
+                  { _status: { equals: 'published' } },
+                  { categories: { in: [aktualnosciKategoria] } },
+                ],
+              }
+            : { _status: { equals: 'published' } },
+          sort: '-publishedAt',
+          limit: 4,
+          depth: 1,
+        })
+        .catch(() => ({ docs: [] as any[] }))
+    : { docs: [] as any[] }
+  const newsy = (newsRes.docs as any[]) || []
 
   // stan „na żywo" — pokazuj czerwone plakietki tylko gdy coś faktycznie leci
   const mapaLive = pokazMape && !!mapaUrl
@@ -248,6 +304,120 @@ export default async function RegatowaStrefaKibicaPage() {
                 </div>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* ---- GALERIA ZDJEC ----
+          Granat z izobarami, tak jak naglowki pozostalych podstron. Czwarte
+          zdjecie chowamy na telefonie, zeby kolumna nie ciagnela sie w nieskonczonosc. */}
+      {pokazGalerie && galeria.length > 0 && (
+        <section className="bg-navy text-white" style={patternBg}>
+          <div className="mx-auto max-w-6xl px-4 py-14">
+            <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide md:text-3xl">
+              {galeriaTytul}
+            </h2>
+            <div className="mx-auto mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+              {galeria.map((z, i) => (
+                <a
+                  key={i}
+                  href={z.link || galeriaUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group block overflow-hidden rounded-2xl border border-white/15 bg-white/5 ${
+                    i >= 3 ? 'hidden md:block' : ''
+                  }`}
+                >
+                  <div className="aspect-[3/2] overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={z.obraz}
+                      alt={z.opis || 'Zdjęcie z regat'}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  {z.opis && (
+                    <p className="line-clamp-2 px-3 py-2 text-xs text-white/70">{z.opis}</p>
+                  )}
+                </a>
+              ))}
+            </div>
+
+            {galeriaUrl && (
+              <div className="mt-8 text-center">
+                <a
+                  href={galeriaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-[10px] border-2 border-white px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white hover:text-navy"
+                >
+                  Zobacz całą galerię
+                </a>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ---- NAJNOWSZE AKTUALNOSCI ---- */}
+      {pokazAktualnosci && newsy.length > 0 && (
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-14">
+            <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">
+              {aktualnosciTytul}
+            </h2>
+            <div className="mx-auto mt-2 mb-8 h-1 w-14 rounded-full bg-brand-red" />
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
+              {newsy.map((p: any, i: number) => (
+                <Link
+                  key={p.id}
+                  href={`/posts/${p.slug}`}
+                  className={`group flex flex-col overflow-hidden rounded-2xl border border-slate-200 transition hover:border-brand-red hover:shadow-sm ${
+                    i >= 3 ? 'hidden md:flex' : ''
+                  }`}
+                >
+                  <div className="aspect-[3/2] overflow-hidden bg-slate-100">
+                    {p?.heroImage?.url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.heroImage.url}
+                        alt={p.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-slate-300">
+                        brak zdjęcia
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col p-4">
+                    {p?.categories?.[0]?.title && (
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-brand-red">
+                        {p.categories[0].title}
+                      </span>
+                    )}
+                    <h3 className="line-clamp-3 text-sm font-bold leading-snug text-navy group-hover:text-brand-red">
+                      {p.title}
+                    </h3>
+                    <p className="mt-auto pt-2 text-[11px] text-slate-400">{newsData(p.publishedAt)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link
+                href="/newsy"
+                className="inline-block rounded-[10px] border-2 border-navy px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white"
+              >
+                Zobacz wszystkie aktualności
+              </Link>
+            </div>
           </div>
         </section>
       )}

@@ -2079,6 +2079,38 @@ export interface StrefaKibica {
     | number
     | boolean
     | null;
+  pokazGalerie?: boolean | null;
+  galeriaTytul?: string | null;
+  /**
+   * Pełny adres galerii, np. https://ligazeglarska.smugmug.com/2026-Polska-Liga-zeglarska/Najlepsze-zdjecia-2026
+   */
+  galeriaUrl?: string | null;
+  /**
+   * Wybierane przełącznikiem w panelu redaktora. „auto" pobiera najnowsze zdjęcia z galerii, „reczny" pokazuje adresy podane niżej.
+   */
+  galeriaTryb?: string | null;
+  /**
+   * SmugMug układa zdjęcia zwykle od najstarszych, więc „najnowsze" sięga na koniec albumu.
+   */
+  galeriaKolejnosc?: string | null;
+  /**
+   * Edytowane w panelu redaktora. Format: lista { url, link }.
+   */
+  galeriaZdjecia?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pokazAktualnosci?: boolean | null;
+  aktualnosciTytul?: string | null;
+  /**
+   * Wybierana listą w panelu redaktora. Przechowujemy identyfikator kategorii.
+   */
+  aktualnosciKategoria?: string | null;
   /**
    * Wklej URL z „Osadź mapę" Google Maps (https://www.google.com/maps/embed?...).
    */
@@ -2278,6 +2310,15 @@ export interface StrefaKibicaSelect<T extends boolean = true> {
   programTlo?: T;
   linki?: T;
   program?: T;
+  pokazGalerie?: T;
+  galeriaTytul?: T;
+  galeriaUrl?: T;
+  galeriaTryb?: T;
+  galeriaKolejnosc?: T;
+  galeriaZdjecia?: T;
+  pokazAktualnosci?: T;
+  aktualnosciTytul?: T;
+  aktualnosciKategoria?: T;
   mapaEmbed?: T;
   updatedAt?: T;
   createdAt?: T;
