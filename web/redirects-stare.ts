@@ -9,7 +9,9 @@
 /** Stary adres klubu -> nowy, gdy dalo sie ustalic odpowiednik. */
 export const klubyNaKlub: Record<string, string> = {
   'garland-yacht-club': 'kw-garland-gliwice',
-  'wiking-wolin': 'uks-albatros-wolin',
+  'wiking-wolin': 'klub-zeglarski-wiking-wolin',
+  // Klub zmienil nazwe w 2026; pod stara nazwa profil dzialal do teraz.
+  'uks-albatros-wolin': 'klub-zeglarski-wiking-wolin',
   'azs-politechnika-gdanska-youth': 'azs-politechnika-gdanska',
   'energa-gizycka-grupa-regatowa': 'gizycka-grupa-regatowa-nowy-sztynort-osada-wolnosci',
   'gizycka-grupa-regatowa-2': 'gizycka-grupa-regatowa-nowy-sztynort-osada-wolnosci',

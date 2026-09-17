@@ -314,8 +314,15 @@ export async function getKluby(): Promise<KlubListItem[]> {
 }
 
 export async function findKlubBySlug(slug: string): Promise<{ id: number; nazwa: string } | null> {
+  // W zrodle zdarzaja sie dwa zestawienia o identycznej nazwie (np. dwa razy
+  // „Fundacja Baltiq Sport"), z ktorych jedno jest puste. Slug jest wtedy
+  // niejednoznaczny, wiec wybieramy to, ktore faktycznie ma warianty.
   const rows = await ligaQuery<{ id_zestawienia_klubow: number; nazwa: string }>(
-    `SELECT id_zestawienia_klubow, nazwa FROM liga_zestawienieklubow`,
+    `SELECT zk.id_zestawienia_klubow, zk.nazwa
+     FROM liga_zestawienieklubow zk
+     LEFT JOIN liga_klubwariant kw ON kw.id_zestawienia_klubow = zk.id_zestawienia_klubow
+     GROUP BY zk.id_zestawienia_klubow, zk.nazwa
+     ORDER BY COUNT(kw.id_wariantu_klubu) DESC, zk.id_zestawienia_klubow ASC`,
   )
   for (const r of rows) {
     if (klubSlug(r.nazwa) === slug) return { id: r.id_zestawienia_klubow, nazwa: r.nazwa || '' }
