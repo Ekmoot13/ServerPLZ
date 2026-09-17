@@ -1,21 +1,22 @@
 /**
  * Generowanie favicona z logo Polskiej Ligi Zeglarskiej.
  *
- * Z logo bierzemy sam znak zagli — napis pod nim przy 16-32 px jest nieczytelny.
- * Tlo pozostaje przezroczyste, a bialy zagiel dostaje ciemny obrys: bez niego
- * znikalby na jasnym pasku kart przegladarki.
+ * Zrodlem jest szary wariant logo — ten sam, ktorego uzywala stara strona na
+ * WordPressie. Zagle sa w nim srebrno-szare, a nie biale, dzieki czemu znak
+ * jest czytelny zarowno na jasnym, jak i na ciemnym pasku kart. Nie potrzebuje
+ * wiec ani tla, ani obrysu.
  *
- * Obrys nakladamy PO przeskalowaniu, osobno dla kazdego rozmiaru — obrys
- * policzony na duzym obrazie zwezilby sie przy skalowaniu do 16 px do zera.
+ * Bierzemy sam znak zagli: stary favicon zawieral tez napis, ktory przy 16-32 px
+ * byl nieczytelna plama i zabieral wiekszosc kadru.
  */
 import sharp from 'sharp'
 import fs from 'node:fs/promises'
 
-const ZRODLO = '/app/public/logo.png'
+const ZRODLO = '/app/scripts/logo-zrodlo.png'
 const WYJSCIE = '/app/public'
 
-// Zrodlo jest w formacie webp — najpierw dekodujemy do PNG, bo wycinanie
-// bezposrednio na webp konczy sie bledem "bad extract area".
+// Dekodujemy do jednolitego PNG — wycinanie fragmentu bezposrednio na
+// niektorych formatach zrodlowych konczy sie bledem "bad extract area".
 const caly = await sharp(ZRODLO).png().toBuffer()
 const { width: szer, height: wys } = await sharp(caly).metadata()
 
@@ -28,77 +29,19 @@ const gora = await sharp(caly)
 const znak = await sharp(gora).trim().toBuffer({ resolveWithObject: true })
 console.log('znak po przycieciu:', znak.info.width + 'x' + znak.info.height)
 
-/** Rozszerza maske o `r` pikseli we wszystkich kierunkach (dylatacja kwadratem). */
-function rozszerz(maska, w, h, r) {
-  const wynik = new Uint8Array(w * h)
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      if (!maska[y * w + x]) continue
-      const y0 = Math.max(0, y - r)
-      const y1 = Math.min(h - 1, y + r)
-      const x0 = Math.max(0, x - r)
-      const x1 = Math.min(w - 1, x + r)
-      for (let yy = y0; yy <= y1; yy++) {
-        for (let xx = x0; xx <= x1; xx++) wynik[yy * w + xx] = 1
-      }
-    }
-  }
-  return wynik
-}
-
-/** Znak na przezroczystym kwadracie, z ciemnym obrysem wokol jasnych partii. */
+/** Znak na przezroczystym kwadracie, z niewielkim marginesem. */
 async function ikona(rozmiar) {
-  const margines = Math.round(rozmiar * 0.08)
+  const margines = Math.round(rozmiar * 0.06)
   const wewn = rozmiar - margines * 2
-
   const skala = await sharp(znak.data)
     .resize(wewn, wewn, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true })
-
-  const { width: w, height: h } = skala.info
-  const px = skala.data
-
-  // Maska jasnych pikseli znaku — to one wymagaja obrysu.
-  const jasne = new Uint8Array(w * h)
-  for (let i = 0; i < w * h; i++) {
-    const r = px[i * 4]
-    const g = px[i * 4 + 1]
-    const b = px[i * 4 + 2]
-    const a = px[i * 4 + 3]
-    if (a > 128 && r > 170 && g > 170 && b > 170) jasne[i] = 1
-  }
-
-  // Grubosc obrysu proporcjonalna do rozmiaru, minimum 1 px.
-  const grubosc = Math.max(1, Math.round(rozmiar / 22))
-  const obrys = rozszerz(jasne, w, h, grubosc)
-
-  // Warstwa obrysu: ciemny granat tam, gdzie maska urosla poza oryginal.
-  const warstwa = Buffer.alloc(w * h * 4)
-  for (let i = 0; i < w * h; i++) {
-    if (obrys[i]) {
-      warstwa[i * 4] = 16
-      warstwa[i * 4 + 1] = 30
-      warstwa[i * 4 + 2] = 58
-      warstwa[i * 4 + 3] = 255
-    }
-  }
-
-  const podklad = await sharp(warstwa, { raw: { width: w, height: h, channels: 4 } })
-    .png()
-    .toBuffer()
-  const wierzch = await sharp(skala.data, { raw: { width: w, height: h, channels: 4 } })
     .png()
     .toBuffer()
 
   return sharp({
     create: { width: rozmiar, height: rozmiar, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
   })
-    .composite([
-      { input: podklad, top: margines, left: margines },
-      { input: wierzch, top: margines, left: margines },
-    ])
+    .composite([{ input: skala, top: margines, left: margines }])
     .png()
     .toBuffer()
 }
