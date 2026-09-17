@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { getLataWynikow, getWynikiPelne } from '@/lib/liga'
 import { getKlubMedia } from '@/lib/klubMedia'
+import { getLogotypyKlubow } from '@/lib/panel'
 import { statusRegat } from '@/lib/kalendarz'
 import WynikiWidok from '@/app/(frontend)/wyniki/WynikiWidok'
 import PasekRegat from '@/components/home/PasekRegat'
@@ -76,11 +77,14 @@ export default async function LigaLanding({
   const ligi = rok ? await getWynikiPelne(rok) : []
   const liga = ligi.find((l) => poziom.test(l.poziom)) || null
 
+  // Logotyp z panelu (po skrocie) ma pierwszenstwo — redaktor moze go podmienic
+  // bez zmian w kodzie, a skrot nie zmienia sie wraz z nazwa sponsora.
+  const logotypy = await getLogotypyKlubow()
   const kluby = (liga?.ranking || []).map((r: any) => ({
     skrot: r.skrot,
     klub: r.klub,
     slug: r.slug,
-    logo: getKlubMedia(r.klub)?.logo || null,
+    logo: logotypy.get(String(r.skrot || '').toUpperCase()) || getKlubMedia(r.klub)?.logo || null,
   }))
 
   const kalRes = await payload

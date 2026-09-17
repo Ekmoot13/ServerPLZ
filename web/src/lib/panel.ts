@@ -74,6 +74,35 @@ export async function getZawodnicyPhotos(ids: number[]): Promise<Map<number, str
   return map
 }
 
+/**
+ * Logotypy klubow z panelu, indeksowane skrotem (FLO, YKP, ...).
+ *
+ * Skrot jest pewniejszym kluczem niz nazwa: nazwy zespolow zmieniaja sie wraz
+ * ze sponsorem (WKS Flota Gdynia -> BSA Flota Gdynia) albo wystepuja raz w
+ * pelnej, raz w skroconej postaci (Yacht Klub Polski Gdynia -> YKP Gdynia),
+ * przez co dopasowanie po nazwie gubilo logotypy.
+ */
+export async function getLogotypyKlubow(): Promise<Map<string, string>> {
+  const map = new Map<string, string>()
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const res = await payload.find({
+      collection: 'kluby',
+      limit: 0,
+      pagination: false,
+      depth: 1,
+    })
+    for (const d of res.docs as any[]) {
+      const url = mediaUrl(d.logo)
+      const skrot = (d.skrot || '').trim().toUpperCase()
+      if (skrot && url) map.set(skrot, url)
+    }
+  } catch {
+    /* panel niedostępny — zostaje wariant z pliku */
+  }
+  return map
+}
+
 export type SezonPrzypisanie = { poziom: string; wariant: number }
 
 // Odczyt pola json z Payloada — bywa tablicą albo (po ręcznym wpisie) tekstem.
