@@ -30,7 +30,7 @@ export const generateMeta = async (args: {
   // ze starej strony. Wtedy bierzemy zwykly tytul dokumentu, a dopiero na koncu
   // sama nazwe serwisu.
   const wlasny = doc?.meta?.title || (doc as { title?: string } | null)?.title
-  const title = wlasny ? `${wlasny} | Polska Liga Żeglarska` : 'Polska Liga Żeglarska'
+  const title = wlasny ? `${wlasny} — Polska Liga Żeglarska` : 'Polska Liga Żeglarska'
 
   return {
     description: doc?.meta?.description,

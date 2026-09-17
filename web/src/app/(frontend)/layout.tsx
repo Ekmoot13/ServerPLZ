@@ -61,12 +61,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
-  // Tytul domyslny dla stron, ktore nie ustawiaja wlasnego; %s podstawia
-  // tytul podstrony.
-  title: {
-    default: 'Polska Liga Żeglarska',
-    template: '%s | Polska Liga Żeglarska',
-  },
+  // Tylko tytul domyslny — BEZ szablonu z '%s'. Podstrony maja nazwe serwisu
+  // wpisana we wlasnych tytulach, a szablon dokladalby ja drugi raz.
+  title: 'Polska Liga Żeglarska',
   description: 'Polska Liga Żeglarska — regaty, wyniki, kluby i zawodnicy.',
   openGraph: mergeOpenGraph(),
   twitter: {
