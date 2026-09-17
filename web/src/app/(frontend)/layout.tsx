@@ -34,8 +34,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
     >
       <head>
-        <link href="/favicon.ico" rel="icon" sizes="32x32" />
-        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+        {/* Ikony wygenerowane z logo PLZ (znak zagli na granacie) — patrz
+            scripts/zrob-favicon.mjs. Bialy zagiel wymaga tla, inaczej znika
+            na jasnym pasku kart. */}
+        <link href="/favicon.ico" rel="icon" sizes="any" />
+        <link href="/favicon-32x32.png" rel="icon" type="image/png" sizes="32x32" />
+        <link href="/favicon-16x16.png" rel="icon" type="image/png" sizes="16x16" />
+        <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
       </head>
       <body>
         <Providers>
