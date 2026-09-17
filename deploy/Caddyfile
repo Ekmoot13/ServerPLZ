@@ -29,7 +29,12 @@
 }
 
 # --- Strona publiczna + panel CMS (Next.js + Payload) ---
-{$DOMAIN} {
+# ligowastrefakibica.pl zostaje na czas przepiecia domeny: Let's Encrypt
+# waliduje z kilku punktow na swiecie i dopoki czesc z nich widzi jeszcze
+# stary adres, certyfikat dla ligazeglarska.pl nie moze powstac. Bez tego
+# wpisu strona bylaby w tym czasie niedostepna pod zadnym adresem.
+# DO USUNIECIA po ustabilizowaniu sie nowej domeny.
+{$DOMAIN}, ligowastrefakibica.pl {
 	encode zstd gzip
 	import security_headers
 	reverse_proxy web:3000
@@ -41,7 +46,7 @@
 }
 
 # --- Przekierowanie www -> domena bez www ---
-www.{$DOMAIN} {
+www.{$DOMAIN}, www.ligowastrefakibica.pl {
 	redir https://{$DOMAIN}{uri} permanent
 }
 
