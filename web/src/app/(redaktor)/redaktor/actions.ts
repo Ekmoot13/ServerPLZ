@@ -284,6 +284,7 @@ export async function updateStrefaKibica(formData: FormData) {
     pokazProgram: formData.get('pokazProgram') === 'on',
     programTytul: String(formData.get('programTytul') || ''),
     programWstep: String(formData.get('programWstep') || ''),
+    programTlo: String(formData.get('programTlo') || ''),
     linki: parseJson<any[]>(String(formData.get('linki') || ''), []),
     program: parseJson<any[]>(String(formData.get('program') || ''), []),
     mapaEmbed: String(formData.get('mapaEmbed') || ''),

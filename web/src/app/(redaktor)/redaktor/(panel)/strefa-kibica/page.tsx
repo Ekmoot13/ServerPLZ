@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { updateStrefaKibica } from '../../actions'
 import ProgramEditor from './ProgramEditor'
 import TransmisjeEditor from './TransmisjeEditor'
+import WyborTla from './WyborTla'
 
 export const dynamic = 'force-dynamic'
 
@@ -124,6 +125,10 @@ export default async function StrefaKibicaSettingsPage({
           <div className="mb-4">
             <label className="mb-1 block text-sm font-medium text-slate-700">Wstęp</label>
             <textarea form="ustawienia-strefy" name="programWstep" defaultValue={s?.programWstep || ''} rows={2} className={inputCls} />
+          </div>
+
+          <div className="mb-4">
+            <WyborTla nazwa="programTlo" poczatkowe={s?.programTlo || ''} formId="ustawienia-strefy" />
           </div>
 
           <ProgramEditor

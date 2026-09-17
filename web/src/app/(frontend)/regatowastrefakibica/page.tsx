@@ -48,6 +48,7 @@ export default async function RegatowaStrefaKibicaPage() {
   const pokazProgram: boolean = settings?.pokazProgram !== false
   const programTytul: string = settings?.programTytul || 'Śledź z nami regaty dzień po dniu'
   const programWstep: string = settings?.programWstep || ''
+  const programTlo: string = settings?.programTlo || ''
   const linkiRaw: any[] = Array.isArray(settings?.linki) ? settings.linki : []
   // Tracking SAP zawsze na początku
   const jestSap = (l: any) => l?.ikona === 'sap' || /sap/i.test(`${l?.label || ''} ${l?.url || ''}`)
@@ -167,8 +168,17 @@ export default async function RegatowaStrefaKibicaPage() {
 
       {/* SEKCJA INFORMACYJNA — PROGRAM WEEKENDU (edytowalna w panelu redaktora) */}
       {pokazProgram && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-5xl px-4 py-14">
+        <section className="relative bg-white">
+          {/* Zdjecie w tle buduje poczucie miejsca. Jasna warstwa nad nim
+              utrzymuje czytelnosc granatowych naglowkow i szarego tekstu. */}
+          {programTlo && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={programTlo} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-white/88" />
+            </>
+          )}
+          <div className="relative mx-auto max-w-5xl px-4 py-14">
             <h2 className="text-center text-2xl font-extrabold uppercase tracking-wide text-navy md:text-3xl">{programTytul}</h2>
             <div className="mx-auto mt-2 mb-6 h-1 w-14 rounded-full bg-brand-red" />
             {programWstep && <p className="mx-auto mb-8 max-w-3xl whitespace-pre-line text-center text-slate-700 md:text-lg">{programWstep}</p>}
@@ -197,7 +207,7 @@ export default async function RegatowaStrefaKibicaPage() {
             {program.length > 0 && (
               <div className="space-y-6">
                 {program.map((d: any, di: number) => (
-                  <div key={di} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                  <div key={di} className="rounded-2xl border border-slate-200 bg-white/85 p-6 backdrop-blur-sm">
                     <h3 className="font-extrabold uppercase tracking-wide text-navy">{d?.tytul}</h3>
                     <div className="mt-2 mb-4 h-0.5 w-10 rounded-full bg-brand-red" />
                     <ul className="space-y-2.5">

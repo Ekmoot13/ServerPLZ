@@ -80,6 +80,15 @@ export const StrefaKibica: GlobalConfig = {
       label: 'Wstęp (krótki tekst pod nagłówkiem)',
     },
     {
+      name: 'programTlo',
+      type: 'text',
+      label: 'Zdjęcie w tle sekcji informacyjnej',
+      admin: {
+        description:
+          'Adres zdjęcia pokazywanego w tle programu weekendu — buduje poczucie miejsca. Puste = zwykłe białe tło.',
+      },
+    },
+    {
       name: 'linki',
       type: 'json',
       label: 'Szybkie linki (przyciski: etykieta + adres)',

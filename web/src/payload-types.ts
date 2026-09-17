@@ -2052,6 +2052,10 @@ export interface StrefaKibica {
   programTytul?: string | null;
   programWstep?: string | null;
   /**
+   * Adres zdjęcia pokazywanego w tle programu weekendu — buduje poczucie miejsca. Puste = zwykłe białe tło.
+   */
+  programTlo?: string | null;
+  /**
    * Edytowane w panelu redaktora. Format: lista { label, url }.
    */
   linki?:
@@ -2271,6 +2275,7 @@ export interface StrefaKibicaSelect<T extends boolean = true> {
   pokazProgram?: T;
   programTytul?: T;
   programWstep?: T;
+  programTlo?: T;
   linki?: T;
   program?: T;
   mapaEmbed?: T;
