@@ -4,7 +4,7 @@ import { getLatestYouTube } from '@/lib/youtube'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Media — Polska Liga Żeglarska' }
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 const YT_CHANNEL = 'UC-iLVLnRVlBDvn-NMc-HjTA' // Polska Liga Żeglarska (magazyn)
 const RAPORTY = 'https://1drv.ms/f/c/66b2b0f68e9f706a/Eh1jJ6-Ni2REuZcY_YBXyAsB6lYVecZbnAtsU7kSlsmnPw'
 

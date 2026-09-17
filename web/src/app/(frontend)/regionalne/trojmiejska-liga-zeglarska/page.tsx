@@ -4,7 +4,7 @@ import RegionLeague, { type RegionCfg } from '@/components/site/RegionLeague'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Trójmiejska Liga Żeglarska — Polska Liga Żeglarska' }
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 
 const CFG: RegionCfg = {
   poziom: /tr[oó]jmiejsk/i,

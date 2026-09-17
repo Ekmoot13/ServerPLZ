@@ -273,7 +273,7 @@ export default async function RegionLeague({ cfg }: { cfg: RegionCfg }) {
               className="mx-auto mt-8 block max-w-3xl overflow-hidden rounded-2xl shadow-lg transition hover:opacity-95"
             >
               <Img
-                src="https://ligazeglarska.pl/wp-content/uploads/2025/11/a1c2314d-7936-4a6e-bee9-d152c284edb0.jpg"
+                src="/kluby/2025/11/a1c2314d-7936-4a6e-bee9-d152c284edb0.jpg"
                 alt="Wyniki i tracking na platformie SAP"
                 className="w-full"
               />

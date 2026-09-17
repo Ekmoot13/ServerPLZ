@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 
 type Wartosc = { tytul: string; tekst: string; foto: string; ikona: React.ReactNode }
 

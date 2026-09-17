@@ -2,7 +2,7 @@
 // Dopasowanie po znormalizowanej nazwie klubu (fallback: zawieranie).
 export type KlubMedia = { nazwa: string; foto: string; logo: string }
 
-const L = 'https://ligazeglarska.pl/wp-content/uploads'
+const L = '/kluby'
 
 export const KLUB_MEDIA: KlubMedia[] = [
   { nazwa: 'Yacht Club Gdańsk', foto: `${L}/2024/01/EXR1_127_gwidon_libera-scaled.jpg`, logo: `${L}/2024/02/ycg.webp` },

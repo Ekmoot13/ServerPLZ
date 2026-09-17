@@ -3,7 +3,7 @@ import React from 'react'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Jak się ścigamy? — Polska Liga Żeglarska' }
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 

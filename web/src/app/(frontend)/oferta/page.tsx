@@ -7,7 +7,7 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Oferta — Polska Liga Żeglarska' }
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 const HERO = `${U}/2025/11/EXR3_0021_szymon_sikora_rek_.jpg`
 const PREZENTACJA = `${U}/2026/03/Czym-jest-Polska-Liga-Zeglarska-PLZ2026.pdf`
 const RAPORTY =

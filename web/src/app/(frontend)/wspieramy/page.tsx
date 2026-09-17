@@ -4,7 +4,7 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Wspieramy — Polska Liga Żeglarska' }
 
-const L = 'https://ligazeglarska.pl/wp-content/uploads'
+const L = '/kluby'
 const IMG = {
   kobiety: `${L}/2025/11/MPKR1__S_00474_Bartosz_Modelski-1-1024x683.jpg`,
   mlodzi: `${L}/2025/11/PLZ_EXR4__S_03921_Bartosz_Modelski-1-1024x683.jpg`,

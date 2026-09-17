@@ -20,7 +20,7 @@ import { PRESS_KIT_URL } from '@/lib/media-kit'
 
 export const dynamic = 'force-dynamic'
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 const YT_PLAYLIST = 'PLU9WwmeQjjruaBtobyLupCsmIvs4pJGjW'
 const HERO_BG = `${U}/2026/05/1LR1_0059_szymon_sikora.jpg`
 // eslint-disable-next-line @next/next/no-img-element

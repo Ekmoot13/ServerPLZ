@@ -8,7 +8,7 @@ import { statusRegat } from '@/lib/kalendarz'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Ligi Regionalne — Polska Liga Żeglarska' }
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
 

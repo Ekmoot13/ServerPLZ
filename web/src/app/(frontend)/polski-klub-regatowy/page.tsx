@@ -6,10 +6,10 @@ export const metadata = { title: 'Polski Klub Regatowy — Polska Liga Żeglarsk
 
 // Grafiki z ligazeglarska.pl (hotlink — do podmiany na własne uploady w razie potrzeby).
 const IMG = {
-  burgee: 'https://ligazeglarska.pl/wp-content/uploads/2026/03/PKR-logo-kontra.png',
-  bg: 'https://ligazeglarska.pl/wp-content/uploads/2026/03/BG-PKR-1.jpg',
-  dolacz: 'https://ligazeglarska.pl/wp-content/uploads/2026/03/PLZ2026-Baner-newsletterWWW-1024x683.jpg',
-  lodki: 'https://ligazeglarska.pl/wp-content/uploads/2026/03/EXR1_208_gwidon_libera-1024x683.jpg',
+  burgee: '/kluby/2026/03/PKR-logo-kontra.png',
+  bg: '/kluby/2026/03/BG-PKR-1.jpg',
+  dolacz: '/kluby/2026/03/PLZ2026-Baner-newsletterWWW-1024x683.jpg',
+  lodki: '/kluby/2026/03/EXR1_208_gwidon_libera-1024x683.jpg',
 }
 
 // eslint-disable-next-line @next/next/no-img-element

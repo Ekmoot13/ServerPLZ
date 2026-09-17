@@ -14,7 +14,7 @@ const MIES = [
   'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
 ]
 
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...props} />
 

@@ -7,7 +7,7 @@ const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p}
 // SmugMug nie udostępnia publicznego kanału (RSS/JSON) dla konta Ligi — podgląd
 // budujemy więc ze stałego zestawu zdjęć z ostatnich regat, a pełne archiwum
 // otwieramy w serwisie SmugMug.
-const U = 'https://ligazeglarska.pl/wp-content/uploads'
+const U = '/kluby'
 const ZDJECIA = [
   `${U}/2026/04/EXR3_0029_szymon_sikora_rek_.jpg`,
   `${U}/2026/04/EXR1_173_gwidon_libera-scaled.jpg`,
