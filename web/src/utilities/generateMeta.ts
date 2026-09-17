@@ -8,7 +8,7 @@ import { getServerSideURL } from './getURL'
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   const serverUrl = getServerSideURL()
 
-  let url = serverUrl + '/website-template-OG.webp'
+  let url = serverUrl + '/og-domyslny.jpg'
 
   if (image && typeof image === 'object' && 'url' in image) {
     const ogUrl = image.sizes?.og?.url
@@ -26,9 +26,11 @@ export const generateMeta = async (args: {
 
   const ogImage = getImageURL(doc?.meta?.image)
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+  // Pole SEO (meta.title) bywa puste — zwlaszcza w artykulach zaimportowanych
+  // ze starej strony. Wtedy bierzemy zwykly tytul dokumentu, a dopiero na koncu
+  // sama nazwe serwisu.
+  const wlasny = doc?.meta?.title || (doc as { title?: string } | null)?.title
+  const title = wlasny ? `${wlasny} | Polska Liga Żeglarska` : 'Polska Liga Żeglarska'
 
   return {
     description: doc?.meta?.description,
