@@ -8,6 +8,10 @@ import { statusRegat } from '@/lib/kalendarz'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Ligi Regionalne — Polska Liga Żeglarska' }
 
+// Dokument pelni role zawiadomienia o regatach — tak samo byl podpiety
+// na starej stronie, mimo ze w nazwie pliku jest "Regulamin".
+const ZAWIADOMIENIE = '/kluby/2026/08/Regulamin-Final-Lig-Regionalnych-PLZ2026.pdf'
+
 const U = '/kluby'
 // eslint-disable-next-line @next/next/no-img-element
 const Img = (p: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...p} />
@@ -78,7 +82,9 @@ export default async function RegionalnePage() {
           <h2 className="mt-10 text-2xl font-extrabold uppercase tracking-wide">Finał Lig Regionalnych</h2>
           <p className="mt-2 font-semibold text-white/90">Tylko dla załóg, które uzyskały awans. Do zobaczenia w Szczecinie!</p>
           <a
-            href="mailto:info@ligazeglarska.pl"
+            href={ZAWIADOMIENIE}
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-6 inline-block rounded-[10px] border-2 border-white px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white hover:text-navy"
           >
             Zawiadomienie o regatach

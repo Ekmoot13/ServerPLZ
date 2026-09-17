@@ -4,6 +4,10 @@ import LigaLanding from '@/components/site/LigaLanding'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Młodzieżowa Liga Żeglarska — Polska Liga Żeglarska' }
 
+const REGULAMIN = '/kluby/2026/09/Regulamin-Mlodziezowa-PLZ2026.pdf'
+
 export default function MlodziezowaPage() {
-  return <LigaLanding poziom={/m[łl]odzie/i} tytul="Młodzieżowa Liga Żeglarska" />
+  return (
+    <LigaLanding poziom={/m[łl]odzie/i} tytul="Młodzieżowa Liga Żeglarska" regulamin={REGULAMIN} />
+  )
 }
