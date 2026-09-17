@@ -1,15 +1,14 @@
 /**
  * Generowanie favicona z logo Polskiej Ligi Zeglarskiej.
  *
- * Z logo bierzemy sam znak zagli — napis "POLSKA LIGA ZEGLARSKA" przy 16-32 px
- * jest nieczytelny. Zagle sa biale i czerwone, wiec potrzebuja granatowego tla,
- * inaczej biala czesc znika na jasnym pasku kart przegladarki.
+ * Z logo bierzemy sam znak zagli — napis pod nim przy 16-32 px jest nieczytelny.
+ * Tlo pozostaje przezroczyste (decyzja redaktora): na ciemnym pasku kart widac
+ * pelny znak, na jasnym bialy zagiel zlewa sie z tlem i zostaje sam czerwony.
  */
 import sharp from 'sharp'
 import fs from 'node:fs/promises'
 
 const ZRODLO = '/app/public/logo.png'
-const GRANAT = '#132a54'
 const WYJSCIE = '/app/public'
 
 // Sam znak (bez napisu) siedzi w gornej czesci kwadratu 1000x1000.
@@ -28,16 +27,20 @@ const znak = await sharp(gora).trim().toBuffer({ resolveWithObject: true })
 
 console.log('znak po przycieciu:', znak.info.width + 'x' + znak.info.height)
 
-/** Znak na granatowym kwadracie, z marginesem oddechowym. */
+/**
+ * Znak na przezroczystym kwadracie, z marginesem oddechowym.
+ * Uwaga: bialy zagiel jest niewidoczny na jasnym tle paska kart — swiadomy
+ * wybor, bo ikona ma byc samym znakiem, bez plamy tla.
+ */
 async function ikona(rozmiar) {
-  const margines = Math.round(rozmiar * 0.14)
+  const margines = Math.round(rozmiar * 0.08)
   const wewn = rozmiar - margines * 2
   const skala = await sharp(znak.data)
     .resize(wewn, wewn, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .toBuffer()
 
   return sharp({
-    create: { width: rozmiar, height: rozmiar, channels: 4, background: GRANAT },
+    create: { width: rozmiar, height: rozmiar, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
   })
     .composite([{ input: skala, top: margines, left: margines }])
     .png()
