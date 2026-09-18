@@ -11,6 +11,10 @@ import type { DaneWynikow, Komorka } from '@/lib/sap'
  * dlatego odpytujemy co pięć sekund — ale tylko gdy karta jest na wierzchu,
  * żeby nie mielić w tle cudzego serwera.
  *
+ * Domyślnie pokazujemy czołową dziesiątkę — tyle, ile faktycznie śledzi kibic
+ * w trakcie wyścigu. Reszta stawki jest o jedno kliknięcie dalej, żeby tabela
+ * nie zajmowała całego ekranu na telefonie.
+ *
  * Oznaczenia idą za tym, co pokazuje SAP w swoim leaderboardzie:
  * kolor podkreślenia mówi, w której flotylli danego lotu płynie załoga
  * (w jednym locie startują dwie dziesiątki), a czerwony wynik oznacza wyścig,
@@ -44,8 +48,11 @@ function bogactwo(d: DaneWynikow): number {
   return d.wiersze.reduce((n, w) => n + w.komorki.filter((k) => k.tekst !== '–').length, 0)
 }
 
+const CZOLOWKA = 10
+
 export default function TabelaWynikow({ poczatkowe }: { poczatkowe: DaneWynikow | null }) {
   const [dane, setDane] = useState<DaneWynikow | null>(poczatkowe)
+  const [rozwinieta, setRozwinieta] = useState(false)
   const chude = useRef(0)
 
   useEffect(() => {
@@ -101,6 +108,9 @@ export default function TabelaWynikow({ poczatkowe }: { poczatkowe: DaneWynikow 
 
   const trwaKolumna = dane.kolumnaTrwajaca
   const trwaFlotylla = dane.flotyllaTrwajaca
+  const wszystkich = dane.wiersze.length
+  const skrocona = !rozwinieta && wszystkich > CZOLOWKA
+  const widoczne = skrocona ? dane.wiersze.slice(0, CZOLOWKA) : dane.wiersze
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -142,7 +152,7 @@ export default function TabelaWynikow({ poczatkowe }: { poczatkowe: DaneWynikow 
             </tr>
           </thead>
           <tbody>
-            {dane.wiersze.map((w) => (
+            {widoczne.map((w) => (
               <tr key={w.id} className="border-t border-slate-100 hover:bg-navy/5">
                 <td className="px-2 py-1.5 font-semibold text-slate-700">{w.miejsce}</td>
                 <td className="whitespace-nowrap px-2 py-1.5 font-medium text-slate-800">
@@ -164,6 +174,16 @@ export default function TabelaWynikow({ poczatkowe }: { poczatkowe: DaneWynikow 
           </tbody>
         </table>
       </div>
+
+      {wszystkich > CZOLOWKA && (
+        <button
+          type="button"
+          onClick={() => setRozwinieta((r) => !r)}
+          className="w-full border-t border-slate-100 px-4 py-3 text-sm font-semibold text-navy transition hover:bg-slate-50"
+        >
+          {skrocona ? `Pokaż całą stawkę (${wszystkich})` : 'Pokaż tylko czołową dziesiątkę'}
+        </button>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-2 text-xs text-slate-400">
         <span className="flex flex-wrap items-center gap-3">

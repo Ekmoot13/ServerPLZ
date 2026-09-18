@@ -126,28 +126,19 @@ export default async function RegatowaStrefaKibicaPage() {
   const gridCols = pokazMape && prawaIle > 0 ? 'lg:grid-cols-[1.8fr_1fr]' : 'lg:grid-cols-1'
   const prawaRows = prawaIle === 2 ? 'lg:grid-rows-2' : 'lg:grid-rows-1'
 
-  // Gdy wyniki są jedyną sekcją, tabela dostaje tyle wysokości, ile potrzebuje.
-  // Dwadzieścia załóg i szesnaście kolumn nie mieści się w 80vh na niższych
-  // ekranach, a zagnieżdżony pasek przewijania w środku strony jest gorszy niż
-  // dłuższa strona — kibic i tak przewija, tylko nie wie, czym.
-  const tylkoWyniki = pokazWyniki && !pokazMape && !pokazTransmisje
-  const wysokoscDashboardu = tylkoWyniki ? '' : 'lg:h-[80vh]'
-  // Sama tabela rozciągnięta na 1600 px wygląda jak arkusz kalkulacyjny i nie
-  // trzyma się linii reszty strony. Zwężamy ją do szerokości sekcji poniżej.
-  const szerokoscDashboardu = tylkoWyniki ? 'max-w-5xl' : 'max-w-[1600px]'
+  // Bez mapy dashboard staje się jedną wąską kolumną: najpierw transmisja,
+  // pod nią tabela, obie tej samej szerokości co sekcja informacyjna niżej.
+  // Rozciągnięte na 1600 px wyglądały jak arkusz kalkulacyjny i nie trzymały
+  // się linii reszty strony. Nie narzucamy wtedy wysokości — zagnieżdżony pasek
+  // przewijania w środku strony jest gorszy niż dłuższa strona.
+  const bezMapy = !pokazMape
+  const wysokoscDashboardu = bezMapy ? '' : 'lg:h-[80vh]'
+  const szerokoscDashboardu = bezMapy ? 'max-w-5xl' : 'max-w-[1600px]'
+  const prawaUklad = bezMapy ? '' : `lg:h-full ${prawaRows}`
 
-  // Odtwarzacz ma aspect-video (wysokość liczona z szerokości), więc na pełnej
-  // szerokości rozpycha wiersz o stałej wysokości. Gdy mapa jest wyłączona,
-  // ograniczamy jego szerokość do tego, co zmieści się w dostępnej wysokości.
-  // Wartości odpowiadają wierszom siatki lg:h-[80vh] pomniejszonym o nagłówki,
-  // przeliczonym przez 16/9 (36vh -> 64vh, 74vh -> 131vh). Bez calc(...) z ukośnikiem,
-  // bo Tailwind bierze go za modyfikator przezroczystości i nie generuje klasy.
-  const transmisjaCap = pokazMape
-    ? ''
-    : prawaIle === 2
-      ? 'lg:max-w-[64vh]'
-      : 'lg:max-w-[131vh]'
-
+  // Odtwarzacz ma aspect-video (wysokość liczona z szerokości), więc w układzie
+  // o stałej wysokości rozpycha wiersz. Tam, gdzie wysokość jest swobodna,
+  // ograniczenie nie jest potrzebne i odtwarzacz bierze całą szerokość kolumny.
   return (
     <main>
       {/* Sygnał sędziowski — podnoszony z telefonu, więc pojawia się nad
@@ -191,16 +182,16 @@ export default async function RegatowaStrefaKibicaPage() {
 
               {/* PRAWA — TRANSMISJA (góra) + WYNIKI (dół) */}
               {prawaIle > 0 && (
-                <div className={`grid gap-4 lg:h-full ${prawaRows}`}>
+                <div className={`grid min-w-0 gap-4 ${prawaUklad}`}>
                   {/* TRANSMISJA */}
                   {pokazTransmisje && (
-                    <div className="flex min-h-[240px] flex-col overflow-hidden">
+                    <div className={`flex min-w-0 flex-col ${bezMapy ? '' : 'min-h-[240px] overflow-hidden'}`}>
                       <div className="mb-2 flex items-center gap-2">
                         <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Transmisja na żywo</h2>
                         {streamLive && <LiveBadge />}
                       </div>
                       <div className="flex min-h-0 flex-1 items-center justify-center">
-                        <div className={`w-full ${transmisjaCap}`}>
+                        <div className="w-full">
                           <StrefaTransmisja streams={streams} hlsBase={HLS_BASE} />
                         </div>
                       </div>
@@ -211,7 +202,7 @@ export default async function RegatowaStrefaKibicaPage() {
                   {pokazWyniki && (
                     <div
                       className={`flex min-w-0 flex-col ${
-                        tylkoWyniki ? '' : 'min-h-[240px] overflow-hidden'
+                        bezMapy ? '' : 'min-h-[240px] overflow-hidden'
                       }`}
                     >
                       <div className="mb-2 flex items-center gap-2">
@@ -221,7 +212,7 @@ export default async function RegatowaStrefaKibicaPage() {
                       </div>
                       <div
                         className={`min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 ${
-                          tylkoWyniki ? '' : 'min-h-0 flex-1 overflow-auto'
+                          bezMapy ? '' : 'min-h-0 flex-1 overflow-auto'
                         }`}
                       >
                         {leaderboardName ? (
