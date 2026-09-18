@@ -124,6 +124,13 @@ export default async function RegatowaStrefaKibicaPage() {
   const gridCols = pokazMape && prawaIle > 0 ? 'lg:grid-cols-[1.8fr_1fr]' : 'lg:grid-cols-1'
   const prawaRows = prawaIle === 2 ? 'lg:grid-rows-2' : 'lg:grid-rows-1'
 
+  // Gdy wyniki są jedyną sekcją, tabela dostaje tyle wysokości, ile potrzebuje.
+  // Dwadzieścia załóg i szesnaście kolumn nie mieści się w 80vh na niższych
+  // ekranach, a zagnieżdżony pasek przewijania w środku strony jest gorszy niż
+  // dłuższa strona — kibic i tak przewija, tylko nie wie, czym.
+  const tylkoWyniki = pokazWyniki && !pokazMape && !pokazTransmisje
+  const wysokoscDashboardu = tylkoWyniki ? '' : 'lg:h-[80vh]'
+
   // Odtwarzacz ma aspect-video (wysokość liczona z szerokości), więc na pełnej
   // szerokości rozpycha wiersz o stałej wysokości. Gdy mapa jest wyłączona,
   // ograniczamy jego szerokość do tego, co zmieści się w dostępnej wysokości.
@@ -152,7 +159,7 @@ export default async function RegatowaStrefaKibicaPage() {
       {pokazDashboard && (
         <section className="bg-navy-900" style={patternBg}>
           <div className="mx-auto max-w-[1600px] px-4 py-6">
-            <div className={`grid gap-4 lg:h-[80vh] ${gridCols}`}>
+            <div className={`grid gap-4 ${wysokoscDashboardu} ${gridCols}`}>
               {/* LEWA — MAPA SAP */}
               {pokazMape && (
                 <div className="flex min-h-[360px] flex-col lg:h-full">
@@ -193,13 +200,17 @@ export default async function RegatowaStrefaKibicaPage() {
 
                   {/* WYNIKI */}
                   {pokazWyniki && (
-                    <div className="flex min-h-[240px] flex-col overflow-hidden">
+                    <div className={`flex flex-col ${tylkoWyniki ? '' : 'min-h-[240px] overflow-hidden'}`}>
                       <div className="mb-2 flex items-center gap-2">
                         {/* Bez plakietki: tabela z SAP ma wlasna, a trzecie „na zywo"
                             w jednym kadrze przestaje cokolwiek znaczyc. */}
                         <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Wyniki na żywo</h2>
                       </div>
-                      <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-white/10 bg-white/5">
+                      <div
+                        className={`rounded-xl border border-white/10 bg-white/5 ${
+                          tylkoWyniki ? '' : 'min-h-0 flex-1 overflow-auto'
+                        }`}
+                      >
                         {leaderboardName ? (
                           <div className="bg-white">
                             <SapLeaderboard name={leaderboardName} base={sapBase} />
