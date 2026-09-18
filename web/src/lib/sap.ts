@@ -86,6 +86,18 @@ async function pobierz(name: string, base: string, wariant: string): Promise<Lea
  */
 async function pobierzSurowe(name: string, base: string): Promise<Leaderboard | null> {
   const [a, b] = await Promise.all([pobierz(name, base, 'a'), pobierz(name, base, 'b')])
+  let najlepsza = lepsza(a, b)
+
+  // Oba zapytania potrafią trafić na ten sam, chudy węzeł — wtedy jeszcze jedna
+  // próba. Kosztuje tylko w tym rzadkim przypadku, a bez niej tabela przychodzi
+  // z kompletem wierszy i samymi kreskami.
+  if (!najlepsza || ilePunktujacych(najlepsza) === 0) {
+    najlepsza = lepsza(najlepsza, await pobierz(name, base, 'c'))
+  }
+  return najlepsza
+}
+
+function lepsza(a: Leaderboard | null, b: Leaderboard | null): Leaderboard | null {
   if (!a) return b
   if (!b) return a
   return ocena(b) > ocena(a) ? b : a

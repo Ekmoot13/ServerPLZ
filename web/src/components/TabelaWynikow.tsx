@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { DaneWynikow, Komorka } from '@/lib/sap'
 
 /**
@@ -39,8 +39,14 @@ function Wartosc({ k, trwa }: { k: Komorka; trwa: boolean }) {
   )
 }
 
+/** Ile komórek ma wynik — miara tego, jak dużo wiadomo z danej odpowiedzi. */
+function bogactwo(d: DaneWynikow): number {
+  return d.wiersze.reduce((n, w) => n + w.komorki.filter((k) => k.tekst !== '–').length, 0)
+}
+
 export default function TabelaWynikow({ poczatkowe }: { poczatkowe: DaneWynikow | null }) {
   const [dane, setDane] = useState<DaneWynikow | null>(poczatkowe)
+  const chude = useRef(0)
 
   useEffect(() => {
     let przerwane = false
@@ -51,8 +57,26 @@ export default function TabelaWynikow({ poczatkowe }: { poczatkowe: DaneWynikow 
         const r = await fetch('/api/wyniki', { cache: 'no-store' })
         if (!r.ok) return
         const nowe = (await r.json()) as DaneWynikow | null
-        // Pustej odpowiedzi nie wstawiamy w miejsce działającej tabeli.
-        if (!przerwane && nowe?.wiersze?.length) setDane(nowe)
+        if (przerwane || !nowe?.wiersze?.length) return
+
+        setDane((poprzednie) => {
+          if (!poprzednie) return nowe
+          // Wyniki w trakcie regat tylko przybywają. Odpowiedź uboższa od tego,
+          // co już pokazujemy, to prawie zawsze rozjazd węzłów SAP-a, a nie nowy
+          // stan — nie pozwalamy jej wyczyścić tabeli.
+          if (bogactwo(nowe) >= bogactwo(poprzednie)) {
+            chude.current = 0
+            return nowe
+          }
+          chude.current += 1
+          // Trzy chude odpowiedzi z rzędu (~15 s) to już nie przypadek — wtedy
+          // przyjmujemy, że wyniki faktycznie zostały wycofane.
+          if (chude.current >= 3) {
+            chude.current = 0
+            return nowe
+          }
+          return poprzednie
+        })
       } catch {
         // Cisza — kolejna próba za pięć sekund.
       }
