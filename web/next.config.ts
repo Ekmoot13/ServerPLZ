@@ -13,7 +13,9 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 const nextConfig: NextConfig = {
   // Adresy dozwolone w trybie dev (za reverse proxy Caddy). Po podpięciu domeny dopisz ją tutaj.
-  allowedDevOrigins: ['167.233.147.6.sslip.io', 'ligowastrefakibica.pl'],
+  // 192.168.* — telefon w tej samej sieci Wi-Fi, do sterowania flagą AP
+  // z wody. Dotyczy wyłącznie trybu dev.
+  allowedDevOrigins: ['167.233.147.6.sslip.io', 'ligowastrefakibica.pl', '192.168.0.*'],
   sassOptions: {
     loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
   },
@@ -51,6 +53,10 @@ const nextConfig: NextConfig = {
       // (uploadMedia), a domyślny limit ciała żądania to 1 MB — zdjęcie
       // z telefonu ma 2-8 MB i odbijało się z „Nie udało się wgrać zdjęcia".
       bodySizeLimit: '25mb',
+      // Bez tego Next odrzuca akcje serwerowe wysłane z innego adresu niż
+      // ten, pod którym stoi serwer — a telefon łączy się po IP w sieci
+      // lokalnej, nie przez localhost.
+      allowedOrigins: ['192.168.0.231:3000', '192.168.0.*:3000'],
     },
   },
   redirects,

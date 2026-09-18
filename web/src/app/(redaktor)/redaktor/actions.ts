@@ -4,6 +4,8 @@ import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/redaktorAuth'
+import { aktywne, nowyKod, WAZNOSC_GODZIN, type KodFlagi } from '@/lib/kodyFlagi'
+import { przelaczFlageWBazie } from '@/lib/flaga'
 
 function toId(v: string): number | string {
   const n = Number(v)
@@ -286,6 +288,66 @@ export async function updateWpis(formData: FormData) {
   odswiezWpis((doc as any)?.slug)
   odswiezWpis((poprzedni as any)?.slug)
   redirect(`/redaktor/wpisy/${id}?ok=${Date.now()}`)
+}
+
+/** Kody dostępu do aplikacji z flagą — lista bez wygasłych. */
+export async function pobierzKodyFlagi(): Promise<KodFlagi[]> {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const s: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
+  return aktywne(s?.kodyFlagi)
+}
+
+/**
+ * Nowy kod ważny dobę. Przy okazji wyrzucamy wygasłe — lista sama się
+ * sprząta, bez osobnego zadania w tle.
+ */
+export async function wygenerujKodFlagi(opis: string): Promise<KodFlagi[]> {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const s: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
+
+  const kod: KodFlagi = {
+    kod: nowyKod(),
+    wygasa: new Date(Date.now() + WAZNOSC_GODZIN * 3600 * 1000).toISOString(),
+    opis: String(opis || '').trim().slice(0, 60),
+  }
+  const lista = [...aktywne(s?.kodyFlagi), kod]
+
+  await payload.updateGlobal({
+    slug: 'strefa-kibica',
+    data: { kodyFlagi: lista } as any,
+    overrideAccess: true,
+  })
+  return lista
+}
+
+/** Unieważnienie kodu — np. gdy telefon zginie albo ktoś skończył dyżur. */
+export async function usunKodFlagi(kod: string): Promise<KodFlagi[]> {
+  await requireUser()
+  const payload = await getPayload({ config })
+  const s: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
+  const lista = aktywne(s?.kodyFlagi).filter((k) => k.kod !== kod)
+
+  await payload.updateGlobal({
+    slug: 'strefa-kibica',
+    data: { kodyFlagi: lista } as any,
+    overrideAccess: true,
+  })
+  return lista
+}
+
+/**
+ * Przełącznik flagi — obsługiwany także z telefonu, więc bez formularza
+ * i bez przeładowania strony.
+ *
+ * Podniesiona może być tylko jedna flaga, a ponowne kliknięcie tej samej ją
+ * opuszcza. Decyduje serwer, a nie przeglądarka: przy dwóch osobach z dostępem
+ * telefon może mieć nieaktualny obraz sytuacji i zgasić cudzy świeży sygnał.
+ */
+export async function przelaczFlage(kod: string): Promise<{ flaga: string }> {
+  await requireUser()
+  return przelaczFlageWBazie(kod)
 }
 
 export async function updateStrefaKibica(formData: FormData) {

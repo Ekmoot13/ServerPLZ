@@ -2079,6 +2079,22 @@ export interface StrefaKibica {
     | number
     | boolean
     | null;
+  /**
+   * Jedna naraz: AP (wyścigi odłożone), N (przerwane), PZ (falstart generalny), APA (koniec na dziś). Puste = brak sygnału. Przełączana z telefonu (/flaga) albo w tej zakładce.
+   */
+  flaga?: string | null;
+  /**
+   * Generowane w panelu (/redaktor/flaga). Format: lista { kod, wygasa, opis }. Kody wygasłe są usuwane przy każdym zapisie.
+   */
+  kodyFlagi?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   pokazGalerie?: boolean | null;
   galeriaTytul?: string | null;
   /**
@@ -2310,6 +2326,8 @@ export interface StrefaKibicaSelect<T extends boolean = true> {
   programTlo?: T;
   linki?: T;
   program?: T;
+  flaga?: T;
+  kodyFlagi?: T;
   pokazGalerie?: T;
   galeriaTytul?: T;
   galeriaUrl?: T;

@@ -1,6 +1,7 @@
 // Regatowa Strefa Kibica — transmisje na żywo, mapa SAP (RaceBoard), wyniki, informacje.
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import BanerFlagiAp from '@/components/BanerFlagiAp'
 import SapLeaderboard from '@/components/SapLeaderboard'
 import SapViewer from '@/components/SapViewer'
 import StrefaTransmisja from '@/components/StrefaTransmisja'
@@ -68,6 +69,7 @@ export default async function RegatowaStrefaKibicaPage() {
   const linki: any[] = [...linkiRaw].sort((a, b) => (jestSap(b) ? 1 : 0) - (jestSap(a) ? 1 : 0))
   const program: any[] = Array.isArray(settings?.program) ? settings.program : []
   const mapaEmbed: string = settings?.mapaEmbed || ''
+  const flaga: string = typeof settings?.flaga === 'string' ? settings.flaga : ''
 
   // ---- Galeria ----
   const pokazGalerie: boolean = settings?.pokazGalerie !== false
@@ -148,6 +150,10 @@ export default async function RegatowaStrefaKibicaPage() {
 
   return (
     <main>
+      {/* Sygnał sędziowski — podnoszony z telefonu, więc pojawia się nad
+          wszystkim innym i sam znika, gdy komisja opuści flagę. */}
+      <BanerFlagiAp poczatkowa={flaga} />
+
       {/* PASEK TYTUŁOWY */}
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-4 px-4 py-6">

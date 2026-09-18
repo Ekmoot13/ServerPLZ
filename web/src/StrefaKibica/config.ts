@@ -100,6 +100,26 @@ export const StrefaKibica: GlobalConfig = {
       label: 'Program weekendu (dni i punkty programu)',
       admin: { description: 'Edytowany w panelu redaktora. Format: lista dni { tytul, pozycje:[{czas,opis,link}] }.' },
     },
+    // ---- Flagi sygnalowe komisji regatowej ----
+    {
+      name: 'flaga',
+      type: 'text',
+      label: 'Podniesiona flaga',
+      defaultValue: '',
+      admin: {
+        description:
+          'Jedna naraz: AP (wyścigi odłożone), N (przerwane), PZ (falstart generalny), APA (koniec na dziś). Puste = brak sygnału. Przełączana z telefonu (/flaga) albo w tej zakładce.',
+      },
+    },
+    {
+      name: 'kodyFlagi',
+      type: 'json',
+      label: 'Kody dostępu do aplikacji z flagą',
+      admin: {
+        description:
+          'Generowane w panelu (/redaktor/flaga). Format: lista { kod, wygasa, opis }. Kody wygasłe są usuwane przy każdym zapisie.',
+      },
+    },
     // ---- Galeria zdjec (SmugMug) ----
     {
       name: 'pokazGalerie',

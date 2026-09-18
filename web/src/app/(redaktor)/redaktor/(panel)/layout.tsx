@@ -34,6 +34,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
               <Link href="/redaktor/kalendarz" className="hover:text-sky-700">
                 Kalendarz
               </Link>
+              <Link href="/redaktor/flaga" className="hover:text-sky-700">
+                Flagi
+              </Link>
               <Link href="/redaktor/strefa-kibica" className="hover:text-sky-700">
                 Strefa Kibica
               </Link>
