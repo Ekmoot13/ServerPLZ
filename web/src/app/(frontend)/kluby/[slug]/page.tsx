@@ -11,6 +11,7 @@ import {
   getPodsumowanieKlubu,
   getStartyKlubu,
   getSkladWgPoziomow,
+  getOstatniaNazwaKlubu,
 } from '@/lib/liga'
 import { getKlubPanel, getZawodnicyPhotos } from '@/lib/panel'
 import { getKlubMedia } from '@/lib/klubMedia'
@@ -32,12 +33,13 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
   const panel = await getKlubPanel(klub.id)
   const zakres = { wykluczWarianty: panel?.wykluczWarianty || [] }
 
-  const [sklad, sezony, statystyki, pods, starty] = await Promise.all([
+  const [sklad, sezony, statystyki, pods, starty, ostatniaNazwa] = await Promise.all([
     getSkladKlubu(klub.id, zakres),
     getSezonyKlubu(klub.id, zakres),
     getStatystykiKlubu(klub.id, zakres),
     getPodsumowanieKlubu(klub.id, zakres),
     getStartyKlubu(klub.id, zakres),
+    getOstatniaNazwaKlubu(klub.id, zakres),
   ])
 
   // Zdjecia sciagamy raz, dla skladu ORAZ dla zalogi z panelu — zaloga bywa
@@ -50,9 +52,15 @@ export default async function KlubPage({ params }: { params: Promise<{ slug: str
   )
   const photos = await getZawodnicyPhotos(idDoZdjec)
 
-  // Nadpisania z panelu redaktora
-  const nazwa = panel?.nazwa || klub.nazwa
-  const media = getKlubMedia(nazwa)
+  // Klub nosi nazwę, pod którą startował ostatnio — nazwa zestawienia bywa
+  // sprzed kilku sezonów, a wpis w panelu nie zawsze nadąża za zmianą sponsora.
+  const nazwa = ostatniaNazwa || panel?.nazwa || klub.nazwa
+  // Grafiki szukamy po kolei pod wszystkimi znanymi nazwami — mapa zdjęć zna
+  // zwykle tę starszą, a zmiana nazwy nie może gasić logotypu.
+  const media =
+    getKlubMedia(nazwa) ||
+    (panel?.nazwa ? getKlubMedia(panel.nazwa) : null) ||
+    getKlubMedia(klub.nazwa)
   const logoUrl = panel?.logoUrl || media?.logo || undefined
   // Klub potrafi startować na kilku poziomach — wypisujemy komplet z przypisań sezonu.
   const rangaPoziomu: Record<string, number> = {

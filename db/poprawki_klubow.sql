@@ -102,6 +102,159 @@ UPDATE liga_zestawienieklubow SET nazwa = 'RITS Klub Żeglarski Pionki'
 UPDATE liga_klubwariant SET id_zestawienia_klubow = 9056 WHERE id_wariantu_klubu = 22762275;
 UPDATE liga_klubwariant SET id_zestawienia_klubow = 9115 WHERE id_wariantu_klubu = 38417452;
 
+
+-- ---------------------------------------------------------------------------
+-- 5. Nazwy klubow sezonu 2026 — zgodnie z leaderboardami SAP
+--
+-- Sprawdzone 2026-09-18 wzgledem trzech zrodel:
+--   plz2026  „Polska Liga Zeglarska 2026 (Ekstraklasa) Overall"
+--   plz2026  „Polska Liga Zeglarska 2026 (1 Liga) Overall"
+--   yplz2026 „Mlodziezowa Polska Liga Zeglarska 2026 Overall"
+-- Mlodziezowa zgadzala sie w calosci.
+--
+-- Tam, gdzie klub ma juz wariant z wlasciwa nazwa, PRZEPINAMY sezon 2026
+-- zamiast zmieniac nazwe wariantu — inaczej poprawka rozlewa sie na starsze
+-- sezony (tak bylo z JSG). Nazwy zmieniamy tylko przy literowkach i zapisie.
+-- ---------------------------------------------------------------------------
+
+-- FLO: 2026 siedzi na wariancie „Jacht Klub Wielkopolski Flota Online",
+--      a klub ma wariant „WKS Flota Gdynia" (uzywany w 2025).
+UPDATE liga_miejsca m SET id_wariantu_klubu = 5117166
+  FROM liga_wyscigi y JOIN liga_regaty r ON r.id_regat = y.id_regat
+ WHERE m.id_wyscigu = y.id_wyscigu AND r.rok = 2026 AND m.id_wariantu_klubu = 74220210;
+UPDATE liga_wystepowanie_w_regatach v SET id_wariantu_klubu = 5117166
+  FROM liga_regaty r
+ WHERE v.id_regat = r.id_regat AND r.rok = 2026 AND v.id_wariantu_klubu = 74220210;
+UPDATE liga_wynikregatmanual wr SET id_wariantu_klubu = 5117166
+  FROM liga_regaty r
+ WHERE wr.regaty = r.id_regat AND r.rok = 2026 AND wr.id_wariantu_klubu = 74220210;
+
+-- YKP Gdynia: 2026 trafilo na wariant z lat 2019-2021 („Yacht Klub Polski
+--      Gdynia"), a od 2023 klub wystepuje jako „YKP Gdynia".
+UPDATE liga_miejsca m SET id_wariantu_klubu = 9704316
+  FROM liga_wyscigi y JOIN liga_regaty r ON r.id_regat = y.id_regat
+ WHERE m.id_wyscigu = y.id_wyscigu AND r.rok = 2026 AND m.id_wariantu_klubu = 77473926;
+UPDATE liga_wystepowanie_w_regatach v SET id_wariantu_klubu = 9704316
+  FROM liga_regaty r
+ WHERE v.id_regat = r.id_regat AND r.rok = 2026 AND v.id_wariantu_klubu = 77473926;
+UPDATE liga_wynikregatmanual wr SET id_wariantu_klubu = 9704316
+  FROM liga_regaty r
+ WHERE wr.regaty = r.id_regat AND r.rok = 2026 AND wr.id_wariantu_klubu = 77473926;
+
+-- HRM: wariant 59952554 („HRM Racing Youth") obsluguje w 2026 Ekstraklase
+--      I Mlodziezowa naraz, wiec zmiana nazwy jest niemozliwa. Ekstraklase
+--      przepinamy na seniorski wariant 12403011 („HRM Racing"), Mlodziezowa
+--      zostaje. Zrobione recznie na produkcji 2026-09-12 — tutaj, zeby
+--      przetrwalo import.
+UPDATE liga_miejsca m SET id_wariantu_klubu = 12403011
+  FROM liga_wyscigi y JOIN liga_regaty r ON r.id_regat = y.id_regat
+ WHERE m.id_wyscigu = y.id_wyscigu AND r.rok = 2026 AND r.liga_poziom = 'Ekstraklasa'
+   AND m.id_wariantu_klubu = 59952554;
+UPDATE liga_wystepowanie_w_regatach v SET id_wariantu_klubu = 12403011
+  FROM liga_regaty r
+ WHERE v.id_regat = r.id_regat AND r.rok = 2026 AND r.liga_poziom = 'Ekstraklasa'
+   AND v.id_wariantu_klubu = 59952554;
+UPDATE liga_wynikregatmanual wr SET id_wariantu_klubu = 12403011
+  FROM liga_regaty r
+ WHERE wr.regaty = r.id_regat AND r.rok = 2026 AND r.liga_poziom = 'Ekstraklasa'
+   AND wr.id_wariantu_klubu = 59952554;
+
+-- Literowka i zapis nazwy — te same warianty wystepuja w starszych sezonach,
+-- ale poprawka jest tam rownie sluszna, wiec zmieniamy nazwe wprost.
+UPDATE liga_klubwariant SET nazwa = 'Yacht Club Białołęka' WHERE id_wariantu_klubu = 74174186;
+UPDATE liga_klubwariant SET nazwa = 'Texet JKW Sailing Team' WHERE id_wariantu_klubu = 39262660;
+UPDATE liga_klubwariant SET nazwa = 'Jacht Klub Stoczni Gdańskiej' WHERE id_wariantu_klubu = 20708529;
+
+
+-- ---------------------------------------------------------------------------
+-- 6. Pozostale nazwy sezonu 2026 — decyzja usera 2026-09-18: bierzemy nazwy
+--    z SAP-a.
+--
+-- WOL i SPO to pojedyncze warianty (WOL tylko 2026, SPO 2025-2026) albo roznica
+-- czysto zapisowa, wiec wystarczy zmiana nazwy.
+--
+-- YKL i GGR sa trudniejsze: ich warianty obsluguja tez starsze sezony
+-- (YKL 2022-2025, GGR 2022), a nazwy z SAP-a dotycza sezonu 2026 — „Energa"
+-- to sponsor, ktorego w 2022 nie bylo. Zamiast przepisywac historie zakladamy
+-- osobne warianty na 2026 i przepinamy na nie tegoroczne wyniki. ID z zakresu
+-- 9xx xxx xxx sa celowo poza zakresem zrodlowego eksportu (max ~99 mln), zeby
+-- nigdy nie zderzyly sie z ID z CSV.
+-- ---------------------------------------------------------------------------
+
+UPDATE liga_klubwariant SET nazwa = 'UKS Wiking Wolin' WHERE id_wariantu_klubu = 92127505;
+UPDATE liga_klubwariant SET nazwa = 'Sport Vita Ski&Sail' WHERE id_wariantu_klubu = 53387446;
+
+INSERT INTO liga_klubwariant (id_wariantu_klubu, skrot, nazwa, id_zestawienia_klubow)
+VALUES (900000001, 'YKL', 'Yacht Klub Polski Lublin', 9105),
+       (900000002, 'GGR', 'Energa Giżycka Grupa Regatowa', 9016)
+ON CONFLICT (id_wariantu_klubu) DO UPDATE
+   SET skrot = EXCLUDED.skrot,
+       nazwa = EXCLUDED.nazwa,
+       id_zestawienia_klubow = EXCLUDED.id_zestawienia_klubow;
+
+-- YKL: sezon 2026 na nowy wariant, lata 2022-2025 zostaja pod stara nazwa.
+UPDATE liga_miejsca m SET id_wariantu_klubu = 900000001
+  FROM liga_wyscigi y JOIN liga_regaty r ON r.id_regat = y.id_regat
+ WHERE m.id_wyscigu = y.id_wyscigu AND r.rok = 2026 AND m.id_wariantu_klubu = 73113253;
+UPDATE liga_wystepowanie_w_regatach v SET id_wariantu_klubu = 900000001
+  FROM liga_regaty r
+ WHERE v.id_regat = r.id_regat AND r.rok = 2026 AND v.id_wariantu_klubu = 73113253;
+UPDATE liga_wynikregatmanual wr SET id_wariantu_klubu = 900000001
+  FROM liga_regaty r
+ WHERE wr.regaty = r.id_regat AND r.rok = 2026 AND wr.id_wariantu_klubu = 73113253;
+
+-- GGR: to samo, rok 2022 zostaje bez sponsora w nazwie.
+UPDATE liga_miejsca m SET id_wariantu_klubu = 900000002
+  FROM liga_wyscigi y JOIN liga_regaty r ON r.id_regat = y.id_regat
+ WHERE m.id_wyscigu = y.id_wyscigu AND r.rok = 2026 AND m.id_wariantu_klubu = 37537849;
+UPDATE liga_wystepowanie_w_regatach v SET id_wariantu_klubu = 900000002
+  FROM liga_regaty r
+ WHERE v.id_regat = r.id_regat AND r.rok = 2026 AND v.id_wariantu_klubu = 37537849;
+UPDATE liga_wynikregatmanual wr SET id_wariantu_klubu = 900000002
+  FROM liga_regaty r
+ WHERE wr.regaty = r.id_regat AND r.rok = 2026 AND wr.id_wariantu_klubu = 37537849;
+
+
+-- ---------------------------------------------------------------------------
+-- 7. Zespoly mlodziezowe i drugie zalogi jako osobne kluby (decyzja 2026-09-18)
+--
+-- Yacht Club Gdansk wystawia w 2026 az piec zespolow mlodziezowych, a
+-- Politechnika Morska Szczecin druga zaloge. Dopoki siedza pod jednym
+-- zestawieniem, maja wspolny profil i wspolne statystyki, a na liscie zespolow
+-- kazdy kafelek prowadzi do klubu-matki. Zakladamy im wlasne zestawienia.
+--
+-- Uwaga na ciaglosc historii: ten sam zespol ma w kazdym sezonie inny wariant
+-- (Junior to YCJ w 2025 i YCGJ w 2026), wiec grupujemy po ZESPOLE, nie po
+-- wariancie — inaczej rocznik 2025 wyladowalby w osobnym klubie niz 2026.
+--
+-- Pierwsza druzyna zostaje pod 9099 razem z wariantem „HRM Racing Yacht Club
+-- Gdansk" (2019-2021) — to ta sama zaloga pod nazwa sponsora, nie osobny klub.
+--
+-- ID 9000xx sa poza zakresem zrodlowego eksportu (9000-9119).
+-- ---------------------------------------------------------------------------
+
+INSERT INTO liga_zestawienieklubow (id_zestawienia_klubow, nazwa)
+VALUES (900001, 'Yacht Club Gdańsk Junior'),
+       (900002, 'Yacht Club Gdańsk Youth'),
+       (900003, 'Yacht Club Gdańsk Cadetti'),
+       (900004, 'Yacht Club Gdańsk Ryśki'),
+       (900005, 'Yacht Club Gdańsk Sigmy'),
+       (900006, 'Politechnika Morska Szczecin 2')
+ON CONFLICT (id_zestawienia_klubow) DO UPDATE SET nazwa = EXCLUDED.nazwa;
+
+UPDATE liga_klubwariant SET id_zestawienia_klubow = 900001
+ WHERE id_wariantu_klubu IN (2877157, 73579006);   -- Junior: 2025 + 2026
+UPDATE liga_klubwariant SET id_zestawienia_klubow = 900002
+ WHERE id_wariantu_klubu IN (39146377, 30078914);  -- Youth: 2025 + 2026
+UPDATE liga_klubwariant SET id_zestawienia_klubow = 900003
+ WHERE id_wariantu_klubu = 81436706;               -- Cadetti
+UPDATE liga_klubwariant SET id_zestawienia_klubow = 900004
+ WHERE id_wariantu_klubu = 37119258;               -- Ryśki
+UPDATE liga_klubwariant SET id_zestawienia_klubow = 900005
+ WHERE id_wariantu_klubu = 94867914;               -- Sigmy
+UPDATE liga_klubwariant SET id_zestawienia_klubow = 900006
+ WHERE id_wariantu_klubu = 18112440;               -- Politechnika Morska Szczecin 2
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------
@@ -130,3 +283,18 @@ SELECT w.id_wariantu_klubu, w.nazwa AS wariant, z.id_zestawienia_klubow AS zest,
   FROM liga_klubwariant w
   JOIN liga_zestawienieklubow z ON z.id_zestawienia_klubow = w.id_zestawienia_klubow
  WHERE w.id_wariantu_klubu IN (22762275, 38417452);
+
+-- Kontrola punktu 5: nazwy sezonu 2026 wedlug ligi.
+SELECT r.liga_poziom, w.skrot, w.nazwa
+  FROM liga_wynikregatmanual m
+  JOIN liga_regaty r ON r.id_regat = m.regaty
+  JOIN liga_klubwariant w ON w.id_wariantu_klubu = m.id_wariantu_klubu
+ WHERE r.rok = 2026 AND w.skrot IN ('FLO', 'YKP', 'HRM', 'YCB', 'TXT', 'JSG', 'WOL', 'SPO', 'YKL', 'GGR')
+ GROUP BY 1, 2, 3 ORDER BY 2, 1;
+
+-- Kontrola punktu 7: kazdy zespol ma wlasnego klub-matke.
+SELECT z.id_zestawienia_klubow AS zest, z.nazwa AS klub_matka, w.skrot, w.nazwa AS wariant
+  FROM liga_zestawienieklubow z
+  JOIN liga_klubwariant w ON w.id_zestawienia_klubow = z.id_zestawienia_klubow
+ WHERE z.id_zestawienia_klubow IN (9055, 9099, 900001, 900002, 900003, 900004, 900005, 900006)
+ ORDER BY z.id_zestawienia_klubow, w.skrot;

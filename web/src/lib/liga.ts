@@ -503,6 +503,42 @@ export async function getSkladWgPoziomow(
 }
 
 // --- Historia sezonów klubu (short-code: wyniki_klubu_sezony), ranking High Point ---
+/**
+ * Nazwa, pod którą klub startował ostatnio.
+ *
+ * Kluby zmieniają nazwy — zwykle wraz ze sponsorem — a każda z nich jest
+ * w bazie osobnym wariantem. Profil ma nosić tę najświeższą, bo nazwa
+ * zestawienia bywa sprzed kilku sezonów.
+ *
+ * Gdy klub w jednym sezonie wystawia kilka zespołów (seniorzy, młodzież,
+ * druga załoga), bierzemy ten z najwyższego poziomu — profil klubu-matki
+ * ma się nazywać jak pierwsza drużyna, a nie jak sekcja młodzieżowa.
+ */
+export async function getOstatniaNazwaKlubu(
+  idZestawienia: number,
+  zakres: KlubZakres = {},
+): Promise<string | null> {
+  const zc = zakresCond(idZestawienia, zakres, 1)
+  const rows = await ligaQuery<{ nazwa: string }>(
+    `SELECT kw.nazwa, r.rok,
+            CASE r.liga_poziom
+              WHEN 'Ekstraklasa' THEN 0
+              WHEN '1 Liga' THEN 1
+              WHEN '2 Liga' THEN 2
+              ELSE 3
+            END AS ranga
+     FROM liga_wynikregatmanual m
+     JOIN liga_regaty r ON r.id_regat = m.regaty
+     JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
+     WHERE ${zc.cond}
+     GROUP BY kw.nazwa, r.rok, r.liga_poziom
+     ORDER BY r.rok DESC, ranga ASC
+     LIMIT 1`,
+    zc.params,
+  )
+  return rows[0]?.nazwa || null
+}
+
 export async function getSezonyKlubu(
   idZestawienia: number,
   zakres: KlubZakres = {},
@@ -1208,14 +1244,22 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
     miasto: string
     numer_rundy: number
     klub: string
+    klubmatka: string
     skrot: string
     miejsce: number
   }>(
+    // Nazwa do wyswietlenia idzie z wariantu (tak nazywal sie zespol w danym
+    // sezonie), ale odnosnik musi prowadzic do profilu klubu-matki — profil
+    // rozwiazuje slug po nazwie zestawienia, wiec zbudowany z nazwy wariantu
+    // konczyl sie czasem 404 (np. „Nauticus Yacht Club Olsztyn" pod
+    // zestawieniem „Nauticus Olsztyn").
     `SELECT r.id_regat, r.nazwa, r.liga_poziom, r.miasto, r.numer_rundy,
-            kw.nazwa AS klub, kw.skrot, m.miejscewregatach AS miejsce
+            kw.nazwa AS klub, zk.nazwa AS klubmatka, kw.skrot,
+            m.miejscewregatach AS miejsce
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
+     JOIN liga_zestawienieklubow zk ON zk.id_zestawienia_klubow = kw.id_zestawienia_klubow
      WHERE r.rok = $1 AND m.miejscewregatach > 0
      ORDER BY r.liga_poziom, r.numer_rundy NULLS LAST, m.miejscewregatach`,
     [rok],
@@ -1244,7 +1288,7 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
       rundMap.get(row.id_regat)!.rows.push({
         miejsce: Number(row.miejsce),
         klub: row.klub || '',
-        slug: klubSlug(row.klub),
+        slug: klubSlug(row.klubmatka || row.klub),
       })
     }
     const rundy = [...rundMap.values()].sort((a, b) => (a.numer ?? 999) - (b.numer ?? 999))
@@ -1253,10 +1297,14 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
     const boats = new Map<number, number>()
     for (const row of lrows) boats.set(row.id_regat, (boats.get(row.id_regat) || 0) + 1)
     const maxFleet = Math.max(0, ...boats.values())
-    const teams = new Map<string, { punkty: number; miejsca: number[]; klub: string }>()
+    const teams = new Map<
+      string,
+      { punkty: number; miejsca: number[]; klub: string; klubmatka: string }
+    >()
     for (const row of lrows) {
       const key = row.skrot
-      if (!teams.has(key)) teams.set(key, { punkty: 0, miejsca: [], klub: row.klub || '' })
+      if (!teams.has(key))
+        teams.set(key, { punkty: 0, miejsca: [], klub: row.klub || '', klubmatka: row.klubmatka || '' })
       const t = teams.get(key)!
       const m = Number(row.miejsce)
       let pkt = maxFleet - m + 1
@@ -1264,6 +1312,7 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
       t.punkty += pkt
       t.miejsca.push(m)
       t.klub = row.klub || ''
+      t.klubmatka = row.klubmatka || ''
     }
     const ranked = [...teams.values()].sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
@@ -1278,7 +1327,7 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
     const overall: WynikiOverall[] = ranked.map((t, i) => ({
       miejsce: i + 1,
       klub: t.klub,
-      slug: klubSlug(t.klub),
+      slug: klubSlug(t.klubmatka || t.klub),
       punkty: t.punkty,
     }))
 
@@ -1331,13 +1380,18 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
     numer_rundy: number
     skrot: string
     klub: string
+    klubmatka: string
     miejsce: number
   }>(
+    // Nazwa do wyswietlenia z wariantu, ale slug odnosnika z zestawienia —
+    // profil klubu rozwiazuje adres po nazwie klubu-matki.
     `SELECT r.id_regat, r.nazwa, r.liga_poziom, r.miasto, r.numer_rundy,
-            kw.skrot, kw.nazwa AS klub, m.miejscewregatach AS miejsce
+            kw.skrot, kw.nazwa AS klub, zk.nazwa AS klubmatka,
+            m.miejscewregatach AS miejsce
      FROM liga_wynikregatmanual m
      JOIN liga_regaty r ON r.id_regat = m.regaty
      JOIN liga_klubwariant kw ON kw.id_wariantu_klubu = m.id_wariantu_klubu
+     JOIN liga_zestawienieklubow zk ON zk.id_zestawienia_klubow = kw.id_zestawienia_klubow
      WHERE r.rok = $1 AND m.miejscewregatach > 0
      ORDER BY r.liga_poziom, r.numer_rundy NULLS LAST, m.miejscewregatach`,
     [rok],
@@ -1395,10 +1449,18 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
     for (const s of srows) roundFleet.set(s.id_regat, (roundFleet.get(s.id_regat) || 0) + 1)
 
     // ranking High Point z punktami per runda
-    type Agg = { skrot: string; klub: string; perRound: Record<number, number>; miejsca: number[]; suma: number }
+    type Agg = { skrot: string; klub: string; klubmatka: string; perRound: Record<number, number>; miejsca: number[]; suma: number }
     const agg = new Map<string, Agg>()
     for (const s of srows) {
-      if (!agg.has(s.skrot)) agg.set(s.skrot, { skrot: s.skrot, klub: s.klub || '', perRound: {}, miejsca: [], suma: 0 })
+      if (!agg.has(s.skrot))
+        agg.set(s.skrot, {
+          skrot: s.skrot,
+          klub: s.klub || '',
+          klubmatka: s.klubmatka || '',
+          perRound: {},
+          miejsca: [],
+          suma: 0,
+        })
       const a = agg.get(s.skrot)!
       const fleet = roundFleet.get(s.id_regat) || 0
       const m = Number(s.miejsce)
@@ -1423,7 +1485,7 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
       miejsce: i + 1,
       skrot: a.skrot,
       klub: a.klub,
-      slug: klubSlug(a.klub),
+      slug: klubSlug(a.klubmatka || a.klub),
       perRound: a.perRound,
       suma: a.suma,
     }))
@@ -1461,7 +1523,7 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
         miejsce: Number(s.miejsce),
         skrot: s.skrot,
         klub: s.klub || '',
-        slug: klubSlug(s.klub),
+        slug: klubSlug(s.klubmatka || s.klub),
         places: placesBy.get(s.skrot) || {},
         suma: fmtPlace(sumaBy.get(s.skrot)),
       }))

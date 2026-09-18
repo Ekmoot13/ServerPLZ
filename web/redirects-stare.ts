@@ -6,7 +6,13 @@
 // Kluby-warianty (mlodziezowe, drugie zalogi) prowadza do klubu-matki,
 // tak samo jak robi to zakladka Zespoly.
 
-/** Stary adres klubu -> nowy, gdy dalo sie ustalic odpowiednik. */
+/**
+ * Stary adres klubu -> nowy, gdy dalo sie ustalic odpowiednik.
+ *
+ * Uwaga: zespoly, ktore maja wlasny profil (mlodziezowki Yacht Clubu Gdansk,
+ * druga zaloga Politechniki Morskiej), zostaly stad usuniete — przekierowanie
+ * przeslanialoby ich wlasna strone.
+ */
 export const klubyNaKlub: Record<string, string> = {
   'garland-yacht-club': 'kw-garland-gliwice',
   'wiking-wolin': 'klub-zeglarski-wiking-wolin',
@@ -22,17 +28,11 @@ export const klubyNaKlub: Record<string, string> = {
   'okz-olsztyn': 'olsztynski-klub-zeglarski',
   'on-lemon-rockstars-racing-youth': 'on-lemon-rockstars-racing',
   'pogon-szczecin': 'sejk-pogon-szczecin',
-  'politechnika-morska-szczecin-2': 'politechnika-morska-szczecin',
   'rockstars-racing': 'on-lemon-rockstars-racing',
   'siostry-azs-awfis-gdansk-youth': 'siostry-ks-azs-awfis-gdansk',
   'texet-sailing-team': 'texet-jkw-sailing-team',
   'the-barking-dogs': 'the-barking-dogs-ycg',
   'uniwerystet-gdanski': 'uniwersytet-gdanski',
-  'yacht-club-gdansk-cadetti': 'yacht-club-gdansk',
-  'yacht-club-gdansk-junior': 'yacht-club-gdansk',
-  'yacht-club-gdansk-ryski': 'yacht-club-gdansk',
-  'yacht-club-gdansk-sigmy': 'yacht-club-gdansk',
-  'yacht-club-gdansk-youth': 'yacht-club-gdansk',
   'yacht-club-sopot-1': 'yacht-club-sopot',
   'yacht-club-sopot-youth': 'yacht-club-sopot',
   'ykp-gdynia': 'yacht-klub-polski-gdynia',
