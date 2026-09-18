@@ -130,6 +130,9 @@ export default async function RegatowaStrefaKibicaPage() {
   // dłuższa strona — kibic i tak przewija, tylko nie wie, czym.
   const tylkoWyniki = pokazWyniki && !pokazMape && !pokazTransmisje
   const wysokoscDashboardu = tylkoWyniki ? '' : 'lg:h-[80vh]'
+  // Sama tabela rozciągnięta na 1600 px wygląda jak arkusz kalkulacyjny i nie
+  // trzyma się linii reszty strony. Zwężamy ją do szerokości sekcji poniżej.
+  const szerokoscDashboardu = tylkoWyniki ? 'max-w-5xl' : 'max-w-[1600px]'
 
   // Odtwarzacz ma aspect-video (wysokość liczona z szerokości), więc na pełnej
   // szerokości rozpycha wiersz o stałej wysokości. Gdy mapa jest wyłączona,
@@ -158,7 +161,7 @@ export default async function RegatowaStrefaKibicaPage() {
       {/* DASHBOARD: MAPA | TRANSMISJA + WYNIKI (ciemne tło) */}
       {pokazDashboard && (
         <section className="bg-navy-900" style={patternBg}>
-          <div className="mx-auto max-w-[1600px] px-4 py-6">
+          <div className={`mx-auto ${szerokoscDashboardu} px-4 py-6`}>
             <div className={`grid gap-4 ${wysokoscDashboardu} ${gridCols}`}>
               {/* LEWA — MAPA SAP */}
               {pokazMape && (
@@ -200,14 +203,18 @@ export default async function RegatowaStrefaKibicaPage() {
 
                   {/* WYNIKI */}
                   {pokazWyniki && (
-                    <div className={`flex flex-col ${tylkoWyniki ? '' : 'min-h-[240px] overflow-hidden'}`}>
+                    <div
+                      className={`flex min-w-0 flex-col ${
+                        tylkoWyniki ? '' : 'min-h-[240px] overflow-hidden'
+                      }`}
+                    >
                       <div className="mb-2 flex items-center gap-2">
                         {/* Bez plakietki: tabela z SAP ma wlasna, a trzecie „na zywo"
                             w jednym kadrze przestaje cokolwiek znaczyc. */}
                         <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Wyniki na żywo</h2>
                       </div>
                       <div
-                        className={`rounded-xl border border-white/10 bg-white/5 ${
+                        className={`min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 ${
                           tylkoWyniki ? '' : 'min-h-0 flex-1 overflow-auto'
                         }`}
                       >
