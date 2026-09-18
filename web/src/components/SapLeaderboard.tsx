@@ -19,17 +19,43 @@ type Leaderboard = {
   competitors?: Competitor[]
 }
 
-async function fetchLeaderboard(name: string, base?: string): Promise<Leaderboard | null> {
+/** Ilu zawodnikow ma juz jakikolwiek wynik — miara „bogactwa" odpowiedzi. */
+function ilePunktujacych(lb: Leaderboard | null): number {
+  return (lb?.competitors || []).filter((c) => (c.netPoints ?? 0) > 0).length
+}
+
+async function pobierz(name: string, base: string, wariant: string): Promise<Leaderboard | null> {
   try {
-    const b = base || SAP_BASE
-    const res = await fetch(`${b}/sailingserver/api/v1/leaderboards/${encodeURIComponent(name)}`, {
-      next: { revalidate: 30 },
-    })
+    const res = await fetch(
+      `${base}/sailingserver/api/v1/leaderboards/${encodeURIComponent(name)}?w=${wariant}`,
+      { next: { revalidate: 30 } },
+    )
     if (!res.ok) return null
     return (await res.json()) as Leaderboard
   } catch {
     return null
   }
+}
+
+/**
+ * SAP serwuje ten sam leaderboard z kilku wezlow, ktore w trakcie regat potrafia
+ * sie rozjechac: jeden zna juz wyniki rozegranego wyscigu, drugi zwraca same
+ * kreski. Zadania trafiaja do nich naprzemiennie, wiec co druga odpowiedz bywa
+ * pusta i tabela „gasla" na 30 sekund, az do kolejnego odswiezenia.
+ *
+ * Pytamy wiec dwa razy (rozny parametr = rozny wpis w cache Next.js, wiec
+ * realnie dwa zapytania) i bierzemy odpowiedz z wieksza liczba wynikow. Gdy
+ * regaty faktycznie sie jeszcze nie zaczely, obie sa puste i pokazujemy pustke
+ * — zero wynikow nie jest wtedy bledem.
+ */
+async function fetchLeaderboard(name: string, base?: string): Promise<Leaderboard | null> {
+  const b = base || SAP_BASE
+  const a = await pobierz(name, b, 'a')
+  if (ilePunktujacych(a) > 0) return a
+  const c = await pobierz(name, b, 'b')
+  if (!a) return c
+  if (!c) return a
+  return ilePunktujacych(c) > ilePunktujacych(a) ? c : a
 }
 
 function cell(score?: RaceScore): string {

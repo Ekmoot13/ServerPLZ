@@ -115,8 +115,6 @@ export default async function RegatowaStrefaKibicaPage() {
   // stan „na żywo" — pokazuj czerwone plakietki tylko gdy coś faktycznie leci
   const mapaLive = pokazMape && !!mapaUrl
   const streamLive = pokazTransmisje && streams.length > 0
-  const wynikiLive = pokazWyniki && !!leaderboardName
-  const anyLive = mapaLive || streamLive || wynikiLive
 
   // układ dashboardu dopasowuje się do włączonych sekcji:
   // wyłączona mapa oddaje szerokość prawej kolumnie i odwrotnie,
@@ -144,7 +142,6 @@ export default async function RegatowaStrefaKibicaPage() {
       <section className="bg-navy text-white" style={patternBg}>
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-4 px-4 py-6">
           <h1 className="text-2xl font-extrabold uppercase tracking-wide md:text-3xl">Strefa Kibica</h1>
-          {anyLive && <LiveBadge />}
           <p className="ml-auto hidden text-sm text-white/70 md:block">
             Mapa, transmisja i wyniki na żywo — w jednym miejscu.
           </p>
@@ -198,8 +195,9 @@ export default async function RegatowaStrefaKibicaPage() {
                   {pokazWyniki && (
                     <div className="flex min-h-[240px] flex-col overflow-hidden">
                       <div className="mb-2 flex items-center gap-2">
+                        {/* Bez plakietki: tabela z SAP ma wlasna, a trzecie „na zywo"
+                            w jednym kadrze przestaje cokolwiek znaczyc. */}
                         <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Wyniki na żywo</h2>
-                        {wynikiLive && <LiveBadge />}
                       </div>
                       <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-white/10 bg-white/5">
                         {leaderboardName ? (
