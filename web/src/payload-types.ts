@@ -2037,7 +2037,7 @@ export interface StrefaKibica {
   pokazTransmisje?: boolean | null;
   pokazWyniki?: boolean | null;
   /**
-   * Wklej pełny adres RaceBoard.html z SAP dla bieżącej rundy (…/gwt/RaceBoard.html?…&mode=PLAYER).
+   * Puste = mapa sama podąża za bieżącym wyścigiem (adres składany z nazwy leaderboardu). Wypełnij tylko po to, żeby zatrzymać mapę na konkretnym wyścigu.
    */
   mapaUrl?: string | null;
   /**

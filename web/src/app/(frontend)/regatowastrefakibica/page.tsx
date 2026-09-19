@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import BanerFlagiAp from '@/components/BanerFlagiAp'
 import SapLeaderboard from '@/components/SapLeaderboard'
+import { adresMapyNaZywo } from '@/lib/sap'
 import SapViewer from '@/components/SapViewer'
 import StrefaTransmisja from '@/components/StrefaTransmisja'
 import { Ikona } from '@/components/strefa/ikony'
@@ -53,12 +54,21 @@ export default async function RegatowaStrefaKibicaPage() {
   const streams: any[] = res.docs
 
   const settings: any = await payload.findGlobal({ slug: 'strefa-kibica' }).catch(() => null)
-  const mapaUrl: string = settings?.mapaUrl || ''
+  const mapaRecznie: string = settings?.mapaUrl || ''
   const pokazMape: boolean = settings?.pokazMape !== false
   const pokazTransmisje: boolean = settings?.pokazTransmisje !== false
   const pokazWyniki: boolean = settings?.pokazWyniki !== false
   const sapBase: string = settings?.sapBase || 'https://plz2026.sapsailing.com'
   const leaderboardName: string = settings?.leaderboardName || ''
+  // Adres RaceBoard wskazuje konkretny wyścig, więc ręcznie wklejony starzeje
+  // się po każdym starcie. Gdy pole w panelu jest puste, składamy adres sami
+  // z bieżącego wyścigu — ten trwający, a poza wyścigiem ostatni rozegrany.
+  const mapaAuto =
+    settings?.pokazMape !== false && !mapaRecznie && settings?.leaderboardName
+      ? await adresMapyNaZywo(String(settings.leaderboardName), settings?.sapBase || undefined)
+      : null
+  const mapaUrl: string = mapaRecznie || mapaAuto || ''
+
   const pokazProgram: boolean = settings?.pokazProgram !== false
   const programTytul: string = settings?.programTytul || 'Śledź z nami regaty dzień po dniu'
   const programWstep: string = settings?.programWstep || ''
@@ -167,9 +177,11 @@ export default async function RegatowaStrefaKibicaPage() {
                     <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Mapa wyścigu — pozycje łódek na żywo</h2>
                     {mapaLive && <LiveBadge />}
                   </div>
+                  {/* Śledzimy kolejne wyścigi tylko wtedy, gdy adres składamy
+                      sami — ręcznie wpisany ma zostać tam, gdzie go postawiono. */}
                   <div className="min-h-0 flex-1">
                     {mapaUrl ? (
-                      <SapViewer src={mapaUrl} fill />
+                      <SapViewer src={mapaUrl} fill sledz={!mapaRecznie} />
                     ) : (
                       <div className="flex h-full flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 p-10 text-center text-white/60">
                         <div className="mb-2 text-4xl">🗺️</div>

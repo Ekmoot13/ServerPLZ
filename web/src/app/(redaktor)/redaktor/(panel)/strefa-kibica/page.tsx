@@ -76,13 +76,22 @@ export default async function StrefaKibicaSettingsPage({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Mapa — URL RaceBoard (SAP)</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Mapa — URL RaceBoard (SAP){' '}
+            <span className="font-normal text-slate-400">— opcjonalne</span>
+          </label>
           <input
             name="mapaUrl"
             defaultValue={s?.mapaUrl || ''}
-            placeholder="https://plz2026.sapsailing.com/gwt/RaceBoard.html?...&mode=PLAYER"
+            placeholder="zostaw puste, żeby mapa sama szła za wyścigiem"
             className={inputCls}
           />
+          <p className="mt-1 text-xs text-slate-500">
+            Puste pole = mapa sama pokazuje trwający wyścig, a między wyścigami ostatni
+            rozegrany. Adres składamy z nazwy leaderboardu poniżej, więc nie trzeba go
+            podmieniać po każdym starcie. Wpisz własny tylko wtedy, gdy chcesz na stałe
+            zatrzymać mapę na konkretnym wyścigu.
+          </p>
         </div>
 
         <div>

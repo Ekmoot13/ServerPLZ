@@ -22,7 +22,7 @@ type Competitor = {
   netPoints: number | null
   raceScores: Record<string, RaceScore>
 }
-type TrackedRace = { live?: boolean; status?: string }
+type TrackedRace = { live?: boolean; status?: string; startTimeMillis?: number }
 type Fleet = { name?: string; resultsAreOfficial?: boolean; trackedRace?: TrackedRace | null }
 type Leaderboard = {
   name: string
@@ -55,6 +55,10 @@ export type DaneWynikow = {
   kolumnaTrwajaca: string | null
   /** Flotylla trwającego wyścigu, np. „Race 2". */
   flotyllaTrwajaca: string | null
+  /** Pełna nazwa wyścigu dla mapy — trwający albo ostatni rozpoczęty. */
+  wyscigMapy: string | null
+  /** Gotowy adres RaceBoard dla tego wyścigu — mapa podąża za nim sama. */
+  adresMapy: string | null
 }
 
 function ilePunktujacych(lb: Leaderboard | null): number {
@@ -121,6 +125,37 @@ function komorka(score?: RaceScore): Komorka {
   return { tekst: String(score.netPoints), flotylla }
 }
 
+/**
+ * Wyścig, który ma pokazywać mapa: ten trwający, a gdy żaden nie trwa —
+ * ostatni rozpoczęty.
+ *
+ * Nazwa wyścigu w SAP to nazwa regat, kolumna lotu i flotylla sklejone spacją
+ * („… (4) F4 Race 2"), więc składamy ją z danych, które i tak mamy
+ * w leaderboardzie. Dzięki temu nie ma dodatkowego zapytania do SAP-a.
+ */
+function wyscigDoMapy(lb: Leaderboard): string | null {
+  let najlepszy: { nazwa: string; start: number; live: boolean } | null = null
+
+  for (const info of lb.trackedRacesInfo || []) {
+    for (const f of info.fleets || []) {
+      const tr = f.trackedRace
+      if (!tr || !info.raceColumnName || !f.name) continue
+
+      const kandydat = {
+        nazwa: `${lb.name} ${info.raceColumnName} ${f.name}`,
+        start: Number(tr.startTimeMillis) || 0,
+        live: tr.live === true,
+      }
+      // Trwający bije wszystko; poza tym wygrywa najpóźniej rozpoczęty.
+      if (!najlepszy) najlepszy = kandydat
+      else if (kandydat.live && !najlepszy.live) najlepszy = kandydat
+      else if (kandydat.live === najlepszy.live && kandydat.start > najlepszy.start)
+        najlepszy = kandydat
+    }
+  }
+  return najlepszy?.nazwa || null
+}
+
 /** Wyścig, który właśnie jest rozgrywany — SAP oznacza go polem `live`. */
 function trwajacy(lb: Leaderboard): { kolumna: string | null; flotylla: string | null } {
   for (const info of lb.trackedRacesInfo || []) {
@@ -139,6 +174,7 @@ export async function pobierzWyniki(name: string, base?: string): Promise<DaneWy
 
   const kolumny = lb.columnNames || []
   const t = trwajacy(lb)
+  const wyscig = wyscigDoMapy(lb)
 
   return {
     tytul: lb.displayName || lb.name || '',
@@ -146,6 +182,8 @@ export async function pobierzWyniki(name: string, base?: string): Promise<DaneWy
     naZywo: lb.resultState === 'Live',
     kolumnaTrwajaca: t.kolumna,
     flotyllaTrwajaca: t.flotylla,
+    wyscigMapy: wyscig,
+    adresMapy: wyscig ? adresRaceBoard(name, wyscig, base) : null,
     wiersze: [...lb.competitors]
       .sort((a, b) => (a.rank || 999) - (b.rank || 999))
       .map((c) => ({
@@ -156,4 +194,32 @@ export async function pobierzWyniki(name: string, base?: string): Promise<DaneWy
         komorki: kolumny.map((k) => komorka(c.raceScores?.[k])),
       })),
   }
+}
+
+/**
+ * Adres widoku RaceBoard dla wskazanego wyścigu.
+ *
+ * SAP wymaga trzech nazw: regat, wyścigu i leaderboardu. W naszej konfiguracji
+ * regaty i leaderboard nazywają się tak samo, a bez `raceName` RaceBoard
+ * odmawia („This page requires a valid regatta name, race name and leaderboard
+ * name") — stąd cała ta gimnastyka zamiast jednego stałego adresu.
+ */
+export function adresRaceBoard(leaderboard: string, wyscig: string, base?: string): string {
+  const q = new URLSearchParams({
+    regattaName: leaderboard,
+    raceName: wyscig,
+    leaderboardName: leaderboard,
+    mode: 'PLAYER',
+  })
+  return `${base || SAP_BASE}/gwt/RaceBoard.html?${q}`
+}
+
+/**
+ * Gotowy adres mapy dla bieżącego wyścigu — albo null, gdy SAP nie zna jeszcze
+ * żadnego. Korzysta z tej samej odpowiedzi co tabela wyników, więc w praktyce
+ * nie generuje dodatkowego ruchu.
+ */
+export async function adresMapyNaZywo(name: string, base?: string): Promise<string | null> {
+  const dane = await pobierzWyniki(name, base).catch(() => null)
+  return dane?.adresMapy || null
 }

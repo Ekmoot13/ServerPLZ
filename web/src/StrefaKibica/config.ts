@@ -39,10 +39,10 @@ export const StrefaKibica: GlobalConfig = {
     {
       name: 'mapaUrl',
       type: 'text',
-      label: 'Mapa — URL RaceBoard (SAP)',
+      label: 'Mapa — URL RaceBoard (SAP), opcjonalnie',
       admin: {
         description:
-          'Wklej pełny adres RaceBoard.html z SAP dla bieżącej rundy (…/gwt/RaceBoard.html?…&mode=PLAYER).',
+          'Puste = mapa sama podąża za bieżącym wyścigiem (adres składany z nazwy leaderboardu). Wypełnij tylko po to, żeby zatrzymać mapę na konkretnym wyścigu.',
       },
     },
     {
