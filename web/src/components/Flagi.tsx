@@ -24,7 +24,12 @@ export type OpisFlagi = {
 
 /** Kolejność jak w panelu: dwie kolumny, trzy rzędy. */
 export const FLAGI: OpisFlagi[] = [
-  { kod: 'POM', nazwa: 'Pomarańczowa', znaczenie: 'Wyścigi trwają zgodnie z planem', ton: 'ok' },
+  {
+    kod: 'POM',
+    nazwa: 'Pomarańczowa',
+    znaczenie: 'Regaty są rozgrywane zgodnie z harmonogramem',
+    ton: 'ok',
+  },
   { kod: 'AP', nazwa: 'AP', znaczenie: 'Wyścigi odroczone', ton: 'wstrzymanie' },
   { kod: 'APA', nazwa: 'AP nad A', znaczenie: 'Koniec wyścigów w dniu dzisiejszym', ton: 'wstrzymanie' },
   { kod: 'APH', nazwa: 'AP nad H', znaczenie: 'Powrót na ląd — czekamy na brzegu', ton: 'wstrzymanie' },

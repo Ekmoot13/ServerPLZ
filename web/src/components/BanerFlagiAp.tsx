@@ -55,12 +55,16 @@ export default function BanerFlagiAp({ poczatkowa }: { poczatkowa: string }) {
           <p className="text-lg font-extrabold uppercase tracking-wide md:text-xl">
             {opis.znaczenie}
           </p>
-          <p className="text-sm text-white/85">
-            Sygnał komisji regatowej: flaga {opis.nazwa}.
-            {opis.ton === 'ok'
-              ? ' Regaty idą zgodnie z harmonogramem.'
-              : ' Kolejny podamy, gdy tylko zapadnie decyzja.'}
-          </p>
+          {/* Przy pomarańczowej sam nagłówek wystarcza — na telefonie drugi
+              wiersz spychał Strefę Kibica poniżej krawędzi ekranu. Flagi
+              wstrzymujące zostawiamy z dopiskiem, bo tam kibic czeka na
+              informację, co dalej. */}
+          {opis.ton !== 'ok' && (
+            <p className="text-sm text-white/85">
+              Sygnał komisji regatowej: flaga {opis.nazwa}. Kolejny podamy, gdy tylko zapadnie
+              decyzja.
+            </p>
+          )}
         </div>
       </div>
     </section>

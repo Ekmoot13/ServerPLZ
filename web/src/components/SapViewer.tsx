@@ -1,18 +1,19 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 /**
  * Mapa wyścigu z SAP (widok RaceBoard) osadzona w ramce.
  *
  * Adres RaceBoard wskazuje KONKRETNY wyścig — bez `raceName` SAP odmawia. Gdy
  * redaktor zostawi pole adresu puste, składamy adres sami i włączamy `sledz`:
- * komponent dopytuje, który wyścig jest teraz aktualny, i proponuje przejście
- * na niego.
+ * komponent pilnuje, który wyścig jest teraz aktualny, i sam się na niego
+ * przestawia.
  *
- * Celowo nie przełączamy mapy sami. Kibic może właśnie odtwarzać zakończony
- * przebieg albo przewijać oś czasu — podmiana ramki pod ręką skasowałaby mu to
- * bez ostrzeżenia. Pokazujemy więc pasek „trwa nowy wyścig" i zostawiamy
- * decyzję jemu.
+ * Przełączamy bez pytania, bo strona ma chodzić także na ekranie w klubie,
+ * gdzie nikt nie dotyka myszki. Cena jest taka, że komuś, kto akurat przewijał
+ * oś czasu zakończonego przebiegu, ramka przeładuje się pod ręką — dlatego
+ * mówimy o tym wprost plakietką nad mapą. Kto chce zostać przy jednym wyścigu,
+ * ma od tego pole adresu w panelu: wpisany adres wyłącza całą automatykę.
  */
 export default function SapViewer({
   src,
@@ -21,16 +22,21 @@ export default function SapViewer({
 }: {
   src: string
   fill?: boolean
-  /** Czy pytać SAP o kolejne wyścigi i proponować przejście na nie. */
+  /** Czy pytać SAP o kolejne wyścigi i przestawiać się na nie. */
   sledz?: boolean
 }) {
   const [adres, setAdres] = useState(src)
-  const [nowy, setNowy] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [przelaczono, setPrzelaczono] = useState(false)
+  // Interwał ma nie wstawać od nowa po każdej zmianie adresu.
+  const biezacy = useRef(src)
+  // Adres przestawiamy dopiero, gdy SAP poda go dwa razy z rzędu — patrz niżej.
+  const kandydat = useRef<{ adres: string; razy: number }>({ adres: '', razy: 0 })
 
   useEffect(() => {
     if (!sledz) return
     let przerwane = false
+    let znikniecie: ReturnType<typeof setTimeout> | undefined
 
     const sprawdz = async () => {
       if (document.visibilityState !== 'visible') return
@@ -39,7 +45,30 @@ export default function SapViewer({
         if (!r.ok) return
         const d = await r.json()
         const a = typeof d?.adresMapy === 'string' ? d.adresMapy : null
-        if (!przerwane && a && a !== adres) setNowy(a)
+        // Pusta odpowiedź SAP-a zostawia mapę tam, gdzie była — zamiast mrugać.
+        if (przerwane || !a) return
+        if (a === biezacy.current) {
+          kandydat.current = { adres: '', razy: 0 }
+          return
+        }
+
+        // SAP potrafi na chwilę podać niepełny leaderboard i wtedy „bieżącym"
+        // wyścigiem staje się poprzedni. Bez tego warunku mapa przeładowywałaby
+        // się tam i z powrotem co dwadzieścia sekund — na ekranie w klubie
+        // nikt by tego nie wyłączył. Żądamy więc dwóch zgodnych odpowiedzi.
+        kandydat.current =
+          kandydat.current.adres === a
+            ? { adres: a, razy: kandydat.current.razy + 1 }
+            : { adres: a, razy: 1 }
+        if (kandydat.current.razy < 2) return
+
+        kandydat.current = { adres: '', razy: 0 }
+        biezacy.current = a
+        setLoading(true)
+        setAdres(a)
+        setPrzelaczono(true)
+        clearTimeout(znikniecie)
+        znikniecie = setTimeout(() => setPrzelaczono(false), 8000)
       } catch {
         // Cisza — mapa dalej pokazuje to, co pokazywała.
       }
@@ -50,16 +79,10 @@ export default function SapViewer({
     return () => {
       przerwane = true
       clearInterval(id)
+      clearTimeout(znikniecie)
       document.removeEventListener('visibilitychange', sprawdz)
     }
-  }, [sledz, adres])
-
-  const przejdz = () => {
-    if (!nowy) return
-    setLoading(true)
-    setAdres(nowy)
-    setNowy(null)
-  }
+  }, [sledz])
 
   return (
     <div
@@ -74,14 +97,13 @@ export default function SapViewer({
         </div>
       )}
 
-      {nowy && (
-        <button
-          type="button"
-          onClick={przejdz}
-          className="absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full bg-brand-red px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-red-600"
+      {przelaczono && !loading && (
+        <p
+          role="status"
+          className="pointer-events-none absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full bg-brand-red px-4 py-2 text-sm font-bold text-white shadow-lg"
         >
-          Trwa nowy wyścig — pokaż
-        </button>
+          Przełączono na nowy wyścig
+        </p>
       )}
 
       <iframe

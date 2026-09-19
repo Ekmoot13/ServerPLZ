@@ -133,8 +133,12 @@ export default async function RegatowaStrefaKibicaPage() {
   // a przy jednej sekcji w prawej kolumnie zajmuje ona całą wysokość.
   const prawaIle = (pokazTransmisje ? 1 : 0) + (pokazWyniki ? 1 : 0)
   const pokazDashboard = pokazMape || prawaIle > 0
-  const gridCols = pokazMape && prawaIle > 0 ? 'lg:grid-cols-[1.8fr_1fr]' : 'lg:grid-cols-1'
   const prawaRows = prawaIle === 2 ? 'lg:grid-rows-2' : 'lg:grid-rows-1'
+
+  // Na razie wszystko idzie jedno pod drugim: mapa, transmisja, tabela — jedną
+  // kolumną szerokości sekcji informacyjnej niżej. Żeby wrócić do mapy obok
+  // transmisji i wyników, wystarczy ustawić `pionowo` na false.
+  const pionowo = true
 
   // Bez mapy dashboard staje się jedną wąską kolumną: najpierw transmisja,
   // pod nią tabela, obie tej samej szerokości co sekcja informacyjna niżej.
@@ -142,9 +146,13 @@ export default async function RegatowaStrefaKibicaPage() {
   // się linii reszty strony. Nie narzucamy wtedy wysokości — zagnieżdżony pasek
   // przewijania w środku strony jest gorszy niż dłuższa strona.
   const bezMapy = !pokazMape
-  const wysokoscDashboardu = bezMapy ? '' : 'lg:h-[80vh]'
-  const szerokoscDashboardu = bezMapy ? 'max-w-5xl' : 'max-w-[1600px]'
-  const prawaUklad = bezMapy ? '' : `lg:h-full ${prawaRows}`
+  // Jedna kolumna: bez mapy albo na życzenie. Nie narzucamy wtedy wysokości —
+  // zagnieżdżony pasek przewijania w środku strony jest gorszy niż dłuższa strona.
+  const waski = bezMapy || pionowo
+  const gridCols = pokazMape && prawaIle > 0 && !pionowo ? 'lg:grid-cols-[1.8fr_1fr]' : 'lg:grid-cols-1'
+  const wysokoscDashboardu = waski ? '' : 'lg:h-[80vh]'
+  const szerokoscDashboardu = waski ? 'max-w-5xl' : 'max-w-[1600px]'
+  const prawaUklad = waski ? '' : `lg:h-full ${prawaRows}`
 
   // Odtwarzacz ma aspect-video (wysokość liczona z szerokości), więc w układzie
   // o stałej wysokości rozpycha wiersz. Tam, gdzie wysokość jest swobodna,
@@ -172,7 +180,7 @@ export default async function RegatowaStrefaKibicaPage() {
             <div className={`grid gap-4 ${wysokoscDashboardu} ${gridCols}`}>
               {/* LEWA — MAPA SAP */}
               {pokazMape && (
-                <div className="flex min-h-[360px] flex-col lg:h-full">
+                <div className={`flex flex-col lg:h-full ${waski ? 'min-h-[460px]' : 'min-h-[360px]'}`}>
                   <div className="mb-2 flex items-center gap-2">
                     <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Mapa wyścigu — pozycje łódek na żywo</h2>
                     {mapaLive && <LiveBadge />}
@@ -197,7 +205,7 @@ export default async function RegatowaStrefaKibicaPage() {
                 <div className={`grid min-w-0 gap-4 ${prawaUklad}`}>
                   {/* TRANSMISJA */}
                   {pokazTransmisje && (
-                    <div className={`flex min-w-0 flex-col ${bezMapy ? '' : 'min-h-[240px] overflow-hidden'}`}>
+                    <div className={`flex min-w-0 flex-col ${waski ? '' : 'min-h-[240px] overflow-hidden'}`}>
                       <div className="mb-2 flex items-center gap-2">
                         <h2 className="text-sm font-bold uppercase tracking-wide text-white/85">Transmisja na żywo</h2>
                         {streamLive && <LiveBadge />}
@@ -214,7 +222,7 @@ export default async function RegatowaStrefaKibicaPage() {
                   {pokazWyniki && (
                     <div
                       className={`flex min-w-0 flex-col ${
-                        bezMapy ? '' : 'min-h-[240px] overflow-hidden'
+                        waski ? '' : 'min-h-[240px] overflow-hidden'
                       }`}
                     >
                       <div className="mb-2 flex items-center gap-2">
@@ -224,7 +232,7 @@ export default async function RegatowaStrefaKibicaPage() {
                       </div>
                       <div
                         className={`min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 ${
-                          bezMapy ? '' : 'min-h-0 flex-1 overflow-auto'
+                          waski ? '' : 'min-h-0 flex-1 overflow-auto'
                         }`}
                       >
                         {leaderboardName ? (
