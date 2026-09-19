@@ -42,6 +42,13 @@ export default function SiatkaFlag({
       <div className="grid grid-cols-2 gap-3">
         {FLAGI.map((f) => {
           const aktywna = flaga === f.kod
+          // Pomarańczowa to sygnał „płyniemy" — czerwone podświetlenie kłóciłoby
+          // się z treścią, więc zaznaczamy ją zielenią.
+          const ok = f.ton === 'ok'
+          const ramka = ok
+            ? 'border-emerald-600 bg-emerald-50 shadow-lg shadow-emerald-100'
+            : 'border-red-600 bg-red-50 shadow-lg shadow-red-100'
+          const napis = ok ? 'text-emerald-700' : 'text-red-700'
           return (
             <button
               key={f.kod}
@@ -49,18 +56,22 @@ export default function SiatkaFlag({
               onClick={() => klik(f.kod)}
               aria-pressed={aktywna}
               className={`flex flex-col items-center gap-3 rounded-2xl border-4 px-3 py-5 text-center transition active:scale-[0.98] ${
-                aktywna
-                  ? 'border-red-600 bg-red-50 shadow-lg shadow-red-100'
-                  : 'border-slate-200 bg-white'
+                aktywna ? ramka : 'border-slate-200 bg-white'
               }`}
             >
-              <Flaga
-                kod={f.kod}
-                className={`h-16 w-auto transition ${aktywna ? '' : 'opacity-30 grayscale'}`}
-              />
+              {/* Sygnały złożone są dwa razy wyższe — wspólna ramka trzyma kafle
+                  w jednej linii, zamiast rozpychać rząd. */}
+              <span className="flex h-20 items-center">
+                <Flaga
+                  kod={f.kod}
+                  className={`w-auto transition ${
+                    f.kod === 'APA' || f.kod === 'APH' ? 'h-20' : 'h-12'
+                  } ${aktywna ? '' : 'opacity-30 grayscale'}`}
+                />
+              </span>
               <span
                 className={`text-base font-extrabold uppercase leading-tight tracking-wide ${
-                  aktywna ? 'text-red-700' : 'text-slate-500'
+                  aktywna ? napis : 'text-slate-500'
                 }`}
               >
                 {f.nazwa}

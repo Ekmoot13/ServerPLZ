@@ -7,7 +7,7 @@ import React from 'react'
  * przez całą szerokość strony. Kształt ma znaczenie tak samo jak barwy: AP
  * i pierwsza zastępcza to proporce, N to flaga prostokątna, A ma jaskółczy ogon.
  */
-export type KodFlagi = 'AP' | 'N' | 'PZ' | 'APA'
+export type KodFlagi = 'POM' | 'AP' | 'APA' | 'APH' | 'N' | 'PZ'
 
 export type OpisFlagi = {
   kod: KodFlagi
@@ -15,13 +15,21 @@ export type OpisFlagi = {
   nazwa: string
   /** Co oznacza dla żeglarzy i kibiców. */
   znaczenie: string
+  /**
+   * Wydźwięk sygnału. Pomarańczowa mówi „płyniemy", reszta wstrzymuje regaty —
+   * baner nie może krzyczeć na czerwono, że wszystko jest w porządku.
+   */
+  ton: 'ok' | 'wstrzymanie'
 }
 
+/** Kolejność jak w panelu: dwie kolumny, trzy rzędy. */
 export const FLAGI: OpisFlagi[] = [
-  { kod: 'AP', nazwa: 'AP', znaczenie: 'Wyścigi odłożone' },
-  { kod: 'N', nazwa: 'N', znaczenie: 'Wyścigi przerwane' },
-  { kod: 'PZ', nazwa: 'Pierwsza zastępcza', znaczenie: 'Falstart generalny' },
-  { kod: 'APA', nazwa: 'AP nad A', znaczenie: 'Koniec wyścigów w dniu dzisiejszym' },
+  { kod: 'POM', nazwa: 'Pomarańczowa', znaczenie: 'Wyścigi trwają zgodnie z planem', ton: 'ok' },
+  { kod: 'AP', nazwa: 'AP', znaczenie: 'Wyścigi odroczone', ton: 'wstrzymanie' },
+  { kod: 'APA', nazwa: 'AP nad A', znaczenie: 'Koniec wyścigów w dniu dzisiejszym', ton: 'wstrzymanie' },
+  { kod: 'APH', nazwa: 'AP nad H', znaczenie: 'Powrót na ląd — czekamy na brzegu', ton: 'wstrzymanie' },
+  { kod: 'N', nazwa: 'N', znaczenie: 'Wyścigi przerwane', ton: 'wstrzymanie' },
+  { kod: 'PZ', nazwa: 'Pierwsza zastępcza', znaczenie: 'Falstart generalny', ton: 'wstrzymanie' },
 ]
 
 export function opisFlagi(kod: string | null | undefined): OpisFlagi | null {
@@ -32,6 +40,7 @@ const CZERWONY = '#d21034'
 const NIEBIESKI = '#0d4ea8'
 const ZOLTY = '#ffd400'
 const GRANAT = '#000f8c'
+const POMARANCZ = '#e2660c'
 const OBRYS = 'rgba(0,0,0,0.25)'
 
 /** Proporzec AP — pionowe pasy czerwono-białe, zwężający się ku końcowi. */
@@ -76,6 +85,27 @@ function A({ y = 0, h = 60 }: { y?: number; h?: number }) {
         stroke={OBRYS}
         strokeWidth="1"
       />
+    </>
+  )
+}
+
+/** Flaga H — pionowo podzielona: biała przy drzewcu, czerwona od strony wolnej. */
+function H({ y = 0, h = 60 }: { y?: number; h?: number }) {
+  return (
+    <>
+      <rect x="0" y={y} width="50" height={h} fill="#fff" />
+      <rect x="50" y={y} width="50" height={h} fill={CZERWONY} />
+      <rect x="0" y={y} width="100" height={h} fill="none" stroke={OBRYS} strokeWidth="1" />
+    </>
+  )
+}
+
+/** Pomarańczowa — jednolita, bez znaków. */
+function Pomaranczowa() {
+  return (
+    <>
+      <rect x="0" y="0" width="100" height="60" fill={POMARANCZ} />
+      <rect x="0" y="0" width="100" height="60" fill="none" stroke={OBRYS} strokeWidth="1" />
     </>
   )
 }
@@ -125,12 +155,12 @@ export default function Flaga({ kod, className = '' }: { kod: KodFlagi; classNam
   const opis = opisFlagi(kod)
   const etykieta = opis ? `Flaga ${opis.nazwa} — ${opis.znaczenie}` : 'Flaga sygnałowa'
 
-  // AP nad A to jeden sygnał złożony z dwóch flag — rysujemy je jedna pod drugą.
-  if (kod === 'APA') {
+  // Sygnały złożone — dwie flagi jedna pod drugą, tak jak na maszcie.
+  if (kod === 'APA' || kod === 'APH') {
     return (
       <svg viewBox="0 0 100 130" className={className} role="img" aria-label={etykieta}>
         <Ap y={0} h={60} />
-        <A y={70} h={60} />
+        {kod === 'APA' ? <A y={70} h={60} /> : <H y={70} h={60} />}
       </svg>
     )
   }
@@ -140,6 +170,7 @@ export default function Flaga({ kod, className = '' }: { kod: KodFlagi; classNam
       {kod === 'AP' && <Ap />}
       {kod === 'N' && <N />}
       {kod === 'PZ' && <PierwszaZastepcza />}
+      {kod === 'POM' && <Pomaranczowa />}
     </svg>
   )
 }
