@@ -6,7 +6,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table'
 import Image from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
-import { uploadMedia } from '../../actions'
+import { uploadMedia, wgrajObrazZAdresu } from '../../actions'
 
 /**
  * Edytor treści wpisu — obsługa zbliżona do edytora tekstu: formatowanie,
@@ -30,6 +30,10 @@ import { uploadMedia } from '../../actions'
 // zwykłą podmianą w HTML-u.
 function przygotujDoEdytora(html: string): string {
   if (!html) return ''
+  // Ciało komponentu klienckiego wykonuje się też na serwerze, przy generowaniu
+  // pierwszego HTML-a. DOMParsera tam nie ma, a edytor i tak powstaje dopiero
+  // w przeglądarce (immediatelyRender: false) — zwracamy treść bez zmian.
+  if (typeof window === 'undefined') return html
   const dok = new DOMParser().parseFromString(`<div id="k">${html}</div>`, 'text/html')
   for (const img of Array.from(dok.querySelectorAll('a > img'))) {
     const a = img.parentElement as HTMLAnchorElement
@@ -93,6 +97,55 @@ const Odnosnik = Link.extend({
     return ['a', atrybuty, 0]
   },
 })
+
+// --- Wklejanie z innych edytorów --------------------------------------------
+/**
+ * Word i Google Docs wklejają treść obwieszoną własnym krojem, stopniem pisma,
+ * kolorami i marginesami. Większość tego odpada sama — nasz schemat nie zna
+ * takich znaczników — ale kilka rzeczy trzeba domknąć ręcznie, żeby wklejka
+ * wyglądała jak reszta serwisu, a nie jak kawałek cudzego dokumentu.
+ *
+ * Zostaje to, co niesie znaczenie: pogrubienie, kursywa, odnośniki, listy,
+ * tabele, wyrównanie akapitu i zdjęcia. Znika sama oprawa.
+ */
+function normalizujWklejke(html: string): string {
+  if (!html || typeof window === 'undefined') return html
+  const dok = new DOMParser().parseFromString(`<div id="k">${html}</div>`, 'text/html')
+  const korzen = dok.getElementById('k')
+  if (!korzen) return html
+
+  // Nagłówek pierwszego stopnia jest w artykule zarezerwowany dla tytułu wpisu,
+  // więc wklejone <h1> schodzi o stopień niżej zamiast spłaszczyć się do akapitu.
+  for (const h1 of Array.from(korzen.querySelectorAll('h1'))) {
+    const h2 = dok.createElement('h2')
+    h2.innerHTML = h1.innerHTML
+    const wyrownanie = (h1 as HTMLElement).style.textAlign
+    if (wyrownanie) h2.style.textAlign = wyrownanie
+    h1.replaceWith(h2)
+  }
+
+  for (const el of Array.from(korzen.querySelectorAll<HTMLElement>('[style]'))) {
+    // Z całej oprawy zostawiamy wyłącznie wyrównanie akapitu.
+    const wyrownanie = el.style.textAlign
+    el.removeAttribute('style')
+    if (wyrownanie && el.tagName !== 'IMG') el.style.textAlign = wyrownanie
+  }
+
+  for (const img of Array.from(korzen.querySelectorAll('img'))) {
+    const src = img.getAttribute('src') || ''
+    // Word podaje zdjęcia jako ścieżki na dysku autora — przeglądarka nie ma do
+    // nich dostępu, więc zostałby pusty placeholder. Lepiej usunąć.
+    if (!src || src.startsWith('file:')) {
+      img.remove()
+      continue
+    }
+    // Rozmiary z cudzego dokumentu; u nas o szerokości decyduje układ strony.
+    img.removeAttribute('width')
+    img.removeAttribute('height')
+  }
+
+  return korzen.innerHTML
+}
 
 // --- Pomocnicze -------------------------------------------------------------
 
@@ -410,6 +463,92 @@ export default function RichEditor({
   // Pierwsze wywołanie onUpdate przychodzi od samego wczytania treści —
   // nie może liczyć się jako zmiana redaktora.
   const gotowy = useRef(false)
+  const edytorRef = useRef<Editor | null>(null)
+  const [doPobrania, setDoPobrania] = useState(0)
+  // Adresy, których nie udało się pobrać — żeby każde kolejne wklejenie nie
+  // próbowało ich od nowa i nie powtarzało tego samego komunikatu.
+  const odpuszczone = useRef(new Set<string>())
+
+  /**
+   * Zdjęcia z wklejki przenosimy do naszych Mediów.
+   *
+   * Google Docs podaje je pod adresami, które po jakimś czasie przestają
+   * działać — zostawione w artykule znikają czytelnikom bez śladu. Część
+   * edytorów wkleja je zaszyte w treści (data:), a tego Payload i tak nie
+   * przyjmie. W obu przypadkach kończymy z adresem na naszym serwerze.
+   */
+  const przeniesObrazki = useCallback(async () => {
+    const ed = edytorRef.current
+    if (!ed) return
+
+    const obcy = (src: string) =>
+      src.startsWith('data:image/') ||
+      (/^https?:\/\//i.test(src) && !src.startsWith(window.location.origin))
+
+    // Po każdej podmianie szukamy od nowa: pozycje w dokumencie mogą się
+    // przesunąć, gdy redaktor pisze dalej w trakcie pobierania. Adresy już
+    // obsłużone pomijamy — inaczej jedno zdjęcie, którego nie da się pobrać,
+    // zatrzymywałoby przenoszenie wszystkich kolejnych.
+    const znajdz = (pomin: Set<string>): { pos: number; src: string } | null => {
+      let wynik: { pos: number; src: string } | null = null
+      ed.state.doc.descendants((node, pos) => {
+        if (wynik) return false
+        if (node.type.name !== 'image') return
+        const src = String(node.attrs.src || '')
+        if (obcy(src) && !pomin.has(src)) wynik = { pos, src }
+        return
+      })
+      return wynik
+    }
+
+    const zalatwione = new Set(odpuszczone.current)
+    const nieudane: string[] = []
+    for (let i = 0; i < 40; i++) {
+      const cel = znajdz(zalatwione)
+      if (!cel) break
+      setDoPobrania((n) => n + 1)
+      let nowy: string | null = null
+      let powod = ''
+      try {
+        if (cel.src.startsWith('data:')) {
+          const blob = await (await fetch(cel.src)).blob()
+          const fd = new FormData()
+          const typ = blob.type || 'image/png'
+          fd.append('file', new File([blob], `wklejone-${Date.now()}.${typ.split('/')[1] || 'png'}`, { type: typ }))
+          nowy = (await uploadMedia(fd)).url || null
+          if (!nowy) powod = 'serwer nie zwrócił adresu'
+        } else {
+          const wynik = await wgrajObrazZAdresu(cel.src)
+          nowy = wynik.url || null
+          powod = wynik.blad || ''
+        }
+      } catch (err) {
+        powod = err instanceof Error ? err.message : String(err)
+      }
+      setDoPobrania((n) => Math.max(0, n - 1))
+      zalatwione.add(cel.src)
+      if (!nowy) {
+        odpuszczone.current.add(cel.src)
+        nieudane.push(powod || 'nieznany powód')
+        continue
+      }
+
+      const wezel = ed.state.doc.nodeAt(cel.pos)
+      if (wezel?.type.name === 'image' && wezel.attrs.src === cel.src) {
+        ed.view.dispatch(ed.state.tr.setNodeAttribute(cel.pos, 'src', nowy))
+      }
+    }
+
+    // Cicha porażka byłaby najgorsza: zdjęcie zostaje pod cudzym adresem i po
+    // jakimś czasie znika czytelnikom. Lepiej powiedzieć od razu.
+    if (nieudane.length) {
+      alert(
+        `Nie udało się przenieść ${nieudane.length} zdjęć na nasz serwer (${[...new Set(nieudane)].join('; ')}). ` +
+          'Zostały pod adresem źródłowym i mogą z czasem przestać się wyświetlać. ' +
+          'Najpewniej wstawić je ręcznie przyciskiem „Wstaw zdjęcie”.',
+      )
+    }
+  }, [])
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -431,6 +570,12 @@ export default function RichEditor({
       attributes: {
         class: 'prose max-w-none min-h-[420px] p-4 focus:outline-none',
       },
+      transformPastedHTML: normalizujWklejke,
+      handlePaste: () => {
+        // Zdjęcia podmieniamy dopiero, gdy ProseMirror wstawi wklejkę do dokumentu.
+        setTimeout(() => void przeniesObrazki(), 0)
+        return false // resztę robi domyślna obsługa
+      },
     },
     onUpdate: ({ editor }) => {
       setHtml(editor.getHTML())
@@ -439,7 +584,9 @@ export default function RichEditor({
   })
 
   useEffect(() => {
-    if (editor) gotowy.current = true
+    if (!editor) return
+    edytorRef.current = editor
+    gotowy.current = true
   }, [editor])
 
   return (
@@ -455,7 +602,19 @@ export default function RichEditor({
       `}</style>
 
       <input type="hidden" name={name} value={html} />
-      {editor && <Pasek editor={editor} akcje={akcje} />}
+      {editor && (
+        <Pasek
+          editor={editor}
+          akcje={
+            <>
+              {doPobrania > 0 && (
+                <span className="text-xs text-slate-500">Przenoszę zdjęcia… ({doPobrania})</span>
+              )}
+              {akcje}
+            </>
+          }
+        />
+      )}
       <div className="edytor-tresci">
         <EditorContent editor={editor} />
       </div>

@@ -619,3 +619,70 @@ export async function uploadMedia(formData: FormData): Promise<{ url?: string }>
   })
   return { url: (media as any).url }
 }
+
+/** Górna granica zdjęcia wciąganego z sieci — tyle samo, co przy wgrywaniu z dysku. */
+const MAX_BAJTOW_OBRAZU = 25 * 1024 * 1024
+
+/**
+ * Wciąga zdjęcie spod obcego adresu do naszych Mediów i oddaje nasz własny.
+ *
+ * Potrzebne przy wklejaniu treści z Google Docs: tamtejsze zdjęcia siedzą pod
+ * adresami, które po jakimś czasie przestają działać. Zostawione w artykule
+ * po cichu znikają czytelnikom, dlatego kopiujemy je do siebie od razu.
+ *
+ * Pobieramy po stronie serwera, bo przeglądarka nie sięgnie po cudzy obrazek
+ * przez zasady CORS.
+ */
+export async function wgrajObrazZAdresu(adres: string): Promise<{ url?: string; blad?: string }> {
+  await requireUser()
+
+  let u: URL
+  try {
+    u = new URL(adres)
+  } catch {
+    return { blad: 'Nieprawidłowy adres zdjęcia.' }
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+    return { blad: 'Obsługujemy tylko adresy http i https.' }
+  }
+
+  try {
+    // Bez nagłówków przeglądarki część serwerów (m.in. ligazeglarska.pl)
+    // odpowiada 404 albo 403 — tak samo było przy pobieraniu galerii SmugMug.
+    const res = await fetch(u, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(20000),
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+        'accept-language': 'pl-PL,pl;q=0.9,en;q=0.8',
+      },
+    })
+    if (!res.ok) return { blad: `Serwer zdjęcia odpowiedział ${res.status}.` }
+
+    const typ = res.headers.get('content-type') || ''
+    if (!typ.startsWith('image/')) return { blad: 'Pod tym adresem nie ma obrazka.' }
+
+    const bufor = Buffer.from(await res.arrayBuffer())
+    if (!bufor.length) return { blad: 'Puste zdjęcie.' }
+    if (bufor.length > MAX_BAJTOW_OBRAZU) {
+      return { blad: `Zdjęcie ma ${(bufor.length / 1024 / 1024).toFixed(1)} MB, a maksimum to 25 MB.` }
+    }
+
+    const nazwaZAdresu = decodeURIComponent((u.pathname.split('/').pop() || '').split('?')[0])
+    const rozszerzenie = typ.split('/')[1]?.split(';')[0] || 'jpg'
+    const nazwa = /\.[a-z0-9]{2,5}$/i.test(nazwaZAdresu) ? nazwaZAdresu : `wklejone-${Date.now()}.${rozszerzenie}`
+
+    const payload = await getPayload({ config })
+    const media = await payload.create({
+      collection: 'media',
+      data: { alt: nazwa },
+      file: { data: bufor, mimetype: typ.split(';')[0], name: nazwa, size: bufor.length },
+      overrideAccess: true,
+    })
+    return { url: (media as any).url }
+  } catch (err) {
+    return { blad: err instanceof Error ? err.message : String(err) }
+  }
+}
