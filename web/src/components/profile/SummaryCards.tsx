@@ -2,7 +2,13 @@
 // (short-code: podsumowanie_zawodnika / podsumowanie_klubu)
 import React from 'react'
 
-export type StatCard = { label: string; value: number }
+export type StatCard = { label: string; value: number | string }
+
+// Punkty bywają połówkowe (skrócone regaty liczą się za pół) — po polsku z przecinkiem.
+function fmtWartosc(v: number | string): string {
+  if (typeof v !== 'number') return String(v)
+  return Number.isInteger(v) ? String(v) : v.toFixed(1).replace('.', ',')
+}
 export type StatGroup = { title?: string; cards: StatCard[] }
 
 export default function SummaryCards({ stars = 0, groups }: { stars?: number; groups: StatGroup[] }) {
@@ -28,7 +34,7 @@ export default function SummaryCards({ stars = 0, groups }: { stars?: number; gr
                   c === g.cards[g.cards.length - 1] && g.cards.length % 2 === 1 ? 'col-span-2' : ''
                 }`}
               >
-                <div className="text-2xl font-extrabold leading-tight text-navy">{c.value}</div>
+                <div className="text-2xl font-extrabold leading-tight text-navy">{fmtWartosc(c.value)}</div>
                 <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   {c.label}
                 </div>
