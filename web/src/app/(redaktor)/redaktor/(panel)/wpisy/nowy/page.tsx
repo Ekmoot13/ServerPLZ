@@ -2,7 +2,6 @@ import React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import WpisForm from '../WpisForm'
-import { createWpis } from '../../../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +14,6 @@ export default async function NowyWpisPage() {
     <div>
       <h1 className="mb-6 text-2xl font-bold">Nowy wpis</h1>
       <WpisForm
-        action={createWpis}
         initial={{
           title: '',
           slug: '',

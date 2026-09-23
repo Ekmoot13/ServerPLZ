@@ -68,6 +68,8 @@ export default function NiezapisaneZmiany() {
       if (!el) return
       // pomijamy własne przyciski paska
       if (el.closest('[data-pasek-zmian]')) return
+      // formularze z własnym zapisem (edytor wpisu) pilnują się same
+      if (el.closest('[data-wlasny-zapis]')) return
       if (!el.closest('main')) return
       const tag = el.tagName
       if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') return

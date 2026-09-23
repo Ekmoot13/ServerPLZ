@@ -247,47 +247,59 @@ function odswiezWpis(slug?: string | null) {
   if (slug) revalidatePath(`/posts/${slug}`)
 }
 
-export async function createWpis(formData: FormData) {
-  await requireUser()
-  const payload = await getPayload({ config })
-  const data = wpisData(formData)
-  const hero = await uploadIfPresent(payload, formData, 'heroImage')
-  if (hero !== undefined) data.heroImage = hero
-  const doc = await payload.create({
-    collection: 'posts',
-    data,
-    overrideAccess: true,
-    context: { disableRevalidate: true },
-  })
-  revalidatePath('/newsy')
-  revalidatePath('/')
-  odswiezWpis((doc as any)?.slug)
-  redirect(`/redaktor/wpisy/${(doc as any).id}?ok=${Date.now()}`)
-}
+export type WynikZapisuWpisu = { ok: boolean; id?: string; blad?: string }
 
-export async function updateWpis(formData: FormData) {
+/**
+ * Zapis wpisu bez opuszczania edytora — obsługuje autozapis szkicu i przycisk
+ * „Zapisz" w pasku narzędzi. Nie przekierowuje (autozapis co kilka sekund
+ * przeładowywałby edytor) i zwraca wynik, żeby edytor mógł pokazać
+ * potwierdzenie albo błąd.
+ *
+ * Bez `id` zakłada nowy wpis i oddaje jego identyfikator — dzięki temu pierwszy
+ * autozapis nowego szkicu tworzy dokument, a kolejne już go nadpisują.
+ */
+export async function zapiszWpis(formData: FormData): Promise<WynikZapisuWpisu> {
   await requireUser()
   const payload = await getPayload({ config })
-  const id = String(formData.get('id'))
+  const id = String(formData.get('id') || '').trim()
   const data = wpisData(formData)
-  const hero = await uploadIfPresent(payload, formData, 'heroImage')
-  if (hero !== undefined) data.heroImage = hero
-  // Slug sprzed zapisu — gdy redaktor go zmieni, stary adres też trzeba odświeżyć.
-  const poprzedni = await payload
-    .findByID({ collection: 'posts', id, depth: 0, overrideAccess: true })
-    .catch(() => null)
-  const doc = await payload.update({
-    collection: 'posts',
-    id,
-    data,
-    overrideAccess: true,
-    context: { disableRevalidate: true },
-  })
-  revalidatePath('/newsy')
-  revalidatePath('/')
-  odswiezWpis((doc as any)?.slug)
-  odswiezWpis((poprzedni as any)?.slug)
-  redirect(`/redaktor/wpisy/${id}?ok=${Date.now()}`)
+
+  try {
+    const hero = await uploadIfPresent(payload, formData, 'heroImage')
+    if (hero !== undefined) data.heroImage = hero
+
+    if (id) {
+      // Slug sprzed zapisu — gdy redaktor go zmieni, stary adres też trzeba odświeżyć.
+      const poprzedni = await payload
+        .findByID({ collection: 'posts', id, depth: 0, overrideAccess: true })
+        .catch(() => null)
+      const doc = await payload.update({
+        collection: 'posts',
+        id,
+        data,
+        overrideAccess: true,
+        context: { disableRevalidate: true },
+      })
+      revalidatePath('/newsy')
+      revalidatePath('/')
+      odswiezWpis((doc as any)?.slug)
+      odswiezWpis((poprzedni as any)?.slug)
+      return { ok: true, id }
+    }
+
+    const doc = await payload.create({
+      collection: 'posts',
+      data,
+      overrideAccess: true,
+      context: { disableRevalidate: true },
+    })
+    revalidatePath('/newsy')
+    revalidatePath('/')
+    odswiezWpis((doc as any)?.slug)
+    return { ok: true, id: String((doc as any).id) }
+  } catch (err) {
+    return { ok: false, blad: err instanceof Error ? err.message : String(err) }
+  }
 }
 
 /** Kody dostępu do aplikacji z flagą — lista bez wygasłych. */

@@ -3,19 +3,11 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import WpisForm from '../WpisForm'
-import { updateWpis } from '../../../actions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EditWpisPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ ok?: string }>
-}) {
+export default async function EditWpisPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const sp = await searchParams
   const payload = await getPayload({ config })
 
   let doc: any = null
@@ -38,7 +30,6 @@ export default async function EditWpisPage({
     <div>
       <h1 className="mb-6 text-2xl font-bold">Edytuj wpis</h1>
       <WpisForm
-        action={updateWpis}
         id={String(doc.id)}
         initial={{
           title: doc.title || '',
@@ -50,7 +41,6 @@ export default async function EditWpisPage({
           categories: selCats,
         }}
         categories={categories}
-        ok={!!sp?.ok}
       />
     </div>
   )
