@@ -18,33 +18,52 @@ import { uploadMedia } from '../../actions'
 
 // --- Zdjęcie, które może być odnośnikiem -----------------------------------
 // TipTap trzyma obrazek jako blok, a odnośnik jako znacznik tekstu — nie da się
-// więc po prostu zaznaczyć obrazka i nałożyć linku. Dokładamy zamiast tego
-// atrybut `href`, a przy renderowaniu owijamy obrazek w <a>. Dzięki temu HTML
-// wychodzi taki sam jak dotąd i strona artykułu nie wymaga żadnej zmiany.
+// więc po prostu zaznaczyć obrazka i nałożyć linku. Obrazek dostaje zamiast
+// tego własny atrybut `href` i przy renderowaniu owija się w <a>, dzięki czemu
+// HTML wychodzi taki sam jak dotąd i strona artykułu nie wymaga zmian.
+//
+// Wczytywanie idzie okrężnie, przez `data-href` na samym obrazku. Odczyt
+// rodzica w parseHTML nie działa: obrazek jest blokiem, a <a> treścią tekstową,
+// więc parser wyciąga obrazek z odnośnika, a własną wartość atrybutu i tak
+// nadpisuje odczytem z <img>. Efekt był taki, że baner tracił link przy
+// pierwszej edycji wpisu — dlatego adres przenosimy na obrazek wcześniej,
+// zwykłą podmianą w HTML-u.
+function przygotujDoEdytora(html: string): string {
+  if (!html) return ''
+  const dok = new DOMParser().parseFromString(`<div id="k">${html}</div>`, 'text/html')
+  for (const img of Array.from(dok.querySelectorAll('a > img'))) {
+    const a = img.parentElement as HTMLAnchorElement
+    // tylko odnośniki będące wyłącznie opakowaniem obrazka
+    if (a.childElementCount !== 1 || (a.textContent || '').trim()) continue
+    img.setAttribute('data-href', a.getAttribute('href') || '')
+    a.replaceWith(img)
+  }
+  return dok.getElementById('k')?.innerHTML || ''
+}
+
 const Obrazek = Image.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
       href: {
         default: null,
-        parseHTML: (el: HTMLElement) => {
-          const rodzic = el.parentElement
-          return rodzic && rodzic.tagName === 'A' ? rodzic.getAttribute('href') : null
-        },
+        parseHTML: (el: HTMLElement) => el.getAttribute('data-href') || null,
         renderHTML: () => ({}), // href trafia do <a>, nie do <img>
       },
     }
   },
-  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
-    const { href, ...obraz } = HTMLAttributes
-    if (!href) return ['img', obraz]
-    const zewnetrzny = /^https?:\/\//i.test(String(href))
+  // Adres czytamy z węzła, a nie z HTMLAttributes: renderHTML atrybutu zwraca
+  // pusty obiekt (żeby href nie wylądował na <img>), więc do HTMLAttributes
+  // w ogóle nie trafia.
+  renderHTML({ node, HTMLAttributes }: { node: any; HTMLAttributes: Record<string, any> }) {
+    const href = node?.attrs?.href
+    if (!href) return ['img', HTMLAttributes]
     const a: Record<string, string> = { href: String(href) }
-    if (zewnetrzny) {
+    if (czyWychodzi(String(href))) {
       a.target = '_blank'
       a.rel = 'noopener noreferrer'
     }
-    return ['a', a, ['img', obraz]]
+    return ['a', a, ['img', HTMLAttributes]]
   },
 })
 
@@ -407,7 +426,7 @@ export default function RichEditor({
       TableHeader,
       TableCell,
     ],
-    content: initialHtml || '',
+    content: przygotujDoEdytora(initialHtml || ''),
     editorProps: {
       attributes: {
         class: 'prose max-w-none min-h-[420px] p-4 focus:outline-none',
