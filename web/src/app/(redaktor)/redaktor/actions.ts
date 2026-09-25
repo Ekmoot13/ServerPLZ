@@ -6,6 +6,15 @@ import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/redaktorAuth'
 import { aktywne, nowyKod, WAZNOSC_GODZIN, type KodFlagi } from '@/lib/kodyFlagi'
 import { przelaczFlageWBazie } from '@/lib/flaga'
+import { ligaQuery } from '@/lib/liga'
+import {
+  klubyWszystkie,
+  klubyZawodnika,
+  opisRegat,
+  rundyKlubu,
+  rundyZawodnikaWKlubie,
+  type Pozycja as PozycjaListy,
+} from '@/lib/sprostowania'
 
 function toId(v: string): number | string {
   const n = Number(v)
@@ -685,4 +694,134 @@ export async function wgrajObrazZAdresu(adres: string): Promise<{ url?: string; 
   } catch (err) {
     return { blad: err instanceof Error ? err.message : String(err) }
   }
+}
+
+// --- Sprostowania wyników ---------------------------------------------------
+
+/**
+ * Nanosi zaakceptowany wniosek na dane ligowe.
+ *
+ * UWAGA: tabele liga_* są czyszczone przy każdym imporcie wyników
+ * (db/load_all.sql robi TRUNCATE), więc po aktualizacji danych trzeba puścić
+ * scripts/zastosuj-sprostowania.ts, żeby nanieść je ponownie. Sam wniosek
+ * siedzi w Payloadzie, którego import nie rusza — nic nie ginie.
+ */
+export async function nanieSprostowanie(w: {
+  typ: string
+  zawodnikId: number
+  wariantId: number
+  regatyId: number
+}): Promise<void> {
+  if (w.typ === 'usuniecie') {
+    await ligaQuery(
+      `DELETE FROM liga_wystepowanie_w_regatach
+        WHERE id_zawodnika = $1 AND id_wariantu_klubu = $2 AND id_regat = $3`,
+      [w.zawodnikId, w.wariantId, w.regatyId],
+    )
+    return
+  }
+  // Identyfikator występowania jest nadawany automatycznie, więc go nie podajemy.
+  // Gdyby wpis już istniał (np. wniosek nanoszony po raz drugi), nie duplikujemy.
+  await ligaQuery(
+    `INSERT INTO liga_wystepowanie_w_regatach (id_zawodnika, id_regat, id_wariantu_klubu)
+     SELECT $1, $3, $2
+      WHERE NOT EXISTS (
+        SELECT 1 FROM liga_wystepowanie_w_regatach
+         WHERE id_zawodnika = $1 AND id_wariantu_klubu = $2 AND id_regat = $3
+      )`,
+    [w.zawodnikId, w.wariantId, w.regatyId],
+  )
+}
+
+/** Odświeża strony, na których widać występy zawodnika. */
+function odswiezPoSprostowaniu() {
+  revalidatePath('/zawodnicy')
+  revalidatePath('/kluby')
+  revalidatePath('/wyniki')
+  revalidatePath('/redaktor/sprostowania')
+}
+
+export async function rozpatrzSprostowanie(
+  id: string,
+  decyzja: 'zaakceptowany' | 'odrzucony',
+  notatka?: string,
+): Promise<{ ok: boolean; blad?: string }> {
+  await requireUser()
+  const payload = await getPayload({ config })
+  try {
+    const doc: any = await payload.findByID({ collection: 'sprostowania' as any, id, overrideAccess: true })
+    if (!doc) return { ok: false, blad: 'Nie ma takiego wniosku.' }
+
+    if (decyzja === 'zaakceptowany') {
+      await nanieSprostowanie({
+        typ: doc.typ,
+        zawodnikId: Number(doc.zawodnikId),
+        wariantId: Number(doc.wariantId),
+        regatyId: Number(doc.regatyId),
+      })
+    }
+
+    await payload.update({
+      collection: 'sprostowania' as any,
+      id,
+      data: {
+        status: decyzja,
+        zastosowane: decyzja === 'zaakceptowany',
+        ...(notatka !== undefined ? { notatka } : {}),
+      } as any,
+      overrideAccess: true,
+    })
+    odswiezPoSprostowaniu()
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, blad: err instanceof Error ? err.message : String(err) }
+  }
+}
+
+/** Poprawienie wniosku przed akceptacją — redaktor może zmienić klub lub rundę. */
+export async function zapiszSprostowanie(
+  id: string,
+  dane: { typ?: string; wariantId?: number; regatyId?: number; notatka?: string },
+): Promise<{ ok: boolean; blad?: string }> {
+  await requireUser()
+  const payload = await getPayload({ config })
+  try {
+    const zmiany: any = {}
+    if (dane.typ) zmiany.typ = dane.typ
+    if (dane.notatka !== undefined) zmiany.notatka = dane.notatka
+    if (dane.wariantId) {
+      zmiany.wariantId = dane.wariantId
+      zmiany.klubNazwa = (
+        await ligaQuery<{ nazwa: string }>(
+          `SELECT nazwa FROM liga_klubwariant WHERE id_wariantu_klubu = $1`,
+          [dane.wariantId],
+        )
+      )[0]?.nazwa
+    }
+    if (dane.regatyId) {
+      zmiany.regatyId = dane.regatyId
+      zmiany.regatyOpis = await opisRegat(dane.regatyId)
+    }
+    await payload.update({ collection: 'sprostowania' as any, id, data: zmiany, overrideAccess: true })
+    revalidatePath('/redaktor/sprostowania')
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, blad: err instanceof Error ? err.message : String(err) }
+  }
+}
+
+/** Listy do edycji wniosku w panelu. */
+export async function listyDoSprostowania(
+  typ: string,
+  zawodnikId: number,
+  wariantId?: number,
+): Promise<{ kluby: PozycjaListy[]; rundy: PozycjaListy[] }> {
+  await requireUser()
+  const kluby = typ === 'usuniecie' ? await klubyZawodnika(zawodnikId) : await klubyWszystkie()
+  const rundy = !wariantId
+    ? []
+    : typ === 'usuniecie'
+      ? await rundyZawodnikaWKlubie(zawodnikId, wariantId)
+      : await rundyKlubu(wariantId, zawodnikId)
+  return { kluby, rundy }
 }

@@ -73,6 +73,7 @@ export interface Config {
     zawodnicy: Zawodnicy;
     kalendarz: Kalendarz;
     sponsorzy: Sponsorzy;
+    sprostowania: Sprostowania;
     team: Team;
     transmisje: Transmisje;
     media: Media;
@@ -101,6 +102,7 @@ export interface Config {
     zawodnicy: ZawodnicySelect<false> | ZawodnicySelect<true>;
     kalendarz: KalendarzSelect<false> | KalendarzSelect<true>;
     sponsorzy: SponsorzySelect<false> | SponsorzySelect<true>;
+    sprostowania: SprostowaniaSelect<false> | SprostowaniaSelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     transmisje: TransmisjeSelect<false> | TransmisjeSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -958,6 +960,36 @@ export interface Sponsorzy {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sprostowania".
+ */
+export interface Sprostowania {
+  id: number;
+  typ: 'dodanie' | 'usuniecie';
+  status: 'nowy' | 'zaakceptowany' | 'odrzucony';
+  zawodnikId: number;
+  zawodnikNazwa?: string | null;
+  wariantId: number;
+  klubNazwa?: string | null;
+  regatyId: number;
+  regatyOpis?: string | null;
+  /**
+   * Podawany dobrowolnie — pozwala dopytać, zanim wniosek trafi do bazy.
+   */
+  kontakt?: string | null;
+  uwagi?: string | null;
+  /**
+   * Widoczna tylko w panelu — np. powód odrzucenia.
+   */
+  notatka?: string | null;
+  /**
+   * Import danych czyści tabele liga_*, więc po każdej aktualizacji wyników trzeba ponownie uruchomić scripts/zastosuj-sprostowania.ts. Ten znacznik mówi, czy zmiana siedzi w bazie.
+   */
+  zastosowane?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team".
  */
 export interface Team {
@@ -1200,6 +1232,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sponsorzy';
         value: number | Sponsorzy;
+      } | null)
+    | ({
+        relationTo: 'sprostowania';
+        value: number | Sprostowania;
       } | null)
     | ({
         relationTo: 'team';
@@ -1526,6 +1562,26 @@ export interface SponsorzySelect<T extends boolean = true> {
   link?: T;
   kategoria?: T;
   kolejnosc?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sprostowania_select".
+ */
+export interface SprostowaniaSelect<T extends boolean = true> {
+  typ?: T;
+  status?: T;
+  zawodnikId?: T;
+  zawodnikNazwa?: T;
+  wariantId?: T;
+  klubNazwa?: T;
+  regatyId?: T;
+  regatyOpis?: T;
+  kontakt?: T;
+  uwagi?: T;
+  notatka?: T;
+  zastosowane?: T;
   updatedAt?: T;
   createdAt?: T;
 }
