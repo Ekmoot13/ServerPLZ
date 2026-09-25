@@ -238,6 +238,7 @@ export async function getSezonyZawodnika(idZawodnika: number): Promise<SezonRow[
 
   // a) liczebność floty na rundę
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const boatsPerRound = new Map<number, number>()
   for (const row of raw) {
     boatsPerRound.set(row.id_regat, (boatsPerRound.get(row.id_regat) || 0) + 1)
@@ -249,7 +250,7 @@ export async function getSezonyZawodnika(idZawodnika: number): Promise<SezonRow[
     seasonMaxFleet.set(sk, Math.max(seasonMaxFleet.get(sk) || 0, boatsPerRound.get(row.id_regat) || 0))
   }
   // c) sumowanie punktów per sezon per skrót klubu
-  type Team = { punkty: number; miejsca: number[]; nazwa: string; skrot: string }
+  type Team = { punkty: number; miejsca: number[]; nazwa: string; skrot: string; ostatniaRunda?: number | null }
   const sezony = new Map<string, Map<string, Team>>()
   for (const row of raw) {
     const sk = `${row.rok}|${row.liga_poziom}`
@@ -264,6 +265,7 @@ export async function getSezonyZawodnika(idZawodnika: number): Promise<SezonRow[
     const team = bucket.get(teamKey)!
     team.punkty += pkt
     team.miejsca.push(m)
+    if (ostatnie.get(sk) === Number(row.id_regat)) team.ostatniaRunda = m
     team.nazwa = row.klubnazwa
   }
 
@@ -273,14 +275,7 @@ export async function getSezonyZawodnika(idZawodnika: number): Promise<SezonRow[
     const teamsArr = [...bucket.values()]
     teamsArr.sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
-      // tie-break: więcej lepszych miejsc
-      const cA = countPlaces(a.miejsca)
-      const cB = countPlaces(b.miejsca)
-      for (let i = 1; i <= 50; i++) {
-        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(Number(sk.split('|')[0]), a, b)
     })
     const [rokStr, liga] = sk.split('|')
     const playerSkroty = playerSeasonSkroty.get(sk) || []
@@ -300,6 +295,57 @@ function countPlaces(miejsca: number[]): Map<number, number> {
   const m = new Map<number, number>()
   for (const x of miejsca) m.set(x, (m.get(x) || 0) + 1)
   return m
+}
+
+// --- Remisy w klasyfikacji sezonu -------------------------------------------
+// Od sezonu 2026 przy równej liczbie punktów decyduje miejsce w OSTATNIEJ
+// rundzie — wyżej stoi załoga, która była w niej lepsza. Wcześniej (i nadal
+// jako zapasowe kryterium, gdy żadna z załóg ostatniej rundy nie płynęła)
+// liczyła się liczba lepszych miejsc w całym sezonie.
+const ROK_REMIS_OSTATNIA_RUNDA = 2026
+
+export type DoRemisu = { miejsca: number[]; ostatniaRunda?: number | null }
+
+/**
+ * Zwraca ostatnią rundę każdego sezonu: klucz „rok|poziom" → id_regat.
+ * Ostatnia to ta o najwyższym numerze rundy; przy braku numeru bierzemy
+ * najwyższe id, żeby wynik był powtarzalny.
+ */
+export async function ostatnieRundySezonow(): Promise<Map<string, number>> {
+  const rows = await ligaQuery<{ rok: number; poziom: string; id_regat: number }>(
+    `SELECT rok, liga_poziom AS poziom, id_regat FROM (
+       SELECT r.rok, r.liga_poziom, r.id_regat,
+              row_number() OVER (
+                PARTITION BY r.rok, r.liga_poziom
+                ORDER BY r.numer_rundy DESC NULLS LAST, r.id_regat DESC
+              ) AS lp
+         FROM liga_regaty r
+        WHERE r.rok IS NOT NULL AND r.liga_poziom IS NOT NULL
+     ) x WHERE lp = 1`,
+  )
+  const m = new Map<string, number>()
+  for (const r of rows) m.set(`${r.rok}|${r.poziom}`, Number(r.id_regat))
+  return m
+}
+
+/** Porównanie dwóch załóg o tej samej liczbie punktów. Ujemne = `a` wyżej. */
+function porownajRemis(rok: number, a: DoRemisu, b: DoRemisu): number {
+  if (rok >= ROK_REMIS_OSTATNIA_RUNDA) {
+    const oa = a.ostatniaRunda
+    const ob = b.ostatniaRunda
+    // Niższy numer miejsca = lepiej. Załoga, która ostatniej rundy nie płynęła,
+    // przegrywa z tą, która ma w niej wynik.
+    if (oa != null && ob != null && oa !== ob) return oa - ob
+    if (oa != null && ob == null) return -1
+    if (oa == null && ob != null) return 1
+  }
+  const cA = countPlaces(a.miejsca)
+  const cB = countPlaces(b.miejsca)
+  for (let i = 1; i <= 50; i++) {
+    const d = (cB.get(i) || 0) - (cA.get(i) || 0)
+    if (d !== 0) return d
+  }
+  return 0
 }
 
 // ============================ KLUBY ============================
@@ -618,6 +664,7 @@ export async function getSezonyKlubu(
   const isTarget = zakresTarget(idZestawienia, zakres)
 
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const boatsPerRound = new Map<number, number>()
   for (const row of raw) boatsPerRound.set(row.id_regat, (boatsPerRound.get(row.id_regat) || 0) + 1)
 
@@ -627,7 +674,7 @@ export async function getSezonyKlubu(
     seasonMaxFleet.set(sk, Math.max(seasonMaxFleet.get(sk) || 0, boatsPerRound.get(row.id_regat) || 0))
   }
 
-  type Team = { punkty: number; miejsca: number[]; nazwa: string; isTarget: boolean }
+  type Team = { punkty: number; miejsca: number[]; nazwa: string; isTarget: boolean; ostatniaRunda?: number | null }
   const sezony = new Map<string, Map<string, Team>>()
   for (const row of raw) {
     const sk = `${row.rok}|${row.liga_poziom}`
@@ -643,6 +690,7 @@ export async function getSezonyKlubu(
     const pkt = punktyRegat(seasonMaxFleet.get(sk) || 0, m, Number(row.rok), polowki.has(Number(row.id_regat)))
     team.punkty += pkt
     team.miejsca.push(m)
+    if (ostatnie.get(sk) === Number(row.id_regat)) team.ostatniaRunda = m
     team.nazwa = row.klubnazwa
   }
 
@@ -651,13 +699,7 @@ export async function getSezonyKlubu(
     const teamsArr = [...bucket.values()]
     teamsArr.sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
-      const cA = countPlaces(a.miejsca)
-      const cB = countPlaces(b.miejsca)
-      for (let i = 1; i <= 30; i++) {
-        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(Number(sk.split('|')[0]), a, b)
     })
     const [rokStr, liga] = sk.split('|')
     let rank = 1
@@ -829,6 +871,7 @@ export async function getPodsumowanieZawodnika(idZawodnika: number): Promise<Pod
   if (all.length === 0) return { starty: 0, wygraneRegaty: 0, punkty: 0, mistrzostwa: 0 }
 
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const boatsPerRound = new Map<number, number>()
   for (const row of all) boatsPerRound.set(row.id_regat, (boatsPerRound.get(row.id_regat) || 0) + 1)
   const seasonMaxFleet = new Map<string, number>()
@@ -837,7 +880,7 @@ export async function getPodsumowanieZawodnika(idZawodnika: number): Promise<Pod
     seasonMaxFleet.set(sk, Math.max(seasonMaxFleet.get(sk) || 0, boatsPerRound.get(row.id_regat) || 0))
   }
 
-  type RankTeam = { punkty: number; miejsca: number[]; skrot: string }
+  type RankTeam = { punkty: number; miejsca: number[]; skrot: string; ostatniaRunda?: number | null }
   const ranking = new Map<string, Map<number, RankTeam>>() // sk -> (wid -> team)
   let starty = 0,
     wygraneRegaty = 0,
@@ -853,6 +896,7 @@ export async function getPodsumowanieZawodnika(idZawodnika: number): Promise<Pod
     const t = rmap.get(row.wid)!
     t.punkty += pkt
     t.miejsca.push(m)
+    if (ostatnie.get(sk) === Number(row.id_regat)) t.ostatniaRunda = m
 
     const part = participation.get(sk)
     if (part && part.get(row.id_regat) === row.skrot) {
@@ -869,13 +913,7 @@ export async function getPodsumowanieZawodnika(idZawodnika: number): Promise<Pod
     if (liga !== 'Ekstraklasa') continue
     const teams = [...rmap.values()].sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
-      const cA = countPlaces(a.miejsca)
-      const cB = countPlaces(b.miejsca)
-      for (let i = 1; i <= 50; i++) {
-        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(Number(sk.split('|')[0]), a, b)
     })
     const winner = teams[0]
     const part = participation.get(sk)
@@ -1042,6 +1080,7 @@ export async function getPodsumowanieKlubu(
   const isTarget = zakresTarget(idZestawienia, zakres)
 
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const boatsPerRound = new Map<number, number>()
   for (const row of all) boatsPerRound.set(row.id_regat, (boatsPerRound.get(row.id_regat) || 0) + 1)
   const seasonMaxFleet = new Map<string, number>()
@@ -1050,7 +1089,7 @@ export async function getPodsumowanieKlubu(
     seasonMaxFleet.set(sk, Math.max(seasonMaxFleet.get(sk) || 0, boatsPerRound.get(row.id_regat) || 0))
   }
 
-  type Team = { punkty: number; miejsca: number[]; isTarget: boolean }
+  type Team = { punkty: number; miejsca: number[]; isTarget: boolean; ostatniaRunda?: number | null }
   const sezony = new Map<string, Map<string, Team>>()
   let starty = 0,
     wygraneRegaty = 0,
@@ -1076,6 +1115,7 @@ export async function getPodsumowanieKlubu(
     const pkt = punktyRegat(seasonMaxFleet.get(sk) || 0, m, Number(row.rok), polowki.has(Number(row.id_regat)))
     t.punkty += pkt
     t.miejsca.push(m)
+    if (ostatnie.get(sk) === Number(row.id_regat)) t.ostatniaRunda = m
   }
 
   let mistrzostwa = 0,
@@ -1085,13 +1125,7 @@ export async function getPodsumowanieKlubu(
     const [, liga] = sk.split('|')
     const teams = [...bucket.values()].sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
-      const cA = countPlaces(a.miejsca)
-      const cB = countPlaces(b.miejsca)
-      for (let i = 1; i <= 50; i++) {
-        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(Number(sk.split('|')[0]), a, b)
     })
     if (teams[0]?.isTarget && liga === 'Ekstraklasa') mistrzostwa++
     for (const t of teams) {
@@ -1159,6 +1193,7 @@ export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
   )
 
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const groups: AktualnaGrupa[] = []
   for (const s of seasons) {
     const rows = await ligaQuery<{
@@ -1189,6 +1224,7 @@ export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
     type T = {
       punkty: number
       miejsca: number[]
+      ostatniaRunda?: number | null
       nazwa: string
       rodzicid: number
       rodzicnazwa: string
@@ -1212,19 +1248,14 @@ export async function getAktualneKluby(): Promise<AktualnaGrupa[]> {
       const pkt = punktyRegat(maxFleet, m, Number(s.rok), polowki.has(Number(row.id_regat)))
       t.punkty += pkt
       t.miejsca.push(m)
+      if (ostatnie.get(`${s.rok}|${s.liga_poziom}`) === Number(row.id_regat)) t.ostatniaRunda = m
       t.nazwa = row.zespol || t.nazwa
       t.warianty.add(Number(row.wariantid))
     }
 
     const ranked = [...byTeam.values()].sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
-      const cA = countPlaces(a.miejsca)
-      const cB = countPlaces(b.miejsca)
-      for (let i = 1; i <= 50; i++) {
-        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(Number(s.rok), a, b)
     })
 
     groups.push({
@@ -1275,6 +1306,7 @@ export async function getLataWynikow(): Promise<number[]> {
 
 export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const rows = await ligaQuery<{
     id_regat: number
     nazwa: string
@@ -1337,7 +1369,7 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
     const maxFleet = Math.max(0, ...boats.values())
     const teams = new Map<
       string,
-      { punkty: number; miejsca: number[]; klub: string; klubmatka: string }
+      { punkty: number; miejsca: number[]; klub: string; klubmatka: string; ostatniaRunda?: number | null }
     >()
     for (const row of lrows) {
       const key = row.skrot
@@ -1348,18 +1380,13 @@ export async function getWynikiSezonu(rok: number): Promise<WynikiLiga[]> {
       const pkt = punktyRegat(maxFleet, m, rok, polowki.has(Number(row.id_regat)))
       t.punkty += pkt
       t.miejsca.push(m)
+      if (ostatnie.get(`${rok}|${poziom}`) === Number(row.id_regat)) t.ostatniaRunda = m
       t.klub = row.klub || ''
       t.klubmatka = row.klubmatka || ''
     }
     const ranked = [...teams.values()].sort((a, b) => {
       if (a.punkty !== b.punkty) return b.punkty - a.punkty
-      const cA = countPlaces(a.miejsca)
-      const cB = countPlaces(b.miejsca)
-      for (let i = 1; i <= 50; i++) {
-        const d = (cB.get(i) || 0) - (cA.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(rok, a, b)
     })
     const overall: WynikiOverall[] = ranked.map((t, i) => ({
       miejsce: i + 1,
@@ -1435,6 +1462,7 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
     [rok],
   )
   const polowki = await getRegatyZaPolowePunktow()
+  const ostatnie = await ostatnieRundySezonow()
   const races = await ligaQuery<{
     id_regat: number
     liga_poziom: string
@@ -1488,7 +1516,7 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
     for (const s of srows) roundFleet.set(s.id_regat, (roundFleet.get(s.id_regat) || 0) + 1)
 
     // ranking High Point z punktami per runda
-    type Agg = { skrot: string; klub: string; klubmatka: string; perRound: Record<number, number>; miejsca: number[]; suma: number }
+    type Agg = { skrot: string; klub: string; klubmatka: string; perRound: Record<number, number>; miejsca: number[]; suma: number; ostatniaRunda?: number | null }
     const agg = new Map<string, Agg>()
     for (const s of srows) {
       if (!agg.has(s.skrot))
@@ -1506,18 +1534,13 @@ export async function getWynikiPelne(rok: number): Promise<WLigaPelna[]> {
       const pkt = punktyRegat(fleet, m, rok, polowki.has(Number(s.id_regat)))
       a.perRound[s.id_regat] = pkt
       a.miejsca.push(m)
+      if (ostatnie.get(`${rok}|${poziom}`) === Number(s.id_regat)) a.ostatniaRunda = m
       a.suma += pkt
       a.klub = s.klub || a.klub
     }
     const ranked = [...agg.values()].sort((x, y) => {
       if (x.suma !== y.suma) return y.suma - x.suma
-      const cX = countPlaces(x.miejsca)
-      const cY = countPlaces(y.miejsca)
-      for (let i = 1; i <= 50; i++) {
-        const d = (cY.get(i) || 0) - (cX.get(i) || 0)
-        if (d !== 0) return d
-      }
-      return 0
+      return porownajRemis(rok, x, y)
     })
     const ranking: WRankRow[] = ranked.map((a, i) => {
       // Formatujemy dopiero tutaj — sortowanie wyżej musiało działać na liczbach.
