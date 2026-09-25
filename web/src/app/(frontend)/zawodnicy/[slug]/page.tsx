@@ -1,6 +1,7 @@
 // Profil zawodnika — elementy jak na ligazeglarska.pl (logika z short-code'ów).
 // Dane z tabel liga_* (PostgreSQL). Zdjęcia: placeholder (dodamy później).
 import React from 'react'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
   findZawodnikBySlug,
@@ -187,6 +188,25 @@ export default async function ZawodnikPage({ params }: { params: Promise<{ slug:
               </Sekcja>
 
               <ProfileCards title="Obecny klub" items={obecnyItems} />
+
+              {/* Archiwum startów bywa niepełne, zwłaszcza sprzed lat — zawodnik
+                  patrzący na własny profil jest pierwszą osobą, która to zauważy. */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                <h2 className="text-lg font-extrabold uppercase tracking-wide text-navy">
+                  Czegoś tu brakuje?
+                </h2>
+                <div className="mb-3 mt-2 h-1 w-12 rounded-full bg-brand-red" />
+                <p className="text-slate-600">
+                  Nasze archiwum startów, zwłaszcza to sprzed lat, bywa niepełne. Jeśli brakuje tu rundy,
+                  w której żeglowałeś — albo jest taka, w której Cię nie było — zgłoś to nam.
+                </p>
+                <Link
+                  href="/sprostowanie-wynikow"
+                  className="mt-4 inline-block rounded-[10px] border-2 border-navy px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-navy transition hover:bg-navy hover:text-white"
+                >
+                  Zgłoś sprostowanie
+                </Link>
+              </div>
             </div>
           </div>
         </div>
